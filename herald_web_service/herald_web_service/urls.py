@@ -3,10 +3,12 @@ from django.conf.urls import patterns, include, url
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
 # admin.autodiscover()
+from curriculum_service.views import parserHtml
 
 urlpatterns = patterns('',
     # Examples:
     url(r'^herald_web_service/$', 'herald_web_service.views.home', name='home'),
+    url(r'^herald_web_service/curriculum/([\w]+)/([\w-]+)/$', parserHtml),
     # url(r'^herald_web_service/', include('herald_web_service.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
