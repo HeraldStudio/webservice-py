@@ -4,7 +4,7 @@ webservice-py
 herald web service by python.
 
 
----
+===
 
 ### Curriculum Service
 
@@ -12,7 +12,7 @@ herald web service by python.
 
 **请求：**
 
-```http
+```
 GET http://herald.seu.edu.cn/herald_web_service/curriculum/一卡通号或学号/学期/
 
 eg: http://herald.seu.edu.cn/herald_web_service/curriculum/213110561/13-14-2/
@@ -21,7 +21,7 @@ eg: http://herald.seu.edu.cn/herald_web_service/curriculum/213110561/13-14-2/
 **响应：**
 
 
-```jsion
+```json
 [
   [
     [
@@ -38,7 +38,7 @@ eg: http://herald.seu.edu.cn/herald_web_service/curriculum/213110561/13-14-2/
     ]
   ],
   [
-    [ //上午课程
+    [//上午课程
       [	//周一上午课程
         [
           "周一上午课程1",
