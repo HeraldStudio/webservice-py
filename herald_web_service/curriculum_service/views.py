@@ -6,6 +6,16 @@ import urllib
 import json
 import re
 
+def getCurriculumTerm(request):
+    uFile = urllib.urlopen('http://xk.urp.seu.edu.cn/jw_service/service/lookCurriculum.action')
+    html = uFile.read().decode('utf-8')
+
+    soup = BeautifulSoup(html)
+    terms = soup.findAll('option')
+    termList = [term.text for term in terms]
+
+    return HttpResponse(json.dumps(termList, ensure_ascii=False), mimetype='application/json')
+
 
 def parserHtml(request, cardNumber, academicYear):
     params = urllib.urlencode(
