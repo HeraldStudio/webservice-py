@@ -3,6 +3,9 @@ Curriculum Service
 
 获取课表相关信息
 
+
+### 1. 学期列表
+
 **请求：**
 
 ```
@@ -14,7 +17,9 @@ GET http://herald.seu.edu.cn/herald_web_service/curriculum/term/
 ```
 ["13-14-1", "13-14-2", "12-13-3", "12-13-2", "12-13-1"]
 ```
+===
 
+### 2.课表
 
 **请求：**
 
