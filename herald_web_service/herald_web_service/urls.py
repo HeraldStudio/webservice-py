@@ -28,6 +28,11 @@ urlpatterns += patterns('tyx_service.views',
 )
 
 
+#jwc
+urlpatterns += patterns('jwcInfor.views',
+  url(r'^herald_web_service/jwc/$', 'getJwcInfor'),
+)
+
 
 # library
 urlpatterns += patterns('seulibrary.views',
