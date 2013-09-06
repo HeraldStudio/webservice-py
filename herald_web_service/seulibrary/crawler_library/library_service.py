@@ -1,5 +1,5 @@
 
-# -*- utf-8 -*-
+# -*- encoding:utf-8 -*-
 
 '''Provide kinds of operations about library.
 
@@ -39,8 +39,9 @@ class LibraryService:
 
     def get_search_result_list(self,strText,page=1, strSearchType='title', doctype='ALL', match_flag='forward', \
                                displaypg='20', sort='desc', orderby='CATA_DATE', showmode='list', dept='ALL'):
+
         html = self.crawler.get_search_result_page(strText,page, strSearchType, doctype, match_flag, \
-                               displaypg, sort, orderby, showmode, dept)
+                            displaypg, sort, orderby, showmode, dept)
         books = page_parser.get_search_book_list(html)
         book_list = []
         for book in books:

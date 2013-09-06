@@ -17,7 +17,7 @@ class ParseException(Exception):
         self.__error_info = "Error occured when parse page:" + page_name
 
     def __str__(self):
-        return "ParseException: "+self.__value
+        return "ParseException: "+self.__error_info
 
     def __repr__(self):
         return "ParseException('"+self.__page_name+"')"

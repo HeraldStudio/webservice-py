@@ -137,7 +137,7 @@ class PageCrawler:
             urllib2.URLError,
         '''
         ori_url = "http://www.lib.seu.edu.cn:8080/opac/openlink.php?"
-        params = {"strSearchType":strSearchType,  'strText':strText, 'page':str(page),
+        params = {"strSearchType":strSearchType,  'strText':strText.encode('utf-8'), 'page':str(page),
                   'doctype':doctype, 'match_flag':match_flag, 'displaypg':displaypg,
                   'sort':sort, 'orderby':orderby, 'showmode':showmode, 'dept':dept}
         params_str = urllib.urlencode(params)

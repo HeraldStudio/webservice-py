@@ -1,4 +1,5 @@
 # Django settings for herald_web_service project.
+# -*- encoding: utf-8 -*-
 
 import os.path
 
@@ -6,6 +7,7 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 CURRENT_DIR = os.path.dirname(__file__)
+ROOT_DIR = os.path.join(CURRENT_DIR, "../")
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -99,7 +101,7 @@ TEMPLATE_LOADERS = (
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
@@ -139,17 +141,46 @@ INSTALLED_APPS = (
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+	'formatters': {
+        'standard': {
+            'format': '%(asctime)s [%(threadName)s:%(thread)d] [%(name)s:%(lineno)d] [%(levelname)s]- %(message)s'
+        },
+        'library-format': {
+            'format': '%(levelname)-6s %(pathname)6s %(funcName)s line:%(lineno)-6s %(asctime)s  %(message)s'
+        },
+    },
     'filters': {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse'
-        }
+        },
     },
     'handlers': {
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
-        }
+        },
+		'default': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(ROOT_DIR+'/logs/','all.log'), #或者直接写路径：'c:\logs\all.log',
+            'maxBytes': 1024*1024*5, # 5 MB
+            'backupCount': 5,
+            'formatter':'standard',
+        },
+        'console':{
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard'
+        },
+		'library-handler': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(ROOT_DIR+'/logs/','library.log'), #或者直接写路径：'c:\logs\all.log',
+            'maxBytes': 1024*1024*5, # 5 MB
+            'backupCount': 5,
+            'formatter':'library-format',
+        },
     },
     'loggers': {
         'django.request': {
@@ -157,5 +188,11 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+		'library_service':{
+			'handlers': ['console', 'library-handler'],
+			'level': 'ERROR',
+			'propagate': True,
+		},
+
     }
 }

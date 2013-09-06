@@ -1,0 +1,21 @@
+2013-09-06 12:08:10,812 [Thread-6:6088] [library_service:38] [ERROR]- "Key 'page' not found in <QueryDict: {u'strText': [u'python']}>"
+2013-09-06 12:08:12,631 [Thread-7:6856] [library_service:38] [ERROR]- "Key 'page' not found in <QueryDict: {u'strText': [u'python']}>"
+ERROR  G:\Workspace-Py\Herald\herald_web_service\seulibrary\views.py search_book line:38     2013-09-06 12:16:35,500  "Key 'page' not found in <QueryDict: {u'strText': [u'python']}>"
+ERROR  G:\Workspace-Py\Herald\herald_web_service\seulibrary\views.py search_book line:38     2013-09-06 12:17:03,947  "Key 'page' not found in <QueryDict: {u'strText': [u'python']}>"
+ERROR  G:\Workspace-Py\Herald\herald_web_service\seulibrary\views.py renew_book line:100    2013-09-06 13:28:34,135  ParseException: Error occured when parse page:renew result page
+ERROR  G:\Workspace-Py\Herald\herald_web_service\seulibrary\views.py renew_book line:100    2013-09-06 13:30:28,539  ParseException: Error occured when parse page:renew result page
+ERROR  G:\Workspace-Py\Herald\herald_web_service\seulibrary\crawler_library\library_service.py get_search_result_list line:50     2013-09-06 14:49:56,296  'ascii' codec can't encode characters in position 0-3: ordinal not in range(128)
+ERROR  G:\Workspace-Py\Herald\herald_web_service\seulibrary\views.py search_book line:48     2013-09-06 14:49:56,296  local variable 'books' referenced before assignment
+ERROR  G:\Workspace-Py\Herald\herald_web_service\seulibrary\crawler_library\library_service.py get_search_result_list line:50     2013-09-06 14:51:18,048  'ascii' codec can't encode characters in position 0-3: ordinal not in range(128)
+ERROR  G:\Workspace-Py\Herald\herald_web_service\seulibrary\views.py search_book line:48     2013-09-06 14:51:18,049  local variable 'html' referenced before assignment
+ERROR  G:\Workspace-Py\Herald\herald_web_service\seulibrary\crawler_library\library_service.py get_search_result_list line:50     2013-09-06 14:51:18,872  'ascii' codec can't encode characters in position 0-3: ordinal not in range(128)
+ERROR  G:\Workspace-Py\Herald\herald_web_service\seulibrary\views.py search_book line:48     2013-09-06 14:51:18,875  local variable 'html' referenced before assignment
+ERROR  G:\Workspace-Py\Herald\herald_web_service\seulibrary\crawler_library\library_service.py get_search_result_list line:50     2013-09-06 14:51:19,387  'ascii' codec can't encode characters in position 0-3: ordinal not in range(128)
+ERROR  G:\Workspace-Py\Herald\herald_web_service\seulibrary\views.py search_book line:48     2013-09-06 14:51:19,388  local variable 'html' referenced before assignment
+ERROR  G:\Workspace-Py\Herald\herald_web_service\seulibrary\crawler_library\library_service.py get_search_result_list line:50     2013-09-06 14:52:43,888  'ascii' codec can't encode characters in position 0-3: ordinal not in range(128)
+ERROR  G:\Workspace-Py\Herald\herald_web_service\seulibrary\views.py search_book line:48     2013-09-06 14:52:43,891  local variable 'html' referenced before assignment
+ERROR  G:\Workspace-Py\Herald\herald_web_service\seulibrary\crawler_library\library_service.py get_search_result_list line:50     2013-09-06 14:52:45,346  'ascii' codec can't encode characters in position 0-3: ordinal not in range(128)
+ERROR  G:\Workspace-Py\Herald\herald_web_service\seulibrary\views.py search_book line:48     2013-09-06 14:52:45,348  local variable 'html' referenced before assignment
+ERROR  G:\Workspace-Py\Herald\herald_web_service\seulibrary\crawler_library\library_service.py get_search_result_list line:50     2013-09-06 14:52:47,147  'ascii' codec can't encode characters in position 0-3: ordinal not in range(128)
+ERROR  G:\Workspace-Py\Herald\herald_web_service\seulibrary\views.py search_book line:48     2013-09-06 14:52:47,148  local variable 'html' referenced before assignment
+ERROR  G:\Workspace-Py\Herald\herald_web_service\seulibrary\crawler_library\library_service.py get_search_result_list line:50     2013-09-06 14:53:39,390  local variable 'books' referenced before assignment

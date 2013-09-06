@@ -33,18 +33,20 @@ APPOINTED_URL = "http://www.lib.seu.edu.cn:8080/reader/preg.php"
 TIME_OUT = 10
 
 DEVELOP_MODE = False
+LOCAL_TEST_MODE = False
 
 
 import logging
-import sys
-logger = logging.getLogger("running.log")
-formatter = logging.Formatter('%(levelname)-6s %(pathname)6s %(funcName)s line:%(lineno)-6s %(asctime)s  %(message)s', '%a, %d %b %Y %H:%M:%S',)
-if DEVELOP_MODE:
-    handler = logging.StreamHandler(sys.stderr)
-else:
-    handler = logging.FileHandler(os.path.join(os.getcwd(),"./seulibrary/running.log"))
-handler.setFormatter(formatter)
-logger.addHandler(handler)
+# import sys
+# logger = logging.getLogger("running.log")
+# formatter = logging.Formatter('%(levelname)-6s %(pathname)6s %(funcName)s line:%(lineno)-6s %(asctime)s  %(message)s', '%a, %d %b %Y %H:%M:%S',)
+# if DEVELOP_MODE:
+#     handler = logging.StreamHandler(sys.stderr)
+# else:
+#     handler = logging.FileHandler(os.path.join(os.getcwd(),"running.log"))#"./seulibrary/running.log"))
+# handler.setFormatter(formatter)
+# logger.addHandler(handler)
+logger = logging.getLogger("library_service")
 
 
 

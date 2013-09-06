@@ -121,7 +121,7 @@ def get_search_book_list(html):
             book_list.append(book_item)
             print book_item
         return book_list
-    except:
+    except Exception,e:
         raise custom_exception.ParseException("search-result page")
 
 def get_search_book_detail(html):
@@ -323,14 +323,19 @@ def is_renew_success(html):
     try:
         soup = BeautifulSoup.BeautifulSoup(html)
         all_string = extract_string(soup.font)
-        print all_string
-        index = all_string.find(u"不得续借")
+        import config
+        config.logger.error(type(all_string))
+        config.logger.error(all_string)
+        # index = all_string.encode('utf-8').find("不得续借")
+        index = all_string.find(u'不得续借')
         if index == -1:
             return True
         else:
             return False
     except Exception,e:
-        raise custom_exception.ParseException('renew result page')
+        config.logger.error(e)
+        # raise custom_exception.ParseException('renew result page')
+        raise
     # print refuse
 
 def is_appoint_success(html):

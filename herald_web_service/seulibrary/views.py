@@ -1,4 +1,5 @@
 # Create your views here.
+# -*- encoding:utf-8 -*-
 
 import json
 
@@ -18,7 +19,11 @@ ACOUNT_ERROR = "username or password error"
 
 def instruction(request):
     #return HttpResponse("test")
-    return render_to_response("instruction.html",{'base_url':'http://121.248.63.105/herald_web_service/library'})
+    if config.LOCAL_TEST_MODE:
+        base_url = "http://localhost:8000/herald_web_service/library"
+    else:
+        base_url = "http://121.248.63.105/herald_web_service/library"
+    return render_to_response("instruction.html",{'base_url':base_url})
 
 
 def search_book(request):
@@ -94,7 +99,7 @@ def renew_book(request):
         return HttpResponse(ACOUNT_ERROR)
     except Exception,e:
         config.logger.error(e)
-        return HttpResponse(SERVER_ERROR)
+        return HttpResponse(SERVER_ERROR+str(e))
     
     return HttpResponse(json.dumps({"result":result}))
 
@@ -115,7 +120,7 @@ def check_appointed_books(request):
         config.logger.error(e)
         return HttpResponse(SERVER_ERROR)
     
-    return HttpResponse(json.dumps(books))
+    return HttpResponse(json.dumps(books,ensure_ascii=False))
 
 def cancel_appoint(request):
     try:
@@ -129,7 +134,7 @@ def cancel_appoint(request):
     
     service = library_service.LibraryService(username, passwd)
     try:
-        result = service.cancel_appoint_book(call_no, marc_no, loca)
+        result = service.cancel_appoint(call_no, marc_no, loca)
     except custom_exception.LoginException:
         return HttpResponse(ACOUNT_ERROR)
     except Exception,e:
