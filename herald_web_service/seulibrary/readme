@@ -1,0 +1,33 @@
+
+
+1,搜索：
+get
+参数：书名：strText， 页码：page
+
+2,书的详情
+get
+某种编号：marc_no
+
+3,查看借书
+用户名 username
+密码 password
+
+4,续借
+用户名 username
+密码  password
+某种编号 barcode(2612220)
+
+5,查看预约的书：
+用户名 username
+密码 password
+
+6,取消预约的书
+用户名 username
+密码 password
+索书号 call_no
+marc_no
+馆藏地 loca
+("I712.45/488", "0000519601", "607")
+
+
+
