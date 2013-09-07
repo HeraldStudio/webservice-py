@@ -64,6 +64,9 @@ def get_render_book_list(html):
         soup = BeautifulSoup.BeautifulSoup(html)
         book_table = soup.findAll('table',{ 'width' : "100%", 'border' : "0", 'cellpadding' : "5",
                                             'cellspacing' : "1", 'bgcolor' : "#CCCCCC"})
+        if not book_table:
+            return []
+            
         def __get_book_tags(tag_list):
             __remove_navi_string(tag_list)
             tag_list.remove(tag_list[0])
