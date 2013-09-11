@@ -16,13 +16,15 @@ REQUEST_POST_ERROR = "request post data error"
 SERVER_ERROR = "server error"
 ACOUNT_ERROR = "username or password error"
 
+ROOT_URL = "http://herald.seu.edu.cn/herald_web_service/"
+
 
 def instruction(request):
     #return HttpResponse("test")
     if config.LOCAL_TEST_MODE:
         base_url = "http://localhost:8000/herald_web_service/library"
     else:
-        base_url = "http://herald.seu.edu.cn/herald_web_service/library"
+        base_url = ROOT_URL + "library"
     return render_to_response("instruction.html",{'base_url':base_url})
 
 
