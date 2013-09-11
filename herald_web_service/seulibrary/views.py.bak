@@ -22,7 +22,7 @@ def instruction(request):
     if config.LOCAL_TEST_MODE:
         base_url = "http://localhost:8000/herald_web_service/library"
     else:
-        base_url = "http://herald.seu.edu.cn/herald_web_service/library"
+        base_url = "http://121.248.63.105/herald_web_service/library"
     return render_to_response("instruction.html",{'base_url':base_url})
 
 
