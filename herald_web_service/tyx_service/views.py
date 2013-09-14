@@ -50,6 +50,9 @@ def test(request):
     return render_to_response("test.html",{"base_url":BASE_URL})
 
 def get_ren_tyb__broadcast(request):
-    states = page_crawler.get_ren_tyb()
-    today_list = page_parser.get_today_broadcast(states)
-    return HttpResponse(json.dumps(today_list, ensure_ascii=False))
+    try:
+        states = page_crawler.get_ren_tyb()
+        today_list = page_parser.get_today_broadcast(states)
+        return HttpResponse(json.dumps(today_list, ensure_ascii=False))
+    except:
+        return HttpResponse(ServerError)
