@@ -1,37 +1,55 @@
 # -*- coding: utf-8 -*-
-import cookielib
-import urllib
-import urllib2
-from BeautifulSoup import BeautifulSoup
-from django.http import HttpResponse
 
+import json
+
+from django.http import HttpResponse
+from django.shortcuts import render_to_response
+
+import page_crawler
+import page_parser
+import custom_exception
+
+LOCAL_TEST_MODE = False
+
+
+ServerError = "Server Error"
+AccountError = "Account Error"
+RequestError = "Request Error"
 
 def tyxPc(request, cardNumber, password):
-    loginUrl = 'http://58.192.114.239:8088/sms2/studentLogin.do'
-    data = {
-        'xh': str(cardNumber),
-        'mm': str(password),
-        'method': 'login'
-    }
-    loadUrl = 'http://58.192.114.239:8088/sms2/studentQueryListChecks.do?method=listChecks'
-    cookieJar = cookielib.CookieJar()
-    cookieHandler = urllib2.HTTPCookieProcessor(cookieJar)
-    opener = urllib2.build_opener(cookieHandler)
-    urllib2.install_opener(opener)
+    try:
+        html = page_crawler.crawl_paocao_page(cardNumber, password)
+        pc_number = page_parser.get_paocao_number(html)
+        return HttpResponse(pc_number)
+    except custom_exception.AccountError, e:
+        return HttpResponse(AccountError)
+    except Exception, e:
+        return HttpResponse(ServerError)
 
-    reqLogin = urllib2.Request(loginUrl, urllib.urlencode(data))
-    resLogin = urllib2.urlopen(reqLogin)
-    html = resLogin.read()
-    if len(html) == 524:
-        reqLoad = urllib2.Request(loadUrl)
-        resLoad = urllib2.urlopen(reqLoad)
-        html = resLoad.read()
-        soup = BeautifulSoup(html)
-        table = soup.findAll("td", {"class": "Content_Form"})
+def check_account(reqeust):
+    try:
         try:
-            pc = table[-1].text
+            card_number = reqeust.POST['card_number']
+            passwd = reqeust.POST['password']
         except:
-            pc = '出错了'
-    else:
-        pc = '一卡通/密码不正确'
-    return HttpResponse(pc)
+            return HttpResponse(RequestError)
+        state = page_crawler.login(card_number, passwd)
+        if state.get_login_status():
+            return HttpResponse("True")
+        else:
+            return HttpResponse("False")
+    except Exception,e:
+        return HttpResponse(ServerError)
+
+if LOCAL_TEST_MODE:
+    BASE_URL = "http://127.0.0.1:8000/herald_web_service/"
+else:
+    BASE_URL = "http://herald.seu.edu.cn/herald_web_service/"
+
+def test(request):
+    return render_to_response("test.html",{"base_url":BASE_URL})
+
+def get_ren_tyb__broadcast(request):
+    states = page_crawler.get_ren_tyb()
+    today_list = page_parser.get_today_broadcast(states)
+    return HttpResponse(json.dumps(today_list, ensure_ascii=False))

@@ -25,6 +25,9 @@ urlpatterns += patterns('curriculum_service.views',
 # tyx
 urlpatterns += patterns('tyx_service.views',
   url(r'^herald_web_service/tyx/([\w]+)/([\w]+)/$', 'tyxPc'),
+  url(r'^herald_web_service/tyx/checkAccount/$', 'check_account'),
+  url(r'^herald_web_service/tyx/test/$', 'test'),
+  url(r'^herald_web_service/tyx/tyb_broadcast/$', 'get_ren_tyb__broadcast'),
 )
 
 
