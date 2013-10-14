@@ -28,7 +28,7 @@ def get_paocao_number(html):
     try:
         soup = BeautifulSoup(html)
         table = soup.findAll("td", {"class": "Content_Form"})
-        pc = table[-1].text
+        pc = table[7].text
         return pc
     except:
         raise custom_exception.ParseException("跑操次数页面")

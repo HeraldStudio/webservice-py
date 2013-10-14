@@ -20,13 +20,17 @@ def login(cardNumber, password):
     opener = urllib2.build_opener(cookieHandler)
     urllib2.install_opener(opener)
     reqLogin = urllib2.Request(config.TYX_LOGIN_URL, urllib.urlencode(data))
-    resLogin = urllib2.urlopen(reqLogin)
-    html = resLogin.read()
-    if len(html) == 524:
-        state = page_parser.LoginState(True, opener)
-    else:
-        state = page_parser.LoginState(False, None)
-    return state
+    try:
+        resLogin = urllib2.urlopen(reqLogin, timeout=config.TIME_OUT)
+        html = resLogin.read()
+        if len(html) == 524:
+            state = page_parser.LoginState(True, opener)
+        else:
+            state = page_parser.LoginState(False, None)
+    except:
+        state = "体育系故障，请稍后再试"
+    finally:
+        return state
 
 
 def crawl_paocao_page(cardNumber, password):
@@ -40,6 +44,8 @@ def crawl_paocao_page(cardNumber, password):
         urllib2.URLError:
     '''
     state = login(cardNumber, password)
+    if state == "体育系故障，请稍后再试":
+        return state
     if state.get_login_status():
         urllib2.install_opener(state.get_opener())
         reqLoad = urllib2.Request(config.TYX_PC_URL)

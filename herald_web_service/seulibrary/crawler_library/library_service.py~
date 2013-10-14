@@ -1,5 +1,5 @@
 
-# -*- encoding:utf-8 -*-
+# -*- utf-8 -*-
 
 '''Provide kinds of operations about library.
 
@@ -15,10 +15,6 @@ import page_parser
 class LibraryService:
     def __init__(self, username='', password=''):
         self.crawler = page_crawler.PageCrawler(username, password)
-
-    def check_account(self):
-        state = self.crawler.login()
-        return state.get_status()
 
     def get_render_book_list(self):
         html = self.crawler.get_rendered_book_page()
@@ -43,9 +39,8 @@ class LibraryService:
 
     def get_search_result_list(self,strText,page=1, strSearchType='title', doctype='ALL', match_flag='forward', \
                                displaypg='20', sort='desc', orderby='CATA_DATE', showmode='list', dept='ALL'):
-
         html = self.crawler.get_search_result_page(strText,page, strSearchType, doctype, match_flag, \
-                            displaypg, sort, orderby, showmode, dept)
+                               displaypg, sort, orderby, showmode, dept)
         books = page_parser.get_search_book_list(html)
         book_list = []
         for book in books:
@@ -108,7 +103,7 @@ if __name__ == '__main__':
     # service.get_render_book_list('71111229','213113709')
     # service.get_search_result_list("python")
     # service.get_book_detail('0000664599')
-    print service.appoint_book('I712.45/488', '607', '1')
+    # print service.appoint_book('I712.45/488', '607', '1')
     # print service.renew_book('2612220')
     # print service.get_appoint_book_info('0000519601')#('0000664599')
     # print service.get_appointed_books()

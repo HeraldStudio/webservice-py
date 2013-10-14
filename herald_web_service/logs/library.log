@@ -19,3 +19,17 @@ ERROR  G:\Workspace-Py\Herald\herald_web_service\seulibrary\views.py search_book
 ERROR  G:\Workspace-Py\Herald\herald_web_service\seulibrary\crawler_library\library_service.py get_search_result_list line:50     2013-09-06 14:52:47,147  'ascii' codec can't encode characters in position 0-3: ordinal not in range(128)
 ERROR  G:\Workspace-Py\Herald\herald_web_service\seulibrary\views.py search_book line:48     2013-09-06 14:52:47,148  local variable 'html' referenced before assignment
 ERROR  G:\Workspace-Py\Herald\herald_web_service\seulibrary\crawler_library\library_service.py get_search_result_list line:50     2013-09-06 14:53:39,390  local variable 'books' referenced before assignment
+ERROR  /var/www/django/herald_web_service/seulibrary/views.py check_render_books line:82     2013-09-09 07:22:04,435  ParseException: Error occured when parse page:render-book page
+ERROR  /var/www/django/herald_web_service/seulibrary/views.py check_render_books line:82     2013-09-09 07:22:05,655  ParseException: Error occured when parse page:render-book page
+ERROR  /var/www/django/herald_web_service/seulibrary/views.py check_render_books line:82     2013-09-09 09:07:14,176  ParseException: Error occured when parse page:render-book page
+ERROR  /var/www/django/herald_web_service/seulibrary/views.py check_render_books line:82     2013-09-09 09:07:15,281  ParseException: Error occured when parse page:render-book page
+ERROR  /var/www/django/herald_web_service/seulibrary/views.py check_render_books line:82     2013-09-09 09:07:19,758  ParseException: Error occured when parse page:render-book page
+ERROR  /var/www/django/herald_web_service/seulibrary/views.py check_render_books line:82     2013-09-09 09:07:20,767  ParseException: Error occured when parse page:render-book page
+ERROR  /var/www/django/herald_web_service/seulibrary/views.py check_render_books line:82     2013-09-09 09:07:25,699  ParseException: Error occured when parse page:render-book page
+ERROR  /var/www/django/herald_web_service/seulibrary/views.py check_render_books line:82     2013-09-09 09:07:27,643  ParseException: Error occured when parse page:render-book page
+ERROR  /var/www/django/herald_web_service/seulibrary/views.py check_render_books line:82     2013-09-09 10:05:36,171  ParseException: Error occured when parse page:render-book page
+ERROR  /var/www/django/herald_web_service/seulibrary/views.py check_render_books line:82     2013-09-09 10:05:37,372  ParseException: Error occured when parse page:render-book page
+ERROR  /var/www/django/herald_web_service/seulibrary/views.py search_book line:39     2013-09-21 12:25:16,227  "Key 'page' not found in <QueryDict: {u'strText': [u'python']}>"
+ERROR  /var/www/django/herald_web_service/seulibrary/views.py search_book line:39     2013-09-21 12:25:56,208  "Key 'page' not found in <QueryDict: {u'strText': [u'\\u72fc\\u56fe\\u817e']}>"
+ERROR  /var/www/django/herald_web_service/seulibrary/views.py search_book line:48     2013-09-22 21:02:46,356  <urlopen error timed out>
+ERROR  /var/www/django/herald_web_service/seulibrary/views.py search_book line:39     2013-10-10 14:59:58,606  "Key 'page' not found in <QueryDict: {u'strText': [u'\\u6570\\u5b66\\u5206\\u6790']}>"

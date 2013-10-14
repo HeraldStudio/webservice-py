@@ -2,17 +2,10 @@
 <head>
 </head>
 <body>
-检查账号
-<form method="post" action="{{ base_url }}/check_account/">
-    <input name="username" type="text">
-    <input name="password" type="password">
-    <input type="submit">
-</form>
 搜书
 <form method="get" action="{{ base_url }}/search_book/">
 书名
 <input name="strText" type="text" />
-第几页
 <input name="page" type="text" />
 <input type="submit" />
 </form>
