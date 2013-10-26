@@ -5,10 +5,10 @@
 
 * 正常返回结果使用json格式。
 * 错误响应：
-	* REQUEST_PARAMS_ERROR = "request_params_error"
-	* REQUEST_POST_ERROR = "request_post_data_error"
-	* SERVER_ERROR = "server_error"
-	* ACOUNT_ERROR = "username_or_password_error"
+	* REQUEST_PARAMS_ERROR = "request params error"
+	* REQUEST_POST_ERROR = "request post data error"
+	* SERVER_ERROR = "server error"
+	* ACOUNT_ERROR = "username or password error"
 * 返回结果不做过多解释，可结合图书馆网站进行理解。
 
 ## 1. 图书搜索
