@@ -1,13 +1,12 @@
 # library service
 
-**演示页面请访问:**[http://121.248.63.105/herald_web_service/library/instruction/]('http://121.248.63.105/herald_web_service/library/instruction/')
-
+**演示页面请访问:**[http://121.248.63.105/herald_web_service/library/instruction/]('http://121.248.63.105/herald_web_service/library/instruction/')或者用域名访问.
 **响应结果说明：**
 
 * 正常返回结果使用json格式。
 * 错误响应：
 	* REQUEST_PARAMS_ERROR = "request_params_error"
-	* REQUEST_POST_ERROR = "request_post data_error"
+	* REQUEST_POST_ERROR = "request_post_data_error"
 	* SERVER_ERROR = "server_error"
 	* ACOUNT_ERROR = "username_or_password_error"
 * 返回结果不做过多解释，可结合图书馆网站进行理解。
@@ -246,6 +245,19 @@
     * 错误：`REQUEST_POST_ERROR`、`SERVER_ERROR`、`ACOUNT_ERROR`
 
 * 结果中可用项：无
+ 
+## 9. 账户验证
+* url:`http://121.248.63.105/herald_web_service/library/check_account/`
+* 方法：post
+* 参数：
+    * "username",登陆用户名，必填；
+    * "password",登陆密码，必填；
+* 异常响应:
+    * REQUEST_POST_ERROR, SERVER_ERROR
+* 返回结果：
+    * True:账户正确
+    * False:账户错误
+
 
 ## 其他说明
 * 馆藏地编号和校区编号由图书馆代码得来，take_loca: 90001-九龙湖总借还处, 00916-丁家桥中文借书处, 00940-四牌楼总借还处。
