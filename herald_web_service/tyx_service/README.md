@@ -17,7 +17,7 @@
     * card_number:一卡通号
     * password：体育系密码
 * 响应：
-    * 正确响应：Ture、False
+    * 正确响应：True、False
     * 异常：Server Error, Request Error
 
 ## 获取人人网体育部主页状态
