@@ -1,0 +1,8 @@
+{
+    "host": "host",
+    "user": "db_username",
+    "pwd": "user_password",
+    "db_name": "db_name",
+
+    "term": "13-14-3"
+}
