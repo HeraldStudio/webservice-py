@@ -10,10 +10,15 @@ TERM = '13-14-3'
 ```
 
 ###2.修改START_DATE
-修改queryEmptyClassrooms/settings.py第10～12行的内容
+修改queryEmptyClassrooms/settings.py第10～12行的内容为当前学期第一周周一，短学期同样未测试。。
 ```
 # 13-14-3学期第一周周一的日期
 START_YEAR = 2014
 START_MONTH = 2
 START_DAY = 24
+```
+
+###3.重启
+```
+service uwsgi reload
 ```
