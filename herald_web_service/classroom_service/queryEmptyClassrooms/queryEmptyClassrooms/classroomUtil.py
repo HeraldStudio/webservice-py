@@ -44,7 +44,10 @@ def getDJQ(classWeek, classWeekNum, beginTime, endTime):
             classrooms.remove(r[0])
 
     # Exception
-    classrooms.remove("九龙湖其它-大活322")
+    try:
+        classrooms.remove("九龙湖其它-大活322")
+    except:
+        pass
 
     # 查找副表中此时有课但教室未知的课程的教室(来自用户反馈)
     if classWeekNum % 2 == 0: # 双周
@@ -126,7 +129,10 @@ def getEmptyClassrooms(classWeek, classWeekNum, beginTime, endTime):
             classrooms.remove(r[0])
 
     # Exception
-    classrooms.remove("九龙湖其它-大活322")
+    try:
+        classrooms.remove("九龙湖其它-大活322")
+    except:
+        pass
 
     # 查找副表中此时有课但教室未知的课程的教室(来自用户反馈)
     if classWeekNum % 2 == 0: # 双周
@@ -214,3 +220,5 @@ def sortClassroomsByCN(l):
         if room.find("J8") != -1:
             l.append(room.replace("J8", "教八"))
     return l
+
+

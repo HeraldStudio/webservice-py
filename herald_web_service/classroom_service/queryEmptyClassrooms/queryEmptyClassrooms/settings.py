@@ -6,11 +6,10 @@ CURRENT_DIR = os.path.dirname(__file__)
 PROJECT_DIR = os.path.dirname(CURRENT_DIR)
 
 TERM = '13-14-3' # term
-# 13-14-3学期第一周周一的日期
+# 13-14-3
 START_YEAR = 2014
 START_MONTH = 2
 START_DAY = 24
-
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -22,10 +21,10 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '****',                      # Or path to database file if using sqlite3.
+        'NAME': '*****',                      # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
-        'USER': 'goclis',
-        'PASSWORD': '*****',
+        'USER': '***',
+        'PASSWORD': '****',
         'HOST': 'localhost',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
         'PORT': '3306',                      # Set to empty string for default.
     }

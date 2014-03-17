@@ -12,6 +12,36 @@ from datetime import date, timedelta
 reload(sys)
 sys.setdefaultencoding('utf8')
 
+# 首页
+def index(request):
+	return render_to_response('query.html')
+
+# 方便记忆的链接
+def shortIndex(request):
+	return HttpResponseRedirect('/queryEmptyClassrooms/index/')
+
+# 关于
+def about(request):
+	return render_to_response('about.html')
+
+# 响应查询空教室
+def queryEmptyClassrooms(request):
+	try:
+		classWeek = int(request.GET['classWeek']) # 星期几
+		classWeekNum = int(request.GET['classWeekNum']) # 第几周
+		beginTime = int(request.GET['beginTime']) # 开始时间
+		endTime = int(request.GET['endTime']) # 结束时间
+		if not ((1 <= classWeekNum <= 20) \
+			and (1 <= classWeek <= 7) \
+			and (1 <= beginTime <= 13) \
+			and (1 <= endTime <= 13)
+			and (beginTime <= endTime)):
+			return HttpResponse(json.dumps("", ensure_ascii = False))
+	except:
+		return HttpResponse(json.dumps("", ensure_ascii = False))
+
+	classrooms = classroomUtil.getEmptyClassrooms(classWeek, classWeekNum, beginTime, endTime)
+	return HttpResponse(json.dumps(classrooms, ensure_ascii = False))
 
 # 指定【校区，第几周，周几，开始，结束】的API
 def queryCommonAPI(request, location, classWeekNum, classWeek, beginTime, endTime):
@@ -97,3 +127,8 @@ def querySpecifiedAPI(request, location, askDate, beginTime, endTime):
 		return HttpResponse(json.dumps(classrooms['DJQ'], ensure_ascii = False))
 	elif location == 'all':
 		return HttpResponse(json.dumps(classrooms, ensure_ascii = False))
+
+
+# jQuery-mobile
+def mobile(request):
+	return render_to_response('index.html')
