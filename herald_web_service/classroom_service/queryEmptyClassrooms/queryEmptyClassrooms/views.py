@@ -108,7 +108,7 @@ def querySpecifiedAPI(request, location, askDate, beginTime, endTime):
 			except: # out of month
 				checkDate = date(checkDate.year + 1, 1, 1)
 	delta = checkDate - startDate # 相差的天数
-	classWeekNum = delta.days % 7 + 1 # 第几周
+	classWeekNum = delta.days / 7 + 1 # 第几周
 	classWeek = checkDate.isoweekday() # 周几
 
 	if location == 'djq':

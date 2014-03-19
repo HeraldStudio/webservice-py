@@ -7,6 +7,7 @@ import MySQLdb
 import sys
 import copy
 import json
+import requests
 from lxml import etree
 
 

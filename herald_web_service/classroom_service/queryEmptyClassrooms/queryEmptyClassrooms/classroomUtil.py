@@ -49,33 +49,6 @@ def getDJQ(classWeek, classWeekNum, beginTime, endTime):
     except:
         pass
 
-    # 查找副表中此时有课但教室未知的课程的教室(来自用户反馈)
-    if classWeekNum % 2 == 0: # 双周
-        sqlCheckAssis = "SELECT DISTINCT course_feedback.classPlace FROM course, course_feedback WHERE " \
-            + "((course.ID = course_feedback.course_id) AND (course.classType != 1) " \
-            + "AND (course.classWeek = %s) AND (course.beginWeekNum <= %s AND course.endWeekNum >= %s) " \
-            + "AND ((%s - course.classEndTime) * (%s - course.classBeginTime) <= 0) "\
-            + "AND (course.classPlace = '') AND (course_feedback.classPlace != ''))" 
-    else: # 单周
-        sqlCheckAssis = "SELECT DISTINCT course_feedback.classPlace FROM course, course_feedback WHERE " \
-            + "((course.ID = course_feedback.course_id) AND (course.classType != -1) " \
-            + "AND (course.classWeek = %s) AND (course.beginWeekNum <= %s AND course.endWeekNum >= %s) " \
-            + "AND ((%s - course.classEndTime) * (%s - course.classBeginTime) <= 0) "\
-            + "AND (course.classPlace = '') AND (course_feedback.classPlace != ''))" 
-    try:
-        cursor.execute(sqlCheckAssis, [classWeek, classWeekNum, classWeekNum, beginTime, endTime])
-    except:
-        return []
-    rs = cursor.fetchall()
-    for r in rs:
-        # 如果要返回的列表中存在该教室，为该教室加标记
-        if classrooms.__contains__(r[0]):
-            index = classrooms.index(r[0])
-            classrooms[index] = "_" + r[0] # 加个"_"标记
-
-    # 排序，将带"_"标记的放在后面
-    classrooms.sort()
-    classrooms.reverse()
 
     # 将教室分校区
     JiuLongHu = []
@@ -134,33 +107,6 @@ def getEmptyClassrooms(classWeek, classWeekNum, beginTime, endTime):
     except:
         pass
 
-    # 查找副表中此时有课但教室未知的课程的教室(来自用户反馈)
-    if classWeekNum % 2 == 0: # 双周
-        sqlCheckAssis = "SELECT DISTINCT course_feedback.classPlace FROM course, course_feedback WHERE " \
-            + "((course.ID = course_feedback.course_id) AND (course.classType != 1) " \
-            + "AND (course.classWeek = %s) AND (course.beginWeekNum <= %s AND course.endWeekNum >= %s) " \
-            + "AND ((%s - course.classEndTime) * (%s - course.classBeginTime) <= 0) "\
-            + "AND (course.classPlace = '') AND (course_feedback.classPlace != ''))" 
-    else: # 单周
-        sqlCheckAssis = "SELECT DISTINCT course_feedback.classPlace FROM course, course_feedback WHERE " \
-            + "((course.ID = course_feedback.course_id) AND (course.classType != -1) " \
-            + "AND (course.classWeek = %s) AND (course.beginWeekNum <= %s AND course.endWeekNum >= %s) " \
-            + "AND ((%s - course.classEndTime) * (%s - course.classBeginTime) <= 0) "\
-            + "AND (course.classPlace = '') AND (course_feedback.classPlace != ''))" 
-    try:
-        cursor.execute(sqlCheckAssis, [classWeek, classWeekNum, classWeekNum, beginTime, endTime])
-    except:
-        return {'SPL': [], 'JLH': [], 'DJQ': []}
-    rs = cursor.fetchall()
-    for r in rs:
-        # 如果要返回的列表中存在该教室，为该教室加标记
-        if classrooms.__contains__(r[0]):
-            index = classrooms.index(r[0])
-            classrooms[index] = "_" + r[0] # 加个"_"标记
-
-    # 排序，将带"_"标记的放在后面
-    classrooms.sort()
-    classrooms.reverse()
 
     # 将教室分校区
     JiuLongHu = []
