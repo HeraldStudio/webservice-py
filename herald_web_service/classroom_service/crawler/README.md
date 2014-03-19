@@ -1,6 +1,8 @@
 About Course Crawler
 ======
-从[教务处全校课表](http://xk.urp.seu.edu.cn/jw_service/service/academyClassLook.action)获取所有的课程信息，信息本身不完整，加上未涵盖研究生，信息并不全面，无法保证准确度
+从[教务处全校课表](http://xk.urp.seu.edu.cn/jw_service/service/academyClassLook.action)获取所有的课程信息，信息本身不完整，加上未涵盖研究生，信息并不全面，无法保证准确度  
+
+服务器上的python库不全，脚本无法执行，可以先在自己的机器上获取然后export，用ftp传到106进行source（记得清空原数据，用脚本或者SQL都行）
 
 ####1.操作
 ```
