@@ -56,3 +56,9 @@
 ]
 ```
 
+## 剩余可跑操天数
+* url: `http://herald.seu.edu.cn/herald_web_service/tyx/remain_days/`
+* 请求方法：GET
+* 请求参数：无
+* 响应：一个数字，表示本学期剩余可跑操天数
+
