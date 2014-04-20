@@ -58,9 +58,14 @@ def get_ren_tyb__broadcast(request):
     states = page_crawler.get_ren_tyb()
     today_list = page_parser.get_today_broadcast(states)
     return HttpResponse(json.dumps(today_list, ensure_ascii=False))
-    
+
 def remain_days(request):
     today = datetime.date.today()
     end_day = datetime.date(2014,6,13)#shoule be changed every semester
-    result = today - other_day
-    return HttpResponse(str(result.days))
+    week_today = today.isocalendar()[1]
+    week_endday = end_day.isocalendar()[1]
+    dif_week = week_endday - week_today
+    result = dif_week*5
+    if(today.isocalendar()[2]<=5):
+        result = result+5-today.isocalendar()[2]
+    return HttpResponse(str(result))
