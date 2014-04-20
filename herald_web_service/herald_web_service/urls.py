@@ -29,6 +29,7 @@ urlpatterns += patterns('tyx_service.views',
   url(r'^herald_web_service/tyx/checkAccount/$', 'check_account'),
   url(r'^herald_web_service/tyx/test/$', 'test'),
   url(r'^herald_web_service/tyx/tyb_broadcast/$', 'get_ren_tyb__broadcast'),
+  url(r'^herald_web_service/tyx/remain_days/$','remain_days'),
 )
 
 

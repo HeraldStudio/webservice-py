@@ -9,6 +9,9 @@ import page_crawler
 import page_parser
 import custom_exception
 
+import time
+import datetime
+
 LOCAL_TEST_MODE = False
 
 
@@ -55,3 +58,9 @@ def get_ren_tyb__broadcast(request):
     states = page_crawler.get_ren_tyb()
     today_list = page_parser.get_today_broadcast(states)
     return HttpResponse(json.dumps(today_list, ensure_ascii=False))
+    
+def remain_days(request):
+    today = datetime.date.today()
+    end_day = datetime.date(2014,6,13)#shoule be changed every semester
+    result = today - other_day
+    return HttpResponse(str(result.days))
