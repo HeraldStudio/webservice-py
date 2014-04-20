@@ -56,3 +56,13 @@
 ]
 ```
 
+## 剩余可跑操天数
+* url: `http://herald.seu.edu.cn/herald_web_service/tyx/remain_days/`
+* 请求方法：GET
+* 请求参数：无
+* 响应：一个数字，表示本学期剩余可跑操天数
+
+## 跑操查询缓存部分
+* 数据库在 buff_paocao.sql 内
+* 在 config 内修改对应的配置
+* query_pao(..) 为新的跑操查询入口点

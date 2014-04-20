@@ -1,6 +1,6 @@
 
 # -*- encoding: utf-8 -*-
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 import json
 import datetime
 
