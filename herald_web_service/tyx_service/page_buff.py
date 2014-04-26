@@ -23,15 +23,20 @@ def query_tyx(cardNumber,password):
 def refresh_status(result):
     n = int(time.time())
     lastRefresh = int(result[0]['query_date'])
+    rlen = len(result)
     #print n - lastRefresh
-    if (n - lastRefresh) > config.REFRESH_TIME or result[0]['num']=='1':
-        return len(result)
+    if result[0]['num']=='0' and (n - lastRefresh) > config.REFRESH_TIME:
+        return rlen
+    elif rlen==2 and result[0]['num']=='1' and int(result[1]['query_date'])<lastRefresh:
+        return 2
+    elif rlen==1:
+        return 1
     else:
         return 0
 
 def query_paocao(cardNumber,password):
     cardNumber = str(int(cardNumber))
-    if cardNumber == 0:
+    if cardNumber == '0':
         return 0
 
     db = mysql_class.MySQL(config.DB_HOST,config.DB_USER,config.DB_USER_PWD,config.DB_PORT)
@@ -46,12 +51,14 @@ def query_paocao(cardNumber,password):
     elif status==1:
         re = query_tyx(cardNumber,password)
         if re.isdigit():
-            db.update("buff_paocao",{'query_date':time.time()},"ykt = 0")
+            if result[0]['num']=='0':
+                db.update("buff_paocao",{'query_date':time.time()},"ykt = 0")
             db.insert("buff_paocao",{'ykt':cardNumber,'num':re,'query_date':time.time()})
     else:
         re = query_tyx(cardNumber,password)
         if re.isdigit():
-            db.update("buff_paocao",{'query_date':time.time()},"ykt = 0")
+            if result[0]['num']=='0':
+                db.update("buff_paocao",{'query_date':time.time()},"ykt = 0")
             if re!=result[1]['num']:
                 db.update("buff_paocao",{'num':1},"ykt = 0")
                 db.update("buff_paocao",{'num':re,'query_date':time.time()},"ykt = "+cardNumber)	
