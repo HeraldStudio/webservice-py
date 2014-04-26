@@ -22,8 +22,6 @@ AccountError = "Account Error"
 RequestError = "Request Error"
 
 def tyxPc(request, cardNumber, password):
-    return HttpResponse(page_buff.query_paocao(cardNumber,password))
-    '''
     try:
         html = page_crawler.crawl_paocao_page(cardNumber, password)
         if html == "体育系故障，请稍后再试":
@@ -34,7 +32,10 @@ def tyxPc(request, cardNumber, password):
         return HttpResponse(AccountError)
     except Exception, e:
         return HttpResponse(ServerError)
-    '''
+
+def tyxPcNew(request,cardNumber,password):
+    return HttpResponse(page_buff.query_paocao(cardNumber,password))
+
 def check_account(reqeust):
     try:
         try:
