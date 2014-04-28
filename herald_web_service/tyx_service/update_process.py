@@ -9,10 +9,10 @@ import custom_exception
 from threading import Timer
 from datetime import datetime
 
-COLUMN_YKT = 'ykt'
-COLUMN_PWD = 'xh'
-ORI_DB_NAME = 'seuinfo'
-ORI_TABLE_NAME = 'students'
+COLUMN_YKT = 'xxxx'
+COLUMN_PWD = 'xxxx'
+ORI_DB_NAME = 'xxx'
+ORI_TABLE_NAME = 'xxxx'
 AUTO_UPDATE_TIME = 3600 #seconds
 
 def print_log(msg):

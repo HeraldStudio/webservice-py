@@ -60,7 +60,7 @@ def query_paocao(cardNumber,password):
             if result[0]['num']=='0':
                 db.update("buff_paocao",{'query_date':time.time()},"ykt = 0")
             if re!=result[1]['num']:
-                db.update("buff_paocao",{'num':1},"ykt = 0")
+                db.update("buff_paocao",{'num':1,'query_date':time.time()},"ykt = 0")
                 db.update("buff_paocao",{'num':re,'query_date':time.time()},"ykt = "+cardNumber)	
             else:
                 db.commit()

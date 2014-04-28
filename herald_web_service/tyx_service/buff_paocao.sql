@@ -31,3 +31,11 @@ CREATE TABLE `buff_paocao` (
 -- ----------------------------
 INSERT INTO `buff_paocao` VALUES ('0', '1', '1398486235');
 INSERT INTO `buff_paocao` VALUES ('213120498', '30', '1398486208');
+
+
+CREATE EVENT `paocao_refresh_status`
+ON SCHEDULE EVERY 1 DAY STARTS '2014-04-28 07:00:00'
+ON COMPLETION NOT PRESERVE
+ENABLE
+DO
+UPDATE `buff_paocao` SET `buff_paocao`.num = 0 WHERE `buff_paocao`.ykt ='0';
