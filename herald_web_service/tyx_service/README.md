@@ -62,16 +62,10 @@
 * 请求参数：无
 * 响应：一个数字，表示本学期剩余可跑操天数
 
-<<<<<<< HEAD
 
-## 跑操查询缓存部分
-* 数据库在 buff_paocao.sql 内
-* 在 config 内修改对应的配置
-* query_paocao(..) 为新的跑操查询入口点
-* 已经更改 tyxPc 使其调用中间层入口 query_paocao(...)
-=======
-## 跑操查询缓存部分
-* 数据库在 buff_paocao.sql 内
-* 在 config 内修改对应的配置
-* query_pao(..) 为新的跑操查询入口点
->>>>>>> 74acdce906eaa49f4480b10c13a968f3c10c1190
+
+## 带缓存的跑操查询
+* url: `http://herald.seu.edu.cn/herald_web_service/tyxnew/一卡通/密码/`
+* 请求方法: GET
+* 请求参数: 无
+* 响应: 跑操次数(异常将显示缓存次数)
