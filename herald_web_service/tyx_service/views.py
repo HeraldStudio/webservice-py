@@ -12,6 +12,8 @@ import custom_exception
 import time
 import datetime
 
+import page_buff
+
 LOCAL_TEST_MODE = False
 
 
@@ -30,6 +32,9 @@ def tyxPc(request, cardNumber, password):
         return HttpResponse(AccountError)
     except Exception, e:
         return HttpResponse(ServerError)
+
+def tyxPcNew(request,cardNumber,password):
+    return HttpResponse(page_buff.query_paocao(cardNumber,password))
 
 def check_account(reqeust):
     try:

@@ -12,3 +12,9 @@ REN_TYB_URL = "https://api.renren.com/v2/status/list?" \
 TIME_OUT = 8
 
 
+DB_HOST = "localhost"
+DB_USER = "root"
+DB_USER_PWD = ""
+DB_PORT = 3306
+DB_PAOCAO_BUFF = "test"
+REFRESH_TIME = 3600 #seconds
