@@ -68,7 +68,7 @@ urlpatterns += patterns('seulibrary.views',
 )
 
 #GPA
-urlpatterns += patterns('gpa_service',
+urlpatterns += patterns('gpa_service.views',
   url(r'^herald_web_service/gpa/gpa$','gpa')
 )
 

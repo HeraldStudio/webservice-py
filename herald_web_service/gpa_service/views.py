@@ -1,3 +1,5 @@
+#encoding:utf-8
+
 import recognize
 import urllib2,urllib
 import io
@@ -5,6 +7,7 @@ import Image
 import cookielib
 import BeautifulSoup
 import json
+from django.http import HttpResponse
 
 VERCODE_URL = r"http://xk.urp.seu.edu.cn/studentService/getCheckCode" #验证码地址
 
@@ -39,4 +42,4 @@ def gpa(request):
             tds = trs[i].findAll('td')
             tmp = {'semester':tds[1].string,'name':tds[3].string,'credit':tds[4].string,'score':tds[5].string,'score_type':tds[6].string,'extra':tds[7].string}
             ans.append(tmp)
-        return(json.dumps(ans).replace('&nbsp;',''))
+        return HttpResponse(json.dumps(ans).replace('&nbsp;',''))
