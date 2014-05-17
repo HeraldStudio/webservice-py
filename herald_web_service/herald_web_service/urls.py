@@ -67,6 +67,11 @@ urlpatterns += patterns('seulibrary.views',
     url(r'^herald_web_service/library/check_account/$', 'check_account'),
 )
 
+#GPA
+urlpatterns += patterns('gpa_service',
+  url(r'^herald_web_service/gpa/gpa$','gpa')
+)
+
 
 
 
