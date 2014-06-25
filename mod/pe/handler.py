@@ -23,28 +23,20 @@ class PEHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     @tornado.gen.engine
     def post(self):
-        try:
-            self.cardnum = self.get_argument('cardnum')
-        except tornado.web.MissingArgumentError:
-            self.cardnum = None
-        try:
-            self.pwd = self.get_argument('pwd')
-        except tornado.web.MissingArgumentError:
-            self.pwd = None
+        self.state = ''
+        self.cardnum = self.get_argument('cardnum', default=None)
+        self.pwd = self.get_argument('pwd', default=self.cardnum)
+        # pwd 缺省为 cardnum
 
-        if not self.pwd:
-            if self.cardnum:
-                self.pwd = self.cardnum  # pwd 缺省为 cardnum
-            else:
-                self.write('empty card number')
+        if not self.cardnum:
+            self.write('empty card number')
 
-        data = {
-            'xh': str(self.cardnum),
-            'mm': str(self.pwd),
-            'method': 'login'
-        }
-
-        if self.cardnum and self.pwd:
+        else:
+            data = {
+                'xh': str(self.cardnum),
+                'mm': str(self.pwd),
+                'method': 'login'
+            }
             client = AsyncHTTPClient()
             request = HTTPRequest(
                 PE_LOGIN_URL, body=urllib.urlencode(data),
@@ -52,7 +44,7 @@ class PEHandler(tornado.web.RequestHandler):
                 request_timeout=CONNECT_TIME_OUT)
             response = yield tornado.gen.Task(client.fetch, request)
             self.headers = response.headers
-            if self.headers == {}:
+            if not self.headers:
                 self.state = 'time out'
                 try:
                     # 超时取出缓存
