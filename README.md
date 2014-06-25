@@ -1,14 +1,25 @@
-webservice-py
+Herald Web API v 2.0
 =============
 
-herald web service by python.
 
+##体育系
 
-TOC:
+1. 获取跑操次数
 
-  1. [课表服务请求说明](https://github.com/HeraldStudio/webservice-py/blob/master/herald_web_service/curriculum_service)
-  2. [图书馆服务请求说明](https://github.com/HeraldStudio/webservice-py/blob/master/herald_web_service/seulibrary)
-  3. [跑操查询请求说明](https://github.com/HeraldStudio/webservice-py/blob/master/herald_web_service/tyx_service)
-  4. [教务信息请求说明](https://github.com/HeraldStudio/webservice-py/tree/master/herald_web_service/jwcInfor)
-  5. [空教室查询请求说明](https://github.com/HeraldStudio/webservice-py/tree/master/herald_web_service/classroom_service)
-  6. [绩点查询请求说明](https://github.com/HeraldStudio/webservice-py/tree/master/herald_web_service/gpa_service)
+  Request:
+
+    URL:
+
+    Method: POST
+
+    Parameters:
+      * cardnum - 一卡通号
+      * pwd - 密码（可省略，缺省值为一卡通号）
+
+  Response:
+
+  1. 用户名密码正确直接返回跑操次数。
+  2. 用户名密码错误返回 wrong card number or password
+  3. 缺少用户名返回 empty card number
+  4. 体育系服务器宕机时，如有缓存则返回缓存跑操次数，否则返回 time out
+
