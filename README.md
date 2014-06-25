@@ -8,6 +8,7 @@ Herald Web API v 2.0
 
   Request:
 
+    ```
     URL:
 
     Method: POST
@@ -15,6 +16,7 @@ Herald Web API v 2.0
     Parameters:
       * cardnum - 一卡通号
       * pwd - 密码（可省略，缺省值为一卡通号）
+    ```
 
   Response:
 
