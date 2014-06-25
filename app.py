@@ -3,6 +3,8 @@
 # @Author  : xindervella@gamil.com
 from sqlalchemy.orm import scoped_session, sessionmaker
 from mod.models.db import engine
+from mod.curriculum.term_handler import TermHandler
+from mod.curriculum.sidebar_handler import SidebarHandler
 from mod.pe.handler import PEHandler
 import tornado.web
 import tornado.ioloop
@@ -11,7 +13,7 @@ import tornado.ioloop
 class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
-            (r'/', PEHandler)
+            (r'/', SidebarHandler)
         ]
         settings = dict(
             cookie_secret="7CA71A57B571B5AEAC5E64C6042415DE",
