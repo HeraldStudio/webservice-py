@@ -23,18 +23,18 @@ class PEHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     @tornado.gen.engine
     def post(self):
-        self.state = ''
-        self.cardnum = self.get_argument('cardnum', default=None)
-        self.pwd = self.get_argument('pwd', default=self.cardnum)
+        state = ''
+        cardnum = self.get_argument('cardnum', default=None)
+        pwd = self.get_argument('pwd', default=cardnum)
         # pwd 缺省为 cardnum
 
-        if not self.cardnum:
+        if not cardnum:
             self.write('empty card number')
 
         else:
             data = {
-                'xh': str(self.cardnum),
-                'mm': str(self.pwd),
+                'xh': str(cardnum),
+                'mm': str(pwd),
                 'method': 'login'
             }
             client = AsyncHTTPClient()
@@ -43,57 +43,57 @@ class PEHandler(tornado.web.RequestHandler):
                 method='POST',
                 request_timeout=CONNECT_TIME_OUT)
             response = yield tornado.gen.Task(client.fetch, request)
-            self.headers = response.headers
-            if not self.headers:
-                self.state = 'time out'
+            headers = response.headers
+            if not headers:
+                state = 'time out'
                 try:
                     # 超时取出缓存
-                    self.user = self.db.query(PEUser).filter(
-                        PEUser.cardnum == str(self.cardnum)).one()
-                    self.write(self.user.count)
+                    user = self.db.query(PEUser).filter(
+                        PEUser.cardnum == str(cardnum)).one()
+                    self.write(user.count)
                 except NoResultFound:
-                    self.write(self.state)
+                    self.write(state)
 
             else:
                 # self.headers['Content-Length'] # 登陆成功 524 失败 1608
-                if int(self.headers['Content-Length']) > 800:
-                    self.state = 'wrong card number or password'
-                    self.write(self.state)
+                if int(headers['Content-Length']) > 800:
+                    state = 'wrong card number or password'
+                    self.write(state)
                 else:
-                    self.state = 'success'
+                    state = 'success'
 
-            if self.state == 'success':
-                self.cookie = self.headers['Set-Cookie'].split(';')[0]
+            if state == 'success':
+                cookie = headers['Set-Cookie'].split(';')[0]
                 request = HTTPRequest(
                     PE_PC_URL, method='GET', request_timeout=CONNECT_TIME_OUT,
-                    headers={'Cookie': self.cookie})
+                    headers={'Cookie': cookie})
                 response = yield tornado.gen.Task(client.fetch, request)
-                self.body = response.body
-                if not self.body:
-                    self.state = 'time out'
+                body = response.body
+                if not body:
+                    state = 'time out'
                     try:
                         # 超时取出缓存
-                        self.user = self.db.query(PEUser).filter(
-                            PEUser.cardnum == str(self.cardnum)).one()
-                        self.write(self.user.count)
+                        user = self.db.query(PEUser).filter(
+                            PEUser.cardnum == str(cardnum)).one()
+                        self.write(user.count)
                     except NoResultFound:
-                        self.write(self.state)
+                        self.write(state)
                 else:
-                    self.soup = BeautifulSoup(self.body)
-                    self.table = self.soup.findAll(
+                    soup = BeautifulSoup(body)
+                    table = soup.findAll(
                         "td", {"class": "Content_Form"})
-                    self.count = self.table[7].text
-                    self.write(self.count)
+                    count = table[7].text
+                    self.write(count)
         self.finish()
 
-        if self.state == 'success':
+        if state == 'success':
             # 更新缓存
             try:
-                self.user = self.db.query(PEUser).filter(
-                    PEUser.cardnum == str(self.cardnum)).one()
-                self.user.count = self.count
+                user = self.db.query(PEUser).filter(
+                    PEUser.cardnum == str(cardnum)).one()
+                user.count = count
             except NoResultFound:
-                self.user = PEUser(cardnum=str(self.cardnum), count=self.count)
-                self.db.add(self.user)
+                user = PEUser(cardnum=str(cardnum), count=count)
+                self.db.add(user)
             finally:
                 self.db.commit()
