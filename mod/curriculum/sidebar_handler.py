@@ -48,17 +48,14 @@ class SidebarHandler(tornado.web.RequestHandler):
         soup = BeautifulSoup(html)
         items = soup.findAll('td', height='34', width='35%')[:-1]
         items = [item for item in items if item.text != u'&nbsp;']
-        lecturers = []
-        credits = []
-        weeks = []
-        for item in items:
-            lecturers.append(self.next_n_sibling(item, 2).text[6:])
-            credits.append(self.next_n_sibling(item, 4).text[6:])
-            weeks.append(self.next_n_sibling(item, 6).text[6:])
         sidebar = []
-        for i in xrange(len(items)):
-            sidebar.append({'course': items[i].text, 'lecturer:': lecturers[i],
-                            'credit': credits[i], 'week': weeks[i]})
+        for item in items:
+            sidebar.append(
+                {'course': item.text,
+                 'lecturer': self.next_n_sibling(item, 2).text[6:],
+                 'credit': self.next_n_sibling(item, 4).text[6:],
+                 'week': self.next_n_sibling(item, 6).text[6:]
+                 })
         return json.dumps(sidebar, ensure_ascii=False, indent=2)
 
     def next_n_sibling(self, item, n):
