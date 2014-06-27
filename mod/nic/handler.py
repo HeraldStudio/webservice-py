@@ -26,7 +26,11 @@ class NICHandler(tornado.web.RequestHandler):
             method='GET',
             request_timeout=CONNECT_TIME_OUT)
         response = yield tornado.gen.Task(client.fetch, request)
-        cookie = response.headers['Set-Cookie'].split(';')[0]
+        try:
+            cookie = response.headers['Set-Cookie'].split(';')[0]
+        except:
+            self.write('server error')
+            return 
         request = HTTPRequest(
             NIC_LOGIN_URL, body=urllib.urlencode(data),
             method='POST',
