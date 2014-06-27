@@ -74,7 +74,6 @@ class CurriculumHandler(tornado.web.RequestHandler):
 
     def course_split(self, table):
         br = BeautifulSoup('<br/>')
-
         course = []
         for item in table.contents[:-1]:
             course.append(item)
@@ -83,7 +82,6 @@ class CurriculumHandler(tornado.web.RequestHandler):
                     course.insert(-1, u'')
             except IndexError:
                 pass  # 忽略第一次迭代时 course 越界
-
         course = [item for item in course if item != br.br]
 
         curriculum = []
