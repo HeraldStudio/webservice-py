@@ -20,7 +20,7 @@ class CARDHandler(tornado.web.RequestHandler):
     def post(self):
         cardnum = self.get_argument('cardnum', default=None)
         password = self.get_argument('password', default=None)
-        timedelta = self.get_argument('password', default=0)    #留空只查询余额
+        timedelta = self.get_argument('timedelta', default=0)    #留空只查询余额
 
         client = AsyncHTTPClient()
         request = HTTPRequest(
