@@ -55,13 +55,13 @@ class CurriculumHandler(tornado.web.RequestHandler):
         curriculum['Mon'] = self.course_split(table[1]) + \
             self.course_split(table[7]) + \
             self.course_split(table[13])
-        curriculum['Tues'] = self.course_split(table[2]) + \
+        curriculum['Tue'] = self.course_split(table[2]) + \
             self.course_split(table[8]) + \
             self.course_split(table[14])
         curriculum['Wed'] = self.course_split(table[3]) + \
             self.course_split(table[9]) + \
             self.course_split(table[15])
-        curriculum['Thur'] = self.course_split(table[4]) + \
+        curriculum['Thu'] = self.course_split(table[4]) + \
             self.course_split(table[10]) + \
             self.course_split(table[16])
         curriculum['Fri'] = self.course_split(table[5]) + \
