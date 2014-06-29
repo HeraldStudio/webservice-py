@@ -15,7 +15,7 @@ class NICHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     @tornado.gen.engine
     def post(self):
-    # type 查询类型(a, b, web)
+        # type 查询类型(a, b, web)
         data = {
             'password': self.get_argument('cardnum', default=None),
             'username': self.get_argument('password', default=None)
