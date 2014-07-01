@@ -8,6 +8,7 @@ import tornado.web
 import tornado.gen
 import urllib
 import json
+import re
 
 
 class SRTPHandler(tornado.web.RequestHandler):
@@ -18,12 +19,12 @@ class SRTPHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     @tornado.gen.engine
     def post(self):
-        cardnum = self.get_argument('cardnum', default=None)
+        number = self.get_argument('number', default=None)
 
-        if not cardnum:
+        if not number:
             self.write('params lack')
         else:
-            params = urllib.urlencode({'Code': cardnum})
+            params = urllib.urlencode({'Code': number})
             client = AsyncHTTPClient()
             request = HTTPRequest(SRTP_URL, body=params, method='POST',
                                   request_timeout=TIME_OUT)
@@ -31,7 +32,12 @@ class SRTPHandler(tornado.web.RequestHandler):
             if not response.headers:
                 self.write('time out')
             else:
-                self.write(self.parser(response.body))
+                pat = re.compile('不存在', re.U)
+                match = pat.search(response.body)
+                if match:
+                    self.write('number not exist')
+                else:
+                    self.write(self.parser(response.body))
         self.finish()
 
     def parser(self, html):
