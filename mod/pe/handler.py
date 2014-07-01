@@ -9,6 +9,7 @@ from sqlalchemy.orm.exc import NoResultFound
 import tornado.web
 import tornado.gen
 import urllib
+import random
 
 
 class PEHandler(tornado.web.RequestHandler):
@@ -33,9 +34,13 @@ class PEHandler(tornado.web.RequestHandler):
 
         else:
             data = {
-                'xh': str(cardnum),
-                'mm': str(pwd),
-                'method': 'login'
+                'displayName':'',
+                'displayPasswd':'',
+                'select':2,
+                'submit.x':52+int(random.random()*10),
+                'submit.y':16+int(random.random()*10),
+                'userName':str(cardnum),
+                'passwd':str(pwd)
             }
             client = AsyncHTTPClient()
             request = HTTPRequest(
@@ -56,7 +61,7 @@ class PEHandler(tornado.web.RequestHandler):
 
             else:
                 # self.headers['Content-Length'] # 登陆成功 524 失败 1608
-                if int(headers['Content-Length']) > 800:
+                if int(headers['Content-Length']) > 1630:
                     state = 'wrong card number or password'
                     self.write(state)
                 else:
@@ -81,8 +86,8 @@ class PEHandler(tornado.web.RequestHandler):
                 else:
                     soup = BeautifulSoup(body)
                     table = soup.findAll(
-                        "td", {"class": "Content_Form"})
-                    count = table[7].text
+                        "td", {"bgcolor": "#FFFFFF"})
+                    count = table[1].text[6:-2]
                     self.write(count)
         self.finish()
 
