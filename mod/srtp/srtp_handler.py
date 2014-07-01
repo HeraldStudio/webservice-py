@@ -32,7 +32,7 @@ class SRTPHandler(tornado.web.RequestHandler):
             if not response.headers:
                 self.write('time out')
             else:
-                pat = re.compile('不存在', re.U)
+                pat = re.compile('不存在|请输入', re.U)
                 match = pat.search(response.body)
                 if match:
                     self.write('number not exist')
