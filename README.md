@@ -91,3 +91,20 @@ Herald Web API v 2.0
   1. 用户名密码正确直接返回JSON:{'used':'已使用', 'left':'未使用', 'status':'状态'}。
   2. 用户名密码错误返回 wrong card number or password
   3. 未开通服务 disabled
+
+
+##聊天机器人
+  Request
+	```
+	URL:
+	
+	Method:POST
+
+	Parameters:
+	  *ms - 消息
+	```
+  Response:
+
+  1.正常时,返回机器人回复的消息
+  2.获取 msg 非 OK 时,返回  __simsimi_error__
+  3.其它情况,返回 __server_error__
