@@ -94,7 +94,6 @@ class GPAHandler(tornado.web.RequestHandler):
         trs = soup.findAll('tr')
         items = []
         credit = trs[-1].findAll('td')
-        print credit
         items.append({
             'gpa': credit[0].text,
             'gpa without revamp': credit[1].text,

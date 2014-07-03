@@ -96,4 +96,11 @@ class PEHandler(tornado.web.RequestHandler):
                 user = PEUser(cardnum=str(cardnum), count=count)
                 self.db.add(user)
             finally:
-                self.db.commit()
+                try:
+                    self.db.commit()
+                except:
+                    self.db.rollback()
+                finally:
+                    self.db.close()
+        else:
+            self.db.close()
