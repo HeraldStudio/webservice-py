@@ -11,22 +11,35 @@ from mod.pe.handler import PEHandler
 from mod.srtp.srtp_handler import SRTPHandler
 import tornado.web
 import tornado.ioloop
+import tornado.options
+
+from tornado.options import define, options
+define('port', default=7005, help='run on the given port', type=int)
 
 
 class Application(tornado.web.Application):
+
     def __init__(self):
         handlers = [
-            (r'/', SRTPHandler)
+            (r'/service/srtp', SRTPHandler),
+            (r'/service/term', TermHandler),
+            (r'/service/sidebar', SidebarHandler),
+            (r'/service/curriculum', CurriculumHandler),
+            (r'/service/gpa', GPAHandler),
+            (r'/service/pe', PEHandler)
         ]
         settings = dict(
             cookie_secret="7CA71A57B571B5AEAC5E64C6042415DE",
             debug=True
         )
         tornado.web.Application.__init__(self, handlers, **settings)
-        self.db = scoped_session(sessionmaker(bind=engine))
+        self.db = scoped_session(sessionmaker(bind=engine,
+                                              autocommit=False, autoflush=True,
+                                              expire_on_commit=False))
 
 
 class TestHandler(tornado.web.RequestHandler):
+
     @property
     def db(self):
         return self.application.db
@@ -35,5 +48,6 @@ class TestHandler(tornado.web.RequestHandler):
         self.write('HELLO')
 
 if __name__ == '__main__':
-    Application().listen(8000)
+    tornado.options.parse_command_line()
+    Application().listen(options.port)
     tornado.ioloop.IOLoop.instance().start()
