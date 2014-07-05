@@ -6,6 +6,7 @@ from mod.models.db import engine
 from mod.curriculum.term_handler import TermHandler
 from mod.curriculum.sidebar_handler import SidebarHandler
 from mod.curriculum.curriculum_handler import CurriculumHandler
+from mod.simsimi.handler import SIMSIMIHandler
 from mod.gpa.gpa_handler import GPAHandler
 from mod.pe.handler import PEHandler
 from mod.srtp.srtp_handler import SRTPHandler
@@ -26,7 +27,8 @@ class Application(tornado.web.Application):
             (r'/service/sidebar', SidebarHandler),
             (r'/service/curriculum', CurriculumHandler),
             (r'/service/gpa', GPAHandler),
-            (r'/service/pe', PEHandler)
+            (r'/service/pe', PEHandler),
+            (r'/service/simsimi', SIMSIMIHandler)
         ]
         settings = dict(
             cookie_secret="7CA71A57B571B5AEAC5E64C6042415DE",

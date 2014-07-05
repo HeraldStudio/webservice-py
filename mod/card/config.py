@@ -2,14 +2,14 @@
 # @Date    : 2014-06-25 15:34:57
 # @Author  : xindervella@gamil.com
 
-CARD_HOME_URL = "http://allinonecard.seu.edu.cn/homeLogin.action"
-CARD_LOGIN_URL = "http://allinonecard.seu.edu.cn/loginstudent.action"
-CARD_VERIFY_URL = "http://allinonecard.seu.edu.cn/ecard/getCheckpic.action?rand=5000.513276720292"
-CARD_PWD_URL = "http://allinonecard.seu.edu.cn/getpasswdPhoto.action"
-CARD_DETIAL_URL = "http://allinonecard.seu.edu.cn/accounthisTrjn.action"
-CARD_PAGE_URL = "http://allinonecard.seu.edu.cn/accountconsubBrows.action"
-CARD_PAGE_URL = "http://allinonecard.seu.edu.cn/accountconsubBrows.action"
-CARD_REMAIN_URL = "http://allinonecard.seu.edu.cn/accountcardUser.action"
+HOME_URL = "http://allinonecard.seu.edu.cn/homeLogin.action"
+LOGIN_URL = "http://allinonecard.seu.edu.cn/loginstudent.action"
+VERIFY_URL = "http://allinonecard.seu.edu.cn/ecard/getCheckpic.action?rand=5000.513276720292"
+PWD_URL = "http://allinonecard.seu.edu.cn/getpasswdPhoto.action"
+DETIAL_URL = "http://allinonecard.seu.edu.cn/accounthisTrjn.action"
+PAGE_URL = "http://allinonecard.seu.edu.cn/accountconsubBrows.action"
+PAGE_URL = "http://allinonecard.seu.edu.cn/accountconsubBrows.action"
+REMAIN_URL = "http://allinonecard.seu.edu.cn/accountcardUser.action"
 
 BOX = [
     (17,38,30,54),(53,38,66,54),(89,38,102,54),
