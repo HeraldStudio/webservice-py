@@ -1,7 +1,7 @@
-#先声web-service文档
+##先声web-service文档
 ---
 
-##SRTP
+###SRTP
 
 ```
 URL :`http://121.248.63.105/service/srtp`
@@ -27,7 +27,7 @@ Response : [
 ]
 ```
 
-##Term(课表学期)
+###Term(课表学期)
 
 ```
 URL: http://121.248.63.105/service/term
@@ -44,7 +44,7 @@ Response:
 ]
 ```
 
-##Sidebar(课表侧边栏)
+###Sidebar(课表侧边栏)
 
 ```
 URL: http://121.248.63.105/service/sidebar
@@ -61,7 +61,7 @@ Response:
 ]
 ```
 
-##Curriculum(课程信息)
+###Curriculum(课程信息)
 
 ```
 URL:http://121.248.63.105/service/curriculum
@@ -91,7 +91,7 @@ Response:
   ...
 }
 ```
-##GPA(绩点信息)
+###GPA(绩点信息)
 
 ```
 URL: http://121.248.63.105/service/gpa
@@ -99,7 +99,7 @@ Method:POST
 Params:{"username":"一卡通号","password":"统一身份认证密码"}
 Response:会出现timeout，有待测试。
 ```
-##PE(体育系信息)
+###PE(体育系信息)
 
 ```
 URL: http://121.248.63.105/service/pe
@@ -107,7 +107,7 @@ Method:POST
 Params:{"cardnum":"一卡通号","pwd":"体育系密码"}
 Response:跑操次数
 ```
-##Simsim(机器人聊天)
+###Simsim(机器人聊天)
 
 ```
 URL: http://121.248.63.105/service/simsimi
