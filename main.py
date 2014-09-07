@@ -10,6 +10,7 @@ from mod.simsimi.handler import SIMSIMIHandler
 from mod.gpa.gpa_handler import GPAHandler
 from mod.pe.handler import PEHandler
 from mod.srtp.srtp_handler import SRTPHandler
+from mod.card.handler import CARDHandler
 import tornado.web
 import tornado.ioloop
 import tornado.options
@@ -28,7 +29,8 @@ class Application(tornado.web.Application):
             (r'/service/curriculum', CurriculumHandler),
             (r'/service/gpa', GPAHandler),
             (r'/service/pe', PEHandler),
-            (r'/service/simsimi', SIMSIMIHandler)
+            (r'/service/simsimi', SIMSIMIHandler),
+            (r'/service/card', CARDHandler)
         ]
         settings = dict(
             cookie_secret="7CA71A57B571B5AEAC5E64C6042415DE",

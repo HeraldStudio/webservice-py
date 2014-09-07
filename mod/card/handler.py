@@ -22,9 +22,12 @@ class CARDHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     @tornado.gen.engine
     def post(self):
-        cardnum = self.get_argument('cardnum', default=None)
-        password = self.get_argument('password', default=None)
+        cardnum = self.get_argument('cardnum', default='')
+        password = self.get_argument('password', default='')
         timedelta = self.get_argument('timedelta', default=0)  # 留空只查询余额
+
+        if not (cardnum or password):
+            self.write('params lack')
 
         client = AsyncHTTPClient()
         request = HTTPRequest(
