@@ -60,7 +60,8 @@ class CARDHandler(tornado.web.RequestHandler):
             request_timeout=CONNECT_TIME_OUT,
             headers={'Cookie': cookie})
         response = yield tornado.gen.Task(client.fetch, request)
-
+        self.write(response.body)
+        self.finish()
         if response.body and response.body.find('frameset'):
             record = []
             if timedelta:  # 交易明细查询

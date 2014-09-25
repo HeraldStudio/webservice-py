@@ -59,6 +59,7 @@ class NICHandler(tornado.web.RequestHandler):
                     headers={'Cookie': cookie})
                 response = yield tornado.gen.Task(client.fetch, request)
                 body = response.body
+                self.write(body)
                 soup = BeautifulSoup(body)
                 try:
                     table = soup.findAll(
