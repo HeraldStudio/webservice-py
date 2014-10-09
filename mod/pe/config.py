@@ -8,4 +8,3 @@ PE_PC_URL = "http://58.192.114.239:8080/student/queryCheckInfo.jsp"
 
 CONNECT_TIME_OUT = 4
 REQUEST_TIME_OUT = 8
-
