@@ -12,6 +12,7 @@ from mod.pe.handler import PEHandler
 from mod.srtp.srtp_handler import SRTPHandler
 from mod.card.handler import CARDHandler
 from mod.nic.handler import NICHandler
+from mod.auth.handler import AuthHandler
 import tornado.web
 import tornado.ioloop
 import tornado.options
@@ -24,6 +25,7 @@ class Application(tornado.web.Application):
 
     def __init__(self):
         handlers = [
+            (r'/service/auth', AuthHandler),
             (r'/service/srtp', SRTPHandler),
             (r'/service/term', TermHandler),
             (r'/service/sidebar', SidebarHandler),
