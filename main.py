@@ -13,6 +13,7 @@ from mod.srtp.srtp_handler import SRTPHandler
 from mod.card.handler import CARDHandler
 from mod.nic.handler import NICHandler
 from mod.auth.handler import AuthHandler
+from mod.lecture.handler import LectureHandler
 import tornado.web
 import tornado.ioloop
 import tornado.options
@@ -33,7 +34,9 @@ class Application(tornado.web.Application):
             (r'/service/gpa', GPAHandler),
             (r'/service/pe', PEHandler),
             (r'/service/simsimi', SIMSIMIHandler),
-            (r'/service/nic', NICHandler)
+            (r'/service/nic', NICHandler),
+            (r'/service/lecture', LectureHandler),
+            
         ]
         settings = dict(
             cookie_secret="7CA71A57B571B5AEAC5E64C6042415DE",
