@@ -26,16 +26,17 @@ class Application(tornado.web.Application):
 
     def __init__(self):
         handlers = [
-            (r'/service/auth', AuthHandler),
-            (r'/service/srtp', SRTPHandler),
-            (r'/service/term', TermHandler),
-            (r'/service/sidebar', SidebarHandler),
-            (r'/service/curriculum', CurriculumHandler),
-            (r'/service/gpa', GPAHandler),
-            (r'/service/pe', PEHandler),
-            (r'/service/simsimi', SIMSIMIHandler),
-            (r'/service/nic', NICHandler),
-            (r'/service/lecture', LectureHandler),
+            (r'/webserv2/auth', AuthHandler),
+            (r'/webserv2/srtp', SRTPHandler),
+            (r'/webserv2/term', TermHandler),
+            (r'/webserv2/sidebar', SidebarHandler),
+            (r'/webserv2/curriculum', CurriculumHandler),
+            (r'/webserv2/gpa', GPAHandler),
+            (r'/webserv2/pe', PEHandler),
+            (r'/webserv2/simsimi', SIMSIMIHandler),
+            (r'/webserv2/nic', NICHandler),
+            (r'/webserv2/card', CARDHandler),
+            (r'/webserv2/lecture', LectureHandler),
             
         ]
         settings = dict(
@@ -47,17 +48,7 @@ class Application(tornado.web.Application):
                                               autocommit=False, autoflush=True,
                                               expire_on_commit=False))
 
-
-class TestHandler(tornado.web.RequestHandler):
-
-    @property
-    def db(self):
-        return self.application.db
-
-    def get(self):
-        self.write('HELLO')
-
 if __name__ == '__main__':
     tornado.options.parse_command_line()
-    Application().listen(options.port)
+    Application().listen(options.port, address='127.0.0.1')
     tornado.ioloop.IOLoop.instance().start()

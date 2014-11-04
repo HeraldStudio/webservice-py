@@ -1,203 +1,139 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from config import HOME_URL, LOGIN_URL, VERIFY_URL, PWD_URL, DETIAL_URL
-from config import PAGE_URL, REMAIN_URL, STAND, BOX, CONNECT_TIME_OUT
+# @Date    : 2014-10-26 12:46:36
+# @Author  : yml_bright@163.com
+
+from config import *
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
 from BeautifulSoup import BeautifulSoup
 import tornado.web
 import tornado.gen
-import cStringIO
-import urllib
-import urllib2
-import Image
+import urllib, re
 import json
 import datetime
-import time
-
 
 class CARDHandler(tornado.web.RequestHandler):
 
     def get(self):
-        self.write('Herald Web Service')
+        self.post()
+        #self.write('Herald Web Service')
 
     @tornado.web.asynchronous
     @tornado.gen.engine
     def post(self):
-        cardnum = self.get_argument('cardnum', default='')
-        password = self.get_argument('password', default='')
-        timedelta = self.get_argument('timedelta', default=0)  # 留空只查询余额
-
-        if not (cardnum or password):
-            self.write('params lack')
-
-        client = AsyncHTTPClient()
-        request = HTTPRequest(
-            HOME_URL,
-            method='GET',
-            request_timeout=CONNECT_TIME_OUT)
-        response = yield tornado.gen.Task(client.fetch, request)
-        cookie = response.headers['Set-Cookie'].split(';')[0]
-
+        timedelta = int(self.get_argument('timedelta', default=0))
         data = {
-            'name': cardnum,
-            'userType': '1',
-            'passwd': self.pwdchange(password, cookie),  # 读取密码表
-            'loginType': '2',
-            'rand': '5000',
-            'imageField.x': '25',
-            'imageField.y': '7'
+            'Login.Token1':self.get_argument('cardnum'),
+            'Login.Token2':self.get_argument('password'),
         }
+        try:
+            client = AsyncHTTPClient()
+            request = HTTPRequest(
+                CHECK_URL,
+                method='POST',
+                body=urllib.urlencode(data),
+                request_timeout=TIME_OUT)
+            response = yield tornado.gen.Task(client.fetch, request)
+            if response.body and response.body.find('Successed')>0:
+                cookie = response.headers['Set-Cookie'].split(';')[0]
+                request = HTTPRequest(
+                    LOGIN_URL,
+                    method='GET',
+                    headers={'Cookie':cookie},
+                    request_timeout=TIME_OUT)
+                response = yield tornado.gen.Task(client.fetch, request)
 
-        # 获取验证码
-        request = HTTPRequest(
-            VERIFY_URL,
-            method='GET',
-            request_timeout=CONNECT_TIME_OUT,
-            headers={'Cookie': cookie})
-        response = yield tornado.gen.Task(client.fetch, request)
-        request = HTTPRequest(
-            LOGIN_URL, body=urllib.urlencode(data),
-            method='POST',
-            request_timeout=CONNECT_TIME_OUT,
-            headers={'Cookie': cookie})
-        response = yield tornado.gen.Task(client.fetch, request)
-        self.write(response.body)
-        self.finish()
-        if response.body and response.body.find('frameset'):
-            record = []
-            if timedelta:  # 交易明细查询
+                cookie += ';' + response.headers['Set-Cookie'].split(';')[0]
+                request = HTTPRequest(
+                    USERID_URL,
+                    method='GET',
+                    headers={'Cookie':cookie},
+                    request_timeout=TIME_OUT)
+                response = yield tornado.gen.Task(client.fetch, request)
+                soup = BeautifulSoup(response.body)
+                td = soup.findAll('td',{"class": "neiwen"})
+                userid = td[3].text
+                cardState = td[42].text
+                cardLetf = td[46].text.encode('utf-8').split('元')[0]
+
+                if timedelta == 0:
+                    self.write(json.dumps({'state':cardState, 'left':cardLetf}, ensure_ascii=False, indent=2))
+                    self.finish()
+                    return
+
+                request = HTTPRequest(
+                    INIT_URL,
+                    method='GET',
+                    headers={'Cookie':cookie},
+                    request_timeout=TIME_OUT)
+                response = yield tornado.gen.Task(client.fetch, request)
+                soup = BeautifulSoup(response.body)
+                __continue = soup.findAll('form',{'id':'accounthisTrjn'})[0]['action']
+
                 now = datetime.datetime.now()
                 delta = datetime.timedelta(timedelta)
-                date = {
-                    'inputStartDate': (now - delta).strftime('%Y%m%d'),
-                    'inputEndDate': now.strftime('%Y%m%d')
+                page = 1
+                data = {
+                    'account':userid,
+                    'inputObject':'all',
+                    'inputStartDate':(now - delta).strftime('%Y%m%d'),
+                    'inputEndDate':now.strftime('%Y%m%d'),
+                    'pageNum':page
                 }
-                _continue, soup, page = self.login(cookie, date)
-                soup = soup.findAll('tr', {'class': 'listbg'})
-
-                for x in soup:
-                    record.append(self.deal(x))
-                for i in range(1, page):  # 读取每一页
-                    date['pageNum'] = i + 1
-                    request = HTTPRequest(
-                        PAGE_URL, body=urllib.urlencode(date),
-                        method='POST',
-                        request_timeout=CONNECT_TIME_OUT,
-                        headers={'Cookie': cookie})
-                    response = yield tornado.gen.Task(client.fetch, request)
-                    soup = BeautifulSoup(response.body).findAll(
-                        'tr', {'class': 'listbg'})
-                    for x in soup:
-                        record.append(self.deal(x))
-            else:  # 余额状态查询
                 request = HTTPRequest(
-                    REMAIN_URL,
-                    method='GET',
-                    request_timeout=CONNECT_TIME_OUT,
-                    headers={'Cookie': cookie})
+                    INDEX_URL+__continue,
+                    method='POST',
+                    headers={'Cookie':cookie},
+                    body=urllib.urlencode(data),
+                    request_timeout=TIME_OUT)
                 response = yield tornado.gen.Task(client.fetch, request)
-                soup = BeautifulSoup(response.body).findAll(
-                    'td', {'class': 'neiwen'})
-                record.append({'left': str(soup[46].getString()), 'status': str(
-                    soup[44].contents[1].getString())})
-            self.write(json.dumps(record, ensure_ascii=False, indent=2))
-        elif len(response.body) == 975:  # 用户密码错误
-            self.write('wrong card number or password')
-        else:
-            self.write('server error')
+                soup = BeautifulSoup(response.body)
+                __continue = soup.findAll('form',{'id':'accounthisTrjn'})[0]['action']
+                request = HTTPRequest(
+                    INDEX_URL+__continue,
+                    method='POST',
+                    headers={'Cookie':cookie},
+                    body=urllib.urlencode(data),
+                    request_timeout=TIME_OUT)
+                response = yield tornado.gen.Task(client.fetch, request)
+                soup = BeautifulSoup(response.body)
+                __continue = soup.findAll('form',{'name':'form1'})[0]['action']
+                request = HTTPRequest(
+                    INIT_URL+__continue,
+                    method='GET',
+                    headers={'Cookie':cookie},
+                    request_timeout=TIME_OUT)
+                response = yield tornado.gen.Task(client.fetch, request)
+                soup = BeautifulSoup(response.body)
+
+                detial = []
+                count = 0
+                while 1:
+                    tr = soup.findAll('tr',{"class": re.compile("listbg")})
+                    if not tr:
+                        break
+                    for td in tr:
+                        td = td.findChildren()
+                        tmp = {}
+                        tmp['date'] = td[0].text
+                        tmp['type'] = td[3].text
+                        tmp['system'] = td[4].text
+                        tmp['price'] = td[5].text
+                        tmp['left'] = td[6].text
+                        detial.append(tmp)
+                    page += 1
+                    data['pageNum'] = page
+                    request = HTTPRequest(
+                        DATA_URL,
+                        method='POST',
+                        headers={'Cookie':cookie},
+                        body=urllib.urlencode(data),
+                        request_timeout=TIME_OUT)
+                    response = yield tornado.gen.Task(client.fetch, request)
+                    soup = BeautifulSoup(response.body)
+                self.write(json.dumps({'state':cardState, 'left':cardLetf, 'detial':detial}, ensure_ascii=False, indent=2))
+            else:
+                self.write('wrong card number or password')
+        except:
+            self.write('error')
         self.finish()
-
-    def solve(self, im):
-        count = []
-        for x in range(13):
-            count.append(0)
-            for y in range(16):
-                if im.getpixel((x, y))[2] < 5:
-                    count[x] += 1
-        for idx, val in enumerate(STAND):
-            s = 0
-            for i in range(13):
-                s += abs(count[i] - val[i])
-            if s < 5:
-                return idx
-        return 0
-
-    def pwdchange(self, pwd, cookie):
-        table = []
-        req = urllib2.Request(PWD_URL, headers={'Cookie': cookie})
-        f = urllib2.urlopen(req)
-        tmpIm = cStringIO.StringIO(f.read())
-        im = Image.open(tmpIm)
-
-        for i in range(10):
-            tm = im.crop(BOX[i])
-            table.append(self.solve(tm))
-
-        re = ""
-        for x in pwd:
-            re += str(table.index(int(x)))
-        return re
-
-    def stepin(self, _continue, data, cookie):
-        try:
-            req = urllib2.Request(DETIAL_URL + '?' + _continue,
-                                  headers={'Cookie': cookie})
-            return urllib2.urlopen(req, urllib.urlencode(data)).read()
-        except:
-            return ''
-
-    def login(self, cookie, date):
-        soup = BeautifulSoup(self.stepin('', '', cookie))
-        try:
-            _continue = soup.findAll(
-                'form', {'id': 'accounthisTrjn'})[0]['action'].split('?')[1]
-            cardid = soup.findAll('option')[0].getString()
-        except:
-            _continue = ''
-            cardid = ''
-        # 发送查询类型
-        data = {
-            'account': str(cardid),
-            'inputObject': 'all',
-        }
-        soup = BeautifulSoup(self.stepin(_continue, data, cookie))
-        try:
-            _continue = soup.findAll(
-                'form', {'id': 'accounthisTrjn'})[0]['action'].split('?')[1]
-        except:
-            pass
-        # 查询流水
-        soup = BeautifulSoup(self.stepin(_continue, date, cookie))
-        try:
-            _continue = soup.findAll(
-                'form', {'id': 'accounthisTrjn'})[0]['action'].split('?')[1]
-        except:
-            pass
-        # 等待查询结果
-        while True:
-            time.sleep(1)
-            soup = BeautifulSoup(self.stepin(_continue, date, cookie))
-            try:
-                _continue = soup.findAll(
-                    'form', {'name': 'form1'})[0]['action'].split('?')[1]
-            except:
-                break
-        try:
-            page = soup.findAll(
-                'script', {'language': 'javascript'})[1].getString()
-            p1 = page.find('button15')
-            page = int(page[page.find('=', p1) + 1:page.find(';', p1)])
-        except:
-            page = 1
-        return _continue, soup, page
-
-    def deal(self, tablelist):
-        li = {}
-        li['time'] = str(tablelist.contents[1].getString())
-        li['type'] = str(tablelist.contents[3].getString())
-        li['system'] = str(tablelist.contents[5].getString())
-        li['dealtype'] = str(tablelist.contents[7].getString())
-        li['money'] = str(tablelist.contents[9].getString())
-        li['left'] = str(tablelist.contents[11].getString())
-        li['index'] = str(tablelist.contents[13].getString())
-        li['status'] = str(tablelist.contents[15].getString())
-        return li
