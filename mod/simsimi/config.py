@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Date    : 2014-06-25 15:34:57
-# @Author  : xindervella@gamil.com
+# @Author  : yml_bright@163.com
 
 
 SIMSIMI_URL = "http://www.simsimi.com/func/reqN?lc=ch&ft=0.0&fl=http%3A%2F%2Fwww.simsimi.com%2Ftalk.htm&req="

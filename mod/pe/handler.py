@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Date    : 2014-06-25 15:43:36
-# @Author  : xindervella@gamil.com
+# @Author  : yml_bright@163.com
 from config import PE_LOGIN_URL, PE_PC_URL, CONNECT_TIME_OUT
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
 from BeautifulSoup import BeautifulSoup

@@ -15,8 +15,7 @@ import datetime
 class CARDHandler(tornado.web.RequestHandler):
 
     def get(self):
-        self.post()
-        #self.write('Herald Web Service')
+        self.write('Herald Web Service')
 
     @tornado.web.asynchronous
     @tornado.gen.engine

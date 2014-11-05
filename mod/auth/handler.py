@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+# @Date    : 2014-11-03 15:34:57
+# @Author  : yml_bright@163.com
+
 from config import CHECK_URL, TIME_OUT
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
 import tornado.web

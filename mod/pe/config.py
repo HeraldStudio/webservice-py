@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Date    : 2014-06-25 15:34:57
-# @Author  : xindervella@gamil.com
+# @Author  : yml_bright@163.com
 
 
 PE_LOGIN_URL = "http://58.192.114.239:8080/student/studentFrame.jsp"

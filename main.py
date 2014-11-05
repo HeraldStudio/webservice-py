@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Date    : 2014-06-25 15:43:36
-# @Author  : xindervella@gamil.com
+# @Author  : xindervella@gamil.com yml_bright@163.com
 from sqlalchemy.orm import scoped_session, sessionmaker
 from mod.models.db import engine
 from mod.curriculum.term_handler import TermHandler
@@ -14,6 +14,8 @@ from mod.card.handler import CARDHandler
 from mod.nic.handler import NICHandler
 from mod.auth.handler import AuthHandler
 from mod.lecture.handler import LectureHandler
+from mod.library.listhandler import LibListHandler
+from mod.library.renewhandler import LibRenewHandler
 import tornado.web
 import tornado.ioloop
 import tornado.options
@@ -37,7 +39,8 @@ class Application(tornado.web.Application):
             (r'/webserv2/nic', NICHandler),
             (r'/webserv2/card', CARDHandler),
             (r'/webserv2/lecture', LectureHandler),
-            
+            (r'/webserv2/library', LibListHandler),
+            (r'/webserv2/renew', LibRenewHandler),
         ]
         settings = dict(
             cookie_secret="7CA71A57B571B5AEAC5E64C6042415DE",
