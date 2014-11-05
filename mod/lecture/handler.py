@@ -58,7 +58,7 @@ class LectureHandler(tornado.web.RequestHandler):
                     'endDate':'',
                     'pageno':0
                 }
-                fliter = ['九龙湖', '手持考', '行政楼', '网络中']
+                fliter = ['九龙湖', '手持考', '行政楼', '网络中', '机电大']
                 lecture = []
                 count = 0
                 while 1:
