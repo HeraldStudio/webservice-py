@@ -60,13 +60,14 @@ class LibRenewHandler(tornado.web.RequestHandler):
                             headers={'Cookie':cookie},
                             request_timeout=TIME_OUT)
                         response = yield tornado.gen.Task(client.fetch, request)
-                        print response.body
-                        if response.body != 'invalid call':
+                        if response.body == 'invalid call':
+                            self.write('error')
+                        else:
                             flag = True
                 if flag:
                     self.write('success')
                 else:
-                    self.write('error')
+                    self.write('fail')
             else:
                 self.write('wrong card number or password')
         except:

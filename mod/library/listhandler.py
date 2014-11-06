@@ -23,7 +23,7 @@ class LibListHandler(tornado.web.RequestHandler):
             'passwd':self.get_argument('password'),
             'select': 'bar_no'
         }
-        if 1:
+        try:
             client = AsyncHTTPClient()
             request = HTTPRequest(
                 LOGIN_URL,
@@ -64,8 +64,8 @@ class LibListHandler(tornado.web.RequestHandler):
                 self.write(json.dumps(ret, ensure_ascii=False, indent=2))
             else:
                 self.write('wrong card number or password')
-        #except:
-        #    self.write('error')
+        except:
+            self.write('error')
         self.finish()
 
     def entity_parser(self, string):
