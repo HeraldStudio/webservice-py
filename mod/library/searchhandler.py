@@ -44,15 +44,21 @@ class LibSearchHandler(tornado.web.RequestHandler):
                 name = b.a.text
                 books.append({
                     'type': b.span.text,
-                    'index': b.h3.contents[2].strip(),
-                    'name': name[name.find('.')+1:],
+                    'index': self.entity_parser(b.h3.contents[2].strip()),
+                    'name': self.entity_parser(name[name.find('.')+1:]),
                     'all': b.p.span.contents[0][5:-1],
                     'left': b.p.span.contents[2].split('：')[1],
-                    'publish': b.p.contents[4].strip(),
-                    'author': b.p.contents[2].strip()
+                    'publish': self.entity_parser(b.p.contents[4].strip()),
+                    'author': self.entity_parser(b.p.contents[2].strip())
                     })
             self.write(json.dumps(books, ensure_ascii=False, indent=2))
         except:
             self.write('error')
         self.finish()
 
+    def entity_parser(self, string):
+        x = re.findall('&#x(.{4});', string)
+        s = ''
+        for c in x:
+            s += unichr(int(c,16))
+        return s
