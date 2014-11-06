@@ -41,6 +41,16 @@ class LibRenewHandler(tornado.web.RequestHandler):
                 request_timeout=TIME_OUT)
             response = yield tornado.gen.Task(client.fetch, request)
 
+            if len(response.body) < 10000:
+                data['select'] = 'cert_no'
+                request = HTTPRequest(
+                    LOGIN_URL,
+                    method='POST',
+                    headers={'Cookie':cookie},
+                    body=urllib.urlencode(data),
+                    request_timeout=TIME_OUT)
+                response = yield tornado.gen.Task(client.fetch, request)
+
             if len(response.body) > 10000:
                 flag = False
                 request = HTTPRequest(

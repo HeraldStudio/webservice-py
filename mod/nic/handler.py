@@ -24,7 +24,7 @@ class NICHandler(tornado.web.RequestHandler):
             'username':self.get_argument('cardnum'),
             'password':self.get_argument('password'),
         }
-        if 1:
+        try:
             client = AsyncHTTPClient()
             request = HTTPRequest(
                 LOGIN_URL,
@@ -79,7 +79,7 @@ class NICHandler(tornado.web.RequestHandler):
                 if len(response.body) > 10000:
                     soup = BeautifulSoup(response.body)
                     td = soup.findAll('td', {'bgcolor': '#FFFFFF', 'align': 'center'})
-                    ret['web'] = {'state': td[0].text+','+td[1].text, 'used': td[2].text}
+                    ret['web'] = {'state': td[0].text+','+td[1].text, 'used': td[-1].text}
                 else:
                     ret['web'] = {'state':'未开通'.decode('utf-8'), 'used':'0 B'}
 
@@ -96,8 +96,8 @@ class NICHandler(tornado.web.RequestHandler):
                 self.write(json.dumps(ret, ensure_ascii=False, indent=2))
             else:
                 self.write('wrong card number or password')
-        #except:
-        #    self.write('error')
+        except:
+            self.write('error')
         self.finish()
 
     @tornado.gen.engine
