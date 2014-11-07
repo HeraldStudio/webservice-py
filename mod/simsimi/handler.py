@@ -89,19 +89,19 @@ class SIMSIMIHandler(tornado.web.RequestHandler):
         return u'不如用电脑查查，么么哒'
 
     def book(self, data):
-        msg = u'图书\n'
+        msg = u'[图书]\n'
         for b in data['list']:
             msg += u'<%s> %s\n'%(b['name'], b['author'])
         return msg
 
     def news(self, data):
-        msg = u'新闻\n'
+        msg = u'[新闻]\n'
         for n in data['list']:
             msg += u'<a href="%s">%s</a>\n'%(n['detailurl'],n['article'])
         return msg
 
     def app(self, data):
-        msg = u'应用\n'
+        msg = u'[应用]\n'
         for a in data['list']:
             msg += u'%s\n'%a['name']
         return msg
