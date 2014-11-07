@@ -4,7 +4,7 @@
 # @Author  : yml_bright@163.com
 
 from config import *
-from tornado.httpclient import HTTPRequest, AsyncHTTPClient
+from tornado.httpclient import HTTPRequest, AsyncHTTPClient, HTTPClient
 from BeautifulSoup import BeautifulSoup
 import tornado.web
 import tornado.gen
@@ -26,6 +26,7 @@ class NICHandler(tornado.web.RequestHandler):
         }
         try:
             client = AsyncHTTPClient()
+            client2 = HTTPClient()
             request = HTTPRequest(
                 LOGIN_URL,
                 method='GET',
@@ -41,41 +42,47 @@ class NICHandler(tornado.web.RequestHandler):
             response = yield tornado.gen.Task(client.fetch, request)
             if len(response.body) > 10000:
                 ret = {}
-                self.chose_type(client, cookie, 'a')
+                self.chose_type(client2, cookie, 'a')
                 request = HTTPRequest(
                     DETIAL_URL,
                     method='GET',
                     headers={'Cookie':cookie},
                     request_timeout=TIME_OUT)
-                response = yield tornado.gen.Task(client.fetch, request)
+                response = client2.fetch(request)
                 if len(response.body) > 10000:
                     soup = BeautifulSoup(response.body)
                     td = soup.findAll('td', {'bgcolor': '#FFFFFF', 'align': re.compile('center|right')})
-                    ret['a'] = {'state': td[0].text, 'used': td[1].text[:-14]+'B'}
+                    if td[1].text[:-14]:
+                        ret['a'] = {'state': td[0].text, 'used': td[1].text[:-14]+'B'}
+                    else:
+                        ret['a'] = {'state': td[0].text, 'used': td[2].text[:-14]+'B'}
                 else:
                     ret['a'] = {'state':'未开通'.decode('utf-8'), 'used':'0 B'}
 
-                self.chose_type(client, cookie, 'b')
+                self.chose_type(client2, cookie, 'b')
                 request = HTTPRequest(
                     DETIAL_URL,
                     method='GET',
                     headers={'Cookie':cookie},
                     request_timeout=TIME_OUT)
-                response = yield tornado.gen.Task(client.fetch, request)
+                response = client2.fetch(request)
                 if len(response.body) > 10000:
                     soup = BeautifulSoup(response.body)
                     td = soup.findAll('td', {'bgcolor': '#FFFFFF', 'align': re.compile('center|right')})
-                    ret['b'] = {'state': td[0].text, 'used': td[1].text[:-14]+'B'}
+                    if td[1].text[:-14]:
+                        ret['b'] = {'state': td[0].text, 'used': td[1].text[:-14]+'B'}
+                    else:
+                        ret['b'] = {'state': td[0].text, 'used': td[2].text[:-14]+'B'}
                 else:
                     ret['b'] = {'state':'未开通'.decode('utf-8'), 'used':'0 B'}
 
-                self.chose_type(client, cookie, 'web')
+                self.chose_type(client2, cookie, 'web')
                 request = HTTPRequest(
                     WEB_URL,
                     method='GET',
                     headers={'Cookie':cookie},
                     request_timeout=TIME_OUT)
-                response = yield tornado.gen.Task(client.fetch, request)
+                response = client2.fetch(request)
                 if len(response.body) > 10000:
                     soup = BeautifulSoup(response.body)
                     td = soup.findAll('td', {'bgcolor': '#FFFFFF', 'align': 'center'})
@@ -100,7 +107,6 @@ class NICHandler(tornado.web.RequestHandler):
             self.write('error')
         self.finish()
 
-    @tornado.gen.engine
     def chose_type(self, client, cookie, type):
         data = {
             'operation': 'status',
@@ -113,4 +119,4 @@ class NICHandler(tornado.web.RequestHandler):
             body = urllib.urlencode(data),
             headers={'Cookie':cookie},
             request_timeout=TIME_OUT)
-        response = yield tornado.gen.Task(client.fetch, request)
+        response = client.fetch(request)
