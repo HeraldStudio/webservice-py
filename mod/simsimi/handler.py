@@ -22,11 +22,12 @@ class SIMSIMIHandler(tornado.web.RequestHandler):
     @tornado.gen.engine
     def post(self):
         msg = self.get_argument('msg', default='你好')
+        uid = self.get_argument('uid', default='')
         data = {
             'key': KEY,
             'info': msg,
             'loc': '江苏南京江宁',
-            'userid': 'herald'
+            'userid': uid
         }
         try:
             client = AsyncHTTPClient()
