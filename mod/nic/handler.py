@@ -24,7 +24,7 @@ class NICHandler(tornado.web.RequestHandler):
             'username':self.get_argument('cardnum'),
             'password':self.get_argument('password'),
         }
-        try:
+        if 1:
             client = AsyncHTTPClient()
             client2 = HTTPClient()
             request = HTTPRequest(
@@ -103,8 +103,8 @@ class NICHandler(tornado.web.RequestHandler):
                 self.write(json.dumps(ret, ensure_ascii=False, indent=2))
             else:
                 self.write('wrong card number or password')
-        except:
-            self.write('error')
+        #except:
+        #    self.write('error')
         self.finish()
 
     def chose_type(self, client, cookie, type):

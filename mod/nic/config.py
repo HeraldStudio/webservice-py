@@ -4,11 +4,11 @@
 # @Author  : yml_bright@163.com
 
 INDEX_URL = "https://nic.seu.edu.cn/"
-LOGIN_URL = "https://nic.seu.edu.cn/selfservice/campus_login.php"
-CHOISE_URL = "https://nic.seu.edu.cn/selfservice/service_manage_index.php"
-DETIAL_URL = "https://nic.seu.edu.cn/selfservice/service_manage_status.php"
-WEB_URL = "https://nic.seu.edu.cn/selfservice/service_manage_status_web.php"
-FEE_URL = "https://nic.seu.edu.cn/selfservice/service_fee_index.php"
+LOGIN_URL = "https://selfservice.seu.edu.cn/selfservice/campus_login.php"
+CHOISE_URL = "https://selfservice.seu.edu.cn/selfservice/service_manage_index.php"
+DETIAL_URL = "https://selfservice.seu.edu.cn/selfservice/service_manage_status.php"
+WEB_URL = "https://selfservice.seu.edu.cn/selfservice/service_manage_status_web.php"
+FEE_URL = "https://selfservice.seu.edu.cn/selfservice/service_fee_index.php"
 
 
 TIME_OUT = 4
