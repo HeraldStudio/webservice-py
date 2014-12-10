@@ -78,6 +78,9 @@ class LectureHandler(tornado.web.RequestHandler):
                         td = td.findChildren()
                         if not td[4].text[:3].encode('utf-8') in fliter:
                             tmp = {}
+                            datecheck = td[0].text.split(' ')[0]
+                            if count>0 and datecheck == lecture[count-1]['date'].split(' ')[0]:
+                                continue
                             tmp['date'] = td[0].text
                             tmp['place'] = td[4].text
                             lecture.append(tmp)
