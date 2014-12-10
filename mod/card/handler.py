@@ -25,6 +25,7 @@ class CARDHandler(tornado.web.RequestHandler):
             'Login.Token1':self.get_argument('cardnum'),
             'Login.Token2':self.get_argument('password'),
         }
+        retjson = {'code':200, 'content':''}
         try:
             client = AsyncHTTPClient()
             request = HTTPRequest(
@@ -56,7 +57,8 @@ class CARDHandler(tornado.web.RequestHandler):
                 cardLetf = td[46].text.encode('utf-8').split('元')[0]
 
                 if timedelta == 0:
-                    self.write(json.dumps({'state':cardState, 'left':cardLetf}, ensure_ascii=False, indent=2))
+                    retjson['content'] = {'state':cardState, 'left':cardLetf}
+                    self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
                     self.finish()
                     return
 
@@ -130,9 +132,12 @@ class CARDHandler(tornado.web.RequestHandler):
                         request_timeout=TIME_OUT)
                     response = yield tornado.gen.Task(client.fetch, request)
                     soup = BeautifulSoup(response.body)
-                self.write(json.dumps({'state':cardState, 'left':cardLetf, 'detial':detial}, ensure_ascii=False, indent=2))
+                retjson['content'] = {'state':cardState, 'left':cardLetf, 'detial':detial}
             else:
-                self.write('wrong card number or password')
+                retjson['code'] = 401
+                retjson['content'] = 'wrong card number or password'
         except:
-            self.write('error')
+            retjson['code'] = 500
+            retjson['content'] = 'error'
+        self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()

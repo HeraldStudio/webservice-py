@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Date    : 2014-06-26 13:57:44
-# @Author  : xindervella@gamil.com
+# @Author  : xindervella@gamil.com yml_bright@163.com
 from BeautifulSoup import BeautifulSoup
 from config import CURR_URL, TIME_OUT
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
@@ -22,8 +22,10 @@ class CurriculumHandler(tornado.web.RequestHandler):
     def post(self):
         cardnum = self.get_argument('cardnum', default=None)
         term = self.get_argument('term', default=None)
-        if not (cardnum or term):
-            self.write('params lack')
+        retjson = {'code':200, 'content':''}
+        if not (cardnum and term):
+            retjson['code'] = 400
+            retjson['content'] = 'params lack'
         else:
             params = urllib.urlencode(
                 {'queryStudentId': cardnum,
@@ -36,14 +38,17 @@ class CurriculumHandler(tornado.web.RequestHandler):
             body = response.body
 
             if not body:
-                self.write('time out')
+                retjson['code'] = 408
+                retjson['content'] = 'time out'
             else:
                 pat = re.compile(ur'没有找到该学生信息', re.U)
                 match = pat.search(body)
                 if match:
-                    self.write('card number not exist')
+                    retjson['code'] = 401
+                    retjson['content'] = 'card number not exist'
                 else:
-                    self.write(self.parser(body))
+                    retjson['content'] = self.parser(body)
+        self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
 
     def parser(self, html):
@@ -70,7 +75,7 @@ class CurriculumHandler(tornado.web.RequestHandler):
         curriculum['Sat'] = self.course_split(table[19])
         curriculum['Sun'] = self.course_split(table[21])
 
-        return json.dumps(curriculum, ensure_ascii=False, indent=2)
+        return curriculum
 
     def course_split(self, table):
         br = BeautifulSoup('<br/>')

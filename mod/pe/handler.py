@@ -10,7 +10,7 @@ import tornado.web
 import tornado.gen
 import urllib
 import random
-
+import json
 
 class PEHandler(tornado.web.RequestHandler):
 
@@ -27,11 +27,12 @@ class PEHandler(tornado.web.RequestHandler):
         state = ''
         cardnum = self.get_argument('cardnum', default=None)
         pwd = self.get_argument('pwd', default=cardnum)
+        retjson = {'code':200, 'content':''}
         # pwd 缺省为 cardnum
 
         if not cardnum:
-            self.write('empty card number')
-
+            retjson['code'] = 400
+            retjson['content'] = 'params lack'
         else:
             data = {
                 'displayName':'',
@@ -57,13 +58,14 @@ class PEHandler(tornado.web.RequestHandler):
                         PEUser.cardnum == str(cardnum)).one()
                     self.write(user.count)
                 except NoResultFound:
-                    self.write(state)
-
+                    retjson['code'] = 408
+                    retjson['content'] = 'time out'
             else:
                 # self.headers['Content-Length'] # 登陆成功 524 失败 1608
                 if int(headers['Content-Length']) > 1630:
                     state = 'wrong card number or password'
-                    self.write(state)
+                    retjson['code'] = 401
+                    retjson['content'] = 'wrong card number or password'
                 else:
                     state = 'success'
 
@@ -80,15 +82,17 @@ class PEHandler(tornado.web.RequestHandler):
                         # 超时取出缓存
                         user = self.db.query(PEUser).filter(
                             PEUser.cardnum == str(cardnum)).one()
-                        self.write(user.count)
+                        retjson['content'] = user.count
                     except NoResultFound:
-                        self.write(state)
+                        retjson['code'] = 408
+                        retjson['content'] = 'time out'
                 else:
                     soup = BeautifulSoup(body)
                     table = soup.findAll(
                         "td", {"bgcolor": "#FFFFFF"})
                     count = table[1].text[6:-2]
-                    self.write(count)
+                    retjson['content'] = count
+        self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
 
         if state == 'success':

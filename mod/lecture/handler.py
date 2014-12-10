@@ -23,6 +23,7 @@ class LectureHandler(tornado.web.RequestHandler):
             'Login.Token1':self.get_argument('cardnum'),
             'Login.Token2':self.get_argument('password'),
         }
+        retjson = {'code':200, 'content':''}
         try:
             client = AsyncHTTPClient()
             request = HTTPRequest(
@@ -86,9 +87,12 @@ class LectureHandler(tornado.web.RequestHandler):
                             lecture.append(tmp)
                             count += 1
                     page += 1
-                self.write(json.dumps({'count':count, 'detial':lecture}, ensure_ascii=False, indent=2))
+                retjson['content'] = {'count':count, 'detial':lecture}
             else:
-                self.write('wrong card number or password')
+                retjson['code'] = 401
+                retjson['content'] = 'wrong card number or password'
         except:
-            self.write('error')
+            retjson['code'] = 500
+            retjson['content'] = 'error'
+        self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()

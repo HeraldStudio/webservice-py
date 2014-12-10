@@ -29,6 +29,7 @@ class LibSearchHandler(tornado.web.RequestHandler):
             'showmod': 'json',
             'dept': 'ALL'
         }
+        retjson = {'code':200, 'content':''}
         try:
             client = AsyncHTTPClient()
             request = HTTPRequest(
@@ -51,9 +52,11 @@ class LibSearchHandler(tornado.web.RequestHandler):
                     'publish': self.entity_parser(b.p.contents[4].strip()),
                     'author': self.entity_parser(b.p.contents[2].strip())
                     })
-            self.write(json.dumps(books, ensure_ascii=False, indent=2))
+            retjson['content'] = books
         except:
-            self.write('error')
+            retjson['code'] = 500
+            retjson['content'] = 'error'
+        self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
 
     def entity_parser(self, string):

@@ -24,7 +24,8 @@ class NICHandler(tornado.web.RequestHandler):
             'username':self.get_argument('cardnum'),
             'password':self.get_argument('password'),
         }
-        if 1:
+        retjson = {'code':200, 'content':''}
+        try:
             client = AsyncHTTPClient()
             client2 = HTTPClient()
             request = HTTPRequest(
@@ -100,11 +101,14 @@ class NICHandler(tornado.web.RequestHandler):
                 td = soup.findAll('td', {'bgcolor': '#FFFFFF', 'align': 'center'})
                 ret['left'] = td[0].text
 
-                self.write(json.dumps(ret, ensure_ascii=False, indent=2))
+                retjson['content'] = ret
             else:
-                self.write('wrong card number or password')
-        #except:
-        #    self.write('error')
+                retjson['code'] = 401
+                retjson['content'] = 'wrong card number or password'
+        except:
+            retjson['code'] = 500
+            retjson['content'] = 'error'
+        self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
 
     def chose_type(self, client, cookie, type):
