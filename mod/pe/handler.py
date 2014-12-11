@@ -55,7 +55,7 @@ class PEHandler(tornado.web.RequestHandler):
                 try:
                     # 超时取出缓存
                     user = self.db.query(PEUser).filter(
-                        PEUser.cardnum == str(cardnum)).one()
+                        PEUser.cardnum == int(cardnum)).one()
                     self.write(user.count)
                 except NoResultFound:
                     retjson['code'] = 408
@@ -81,7 +81,7 @@ class PEHandler(tornado.web.RequestHandler):
                     try:
                         # 超时取出缓存
                         user = self.db.query(PEUser).filter(
-                            PEUser.cardnum == str(cardnum)).one()
+                            PEUser.cardnum == int(cardnum)).one()
                         retjson['content'] = user.count
                     except NoResultFound:
                         retjson['code'] = 408
@@ -99,10 +99,11 @@ class PEHandler(tornado.web.RequestHandler):
             # 更新缓存
             try:
                 user = self.db.query(PEUser).filter(
-                    PEUser.cardnum == str(cardnum)).one()
+                    PEUser.cardnum == int(cardnum)).one()
                 user.count = count
             except NoResultFound:
-                user = PEUser(cardnum=str(cardnum), count=count)
+                user = PEUser(cardnum=int(cardnum), count=count)
                 self.db.add(user)
             finally:
                 self.db.commit()
+        self.db.close()
