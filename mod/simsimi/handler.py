@@ -77,7 +77,8 @@ class SIMSIMIHandler(tornado.web.RequestHandler):
             310000 : self.lottery,
             311000 : self.price,
             312000 : self.restaurant,
-            40004 : self.useoff
+            50000 : self.error,
+            40004 : self.useoff,
         }
 
     def useoff(self, data):
@@ -130,3 +131,6 @@ class SIMSIMIHandler(tornado.web.RequestHandler):
 
     def restaurant(self, data):
         return u'不如用电脑查查，么么哒'
+
+    def error(self, data):
+        return data['text']

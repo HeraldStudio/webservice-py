@@ -18,6 +18,7 @@ from mod.library.listhandler import LibListHandler
 from mod.library.renewhandler import LibRenewHandler
 from mod.library.searchhandler import LibSearchHandler
 from mod.pc.handler import PCHandler
+from mod.jwc.handler import JWCHandler
 import tornado.web
 import tornado.ioloop
 import tornado.options
@@ -45,6 +46,8 @@ class Application(tornado.web.Application):
             (r'/webserv2/renew', LibRenewHandler),
             (r'/webserv2/search', LibSearchHandler),
             (r'/webserv2/pc', PCHandler),
+            (r'/webserv2/jwc', JWCHandler),
+
         ]
         settings = dict(
             cookie_secret="7CA71A57B571B5AEAC5E64C6042415DE",
