@@ -73,11 +73,11 @@ class JWCHandler(tornado.web.RequestHandler):
         items = soup.findAll('table', {'width':"100%"})
         #return json.dumps([[i,items[i].text] for i in range(len(items))], ensure_ascii=False, indent=2)
         info = {
-            '最新动态': self.abstract(items[13:18],1), 
-            '教务信息': self.abstract(items[36:36+7],0), 
-            '学籍管理': self.abstract(items[47:47+7],0), 
-            '实践教学': self.abstract(items[58:58+7],0), 
-            '合作办学': self.abstract(items[69:69+4],0),
+            '最新动态': self.abstract(items[12:17],1), 
+            '教务信息': self.abstract(items[35:35+7],0), 
+            '学籍管理': self.abstract(items[46:46+7],0), 
+            '实践教学': self.abstract(items[57:57+7],0), 
+            '合作办学': self.abstract(items[68:68+4],0),
             }
         retjson = {'code':200, 'content':info}
         return json.dumps(retjson, ensure_ascii=False, indent=2)
@@ -96,7 +96,7 @@ class JWCHandler(tornado.web.RequestHandler):
                     abst.append({
                         'title': t.a.attrs[2][1],
                         'href': JWC_URL+t.a.attrs[0][1],
-                        'date': str(t)[-34:-24],
+                        'date': str(t)[-36:-26],
                         })
             #except:
             #    pass
