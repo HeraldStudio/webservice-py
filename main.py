@@ -19,6 +19,7 @@ from mod.library.renewhandler import LibRenewHandler
 from mod.library.searchhandler import LibSearchHandler
 from mod.pc.handler import PCHandler
 from mod.jwc.handler import JWCHandler
+from mod.schoolbus.handler import SchoolBusHandler
 import tornado.web
 import tornado.ioloop
 import tornado.options
@@ -47,6 +48,7 @@ class Application(tornado.web.Application):
             (r'/webserv2/search', LibSearchHandler),
             (r'/webserv2/pc', PCHandler),
             (r'/webserv2/jwc', JWCHandler),
+            (r'/webserv2/schoolbus', SchoolBusHandler),
 
         ]
         settings = dict(
