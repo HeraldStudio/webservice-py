@@ -32,7 +32,7 @@ class SchoolBusHandler(tornado.web.RequestHandler):
     def init_db(self):
         bus_json = {
             'weekday' : {
-                '到九龙湖' : [
+                '进九龙湖' : [
                     {'time': '06:50', 'bus': '2辆九江线、3辆九河直、3辆九河B'},
                     {'time': '07:50', 'bus': '1辆九桥线'},
                     {'time': '08:00', 'bus': '2辆九江线、6辆(周一+1)九河直、6辆(周一+1)九河B'},
@@ -44,7 +44,7 @@ class SchoolBusHandler(tornado.web.RequestHandler):
                     {'time': '17:30', 'bus': '1辆九河B'},
                     {'time': '19:00', 'bus': '1辆九河B'},
                 ],
-                '到四牌楼' : [
+                '出九龙湖' : [
                     {'time': '08:15', 'bus': '1辆九河B'},
                     {'time': '09:50', 'bus': '2辆九河直、2辆九河B'},
                     {'time': '10:50', 'bus': '2辆九河直、2辆九河B'},
@@ -58,12 +58,12 @@ class SchoolBusHandler(tornado.web.RequestHandler):
                 ],
             },
             'weekend' : {
-                '到九龙湖' : [
+                '进九龙湖' : [
                     {'time': '08:00', 'bus': '2辆九河直、2辆九河B'},
                     {'time': '09:00', 'bus': '1辆九河B'},
                     {'time': '13:00', 'bus': '1辆九河B'},
                 ],
-                '到四牌楼' : [
+                '出九龙湖' : [
                     {'time': '09:00', 'bus': '1辆九河B'},
                     {'time': '13:00', 'bus': '1辆九河B'},
                     {'time': '17:00', 'bus': '2辆九河直、2辆九河B'},
@@ -71,8 +71,12 @@ class SchoolBusHandler(tornado.web.RequestHandler):
             },
         }
         retjson = {'code': 200, 'content': bus_json}
-        da = DataCache(key=10001, data=base64.b64encode(json.dumps(retjson, ensure_ascii=False, indent=2)))
-        self.db.add(da)
+        try:
+            data = self.db.query(DataCache).filter( DataCache.key == 10001 ).one()
+            data.data = base64.b64encode(json.dumps(retjson, ensure_ascii=False, indent=2))
+        except NoResultFound:
+            data = DataCache(key=10001, data=base64.b64encode(json.dumps(retjson, ensure_ascii=False, indent=2)))
+        self.db.add(data)
         self.db.commit()
 
 
