@@ -11,4 +11,4 @@ WEB_URL = "https://selfservice.seu.edu.cn/selfservice/service_manage_status_web.
 FEE_URL = "https://selfservice.seu.edu.cn/selfservice/service_fee_index.php"
 
 
-TIME_OUT = 4
+TIME_OUT = 7

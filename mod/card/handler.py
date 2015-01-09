@@ -6,13 +6,20 @@
 from config import *
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
 from BeautifulSoup import BeautifulSoup
+from ..models.card_cache import CardCache
+from sqlalchemy.orm.exc import NoResultFound
+from time import time
 import tornado.web
 import tornado.gen
 import urllib, re
-import json
+import json, base64
 import datetime
 
 class CARDHandler(tornado.web.RequestHandler):
+
+    @property
+    def db(self):
+        return self.application.db
 
     def get(self):
         self.write('Herald Web Service')
@@ -21,11 +28,25 @@ class CARDHandler(tornado.web.RequestHandler):
     @tornado.gen.engine
     def post(self):
         timedelta = int(self.get_argument('timedelta', default=0))
+        cardnum = self.get_argument('cardnum')
         data = {
-            'Login.Token1':self.get_argument('cardnum'),
+            'Login.Token1':cardnum,
             'Login.Token2':self.get_argument('password'),
         }
         retjson = {'code':200, 'content':''}
+        isCached = True
+
+        # read from cache
+        try:
+            status = self.db.query(CardCache).filter( CardCache.cardnum ==  cardnum ).one()
+            if timedelta == 0 and status.date == int(time())/1000:
+                self.write(base64.b64decode(status.text))
+                self.db.close()
+                self.finish()
+                return
+        except NoResultFound:
+            isCached = False
+
         try:
             client = AsyncHTTPClient()
             request = HTTPRequest(
@@ -58,8 +79,20 @@ class CARDHandler(tornado.web.RequestHandler):
 
                 if timedelta == 0:
                     retjson['content'] = {'state':cardState, 'left':cardLetf}
-                    self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
+                    retjson = json.dumps(retjson, ensure_ascii=False, indent=2)
+                    self.write(retjson)
                     self.finish()
+
+                    # refresh cache
+                    if isCached:
+                        status.date = int(time())/1000
+                        status.text = base64.b64encode(retjson)
+                        self.db.add(status)
+                    else:
+                        status = CardCache(cardnum=cardnum, text=base64.b64encode(retjson), date=int(time())/1000)
+                        self.db.add(status)
+                    self.db.commit()
+                    self.db.close()
                     return
 
                 request = HTTPRequest(

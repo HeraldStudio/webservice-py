@@ -10,4 +10,4 @@ INIT_URL = "http://allinonecard.seu.edu.cn/accounthisTrjn.action"
 INDEX_URL = "http://allinonecard.seu.edu.cn/"
 DATA_URL = "http://allinonecard.seu.edu.cn/accountconsubBrows.action"
 
-TIME_OUT = 4
+TIME_OUT = 7
