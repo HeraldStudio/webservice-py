@@ -91,7 +91,10 @@ class CARDHandler(tornado.web.RequestHandler):
                     else:
                         status = CardCache(cardnum=cardnum, text=base64.b64encode(retjson), date=int(time())/1000)
                         self.db.add(status)
-                    self.db.commit()
+                    try:
+                        self.db.commit()
+                    except:
+                        self.db.rollback()
                     self.db.close()
                     return
 

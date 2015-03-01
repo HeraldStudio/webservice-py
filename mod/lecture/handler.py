@@ -127,5 +127,10 @@ class LectureHandler(tornado.web.RequestHandler):
         else:
             status = LectureCache(cardnum=cardnum, text=base64.b64encode(retjson), date=int(time())/1000)
             self.db.add(status)
-        self.db.commit()
+        try:
+            self.db.commit()
+        except:
+            self.db.rollback()
+        finally:
+            self.db.remove()
         self.db.close()

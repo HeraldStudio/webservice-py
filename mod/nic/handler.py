@@ -141,7 +141,12 @@ class NICHandler(tornado.web.RequestHandler):
         else:
             status = NicCache(cardnum=cardnum, text=base64.b64encode(retjson), date=int(time())/1000)
             self.db.add(status)
-        self.db.commit()
+        try:
+            self.db.commit()
+        except:
+            self.db.rollback()
+        finally:
+            self.db.remove()
         self.db.close()
 
     def chose_type(self, client, cookie, type):
