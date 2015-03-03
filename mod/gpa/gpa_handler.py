@@ -60,6 +60,7 @@ class GPAHandler(tornado.web.RequestHandler):
                                               request_timeout=TIME_OUT,
                                               headers={'Cookie': cookie})
                         response = yield tornado.gen.Task(client.fetch, request)
+                        print response
                         if not response.headers:
                             retjson['code'] = 408
                             retjson['content'] = 'time out'
