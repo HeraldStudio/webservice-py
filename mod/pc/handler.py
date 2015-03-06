@@ -25,7 +25,7 @@ class PCHandler(tornado.web.RequestHandler):
         self.write('Herald Web Service')
 
     def post(self):
-        retjson = {'code':200, 'content':''}
+        retjson = {'code':200, 'content':u'暂时关闭'}
         try:
             status = self.db.query(PCCache).filter( PCCache.date == self.today() ).one()
             retjson['content'] = base64.b64decode(status.text)
