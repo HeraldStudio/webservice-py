@@ -17,6 +17,7 @@ from mod.lecture.handler import LectureHandler
 from mod.library.listhandler import LibListHandler
 from mod.library.renewhandler import LibRenewHandler
 from mod.library.searchhandler import LibSearchHandler
+from mod.phyLab.phyLab_handler import PhylabHandler
 import tornado.web
 import tornado.ioloop
 import tornado.options
@@ -43,6 +44,7 @@ class Application(tornado.web.Application):
             (r'/webserv2/library', LibListHandler),
             (r'/webserv2/renew', LibRenewHandler),
             (r'/webserv2/search', LibSearchHandler),
+            (r'/webserv2/phyLab',PhylabHandler),
         ]
         settings = dict(
             cookie_secret="7CA71A57B571B5AEAC5E64C6042415DE",
