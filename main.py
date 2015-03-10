@@ -20,6 +20,7 @@ from mod.library.searchhandler import LibSearchHandler
 from mod.pc.handler import PCHandler
 from mod.jwc.handler import JWCHandler
 from mod.schoolbus.handler import SchoolBusHandler
+from mod.phylab.handler import PhylabHandler
 import tornado.web
 import tornado.ioloop
 import tornado.options
@@ -49,6 +50,7 @@ class Application(tornado.web.Application):
             (r'/webserv2/pc', PCHandler),
             (r'/webserv2/jwc', JWCHandler),
             (r'/webserv2/schoolbus', SchoolBusHandler),
+            (r'/webserv2/phylab', PhylabHandler),
 
         ]
         settings = dict(
