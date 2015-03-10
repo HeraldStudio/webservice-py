@@ -25,6 +25,8 @@ class LibRenewHandler(tornado.web.RequestHandler):
             'passwd': self.get_argument('password'),
             'select': 'bar_no'
         }
+        retjson = {'code':200, 'content':''}
+
         try:
             client = AsyncHTTPClient()
             request = HTTPRequest(
@@ -71,16 +73,19 @@ class LibRenewHandler(tornado.web.RequestHandler):
                             request_timeout=TIME_OUT)
                         response = yield tornado.gen.Task(client.fetch, request)
                         if response.body == 'invalid call':
-                            self.write('error')
+                            flag = False
                         else:
                             flag = True
                 if flag:
-                    self.write('success')
+                    retjson['content'] = 'success'
                 else:
-                    self.write('fail')
+                    retjson['content'] = 'fail'
             else:
-                self.write('wrong card number or password')
+                retjson['code'] = 401
+                retjson['content'] = 'wrong card number or password'
         except:
-            self.write('error')
+            retjson['code'] = 500
+            retjson['content'] = 'error'
+        self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
 

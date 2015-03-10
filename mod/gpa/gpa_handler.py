@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Date    : 2014-06-26 17:00:02
-# @Author  : xindervella@gamil.com
+# @Author  : xindervella@gamil.com yml_bright@163.com
 from config import VERCODE_URL, LOGIN_URL, INFO_URL
 from config import STANDARD, TIME_OUT
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
@@ -24,14 +24,17 @@ class GPAHandler(tornado.web.RequestHandler):
         username = self.get_argument('username', default=None)
         pwd = self.get_argument('password', default=None)
 
+        retjson = {'code':200, 'content':''}
         if not (username or pwd):
-            self.write('params lack')
+            retjson['code'] = 400
+            retjson['content'] = 'params lack'
         else:
             client = AsyncHTTPClient()
             request = HTTPRequest(VERCODE_URL, request_timeout=TIME_OUT)
             response = yield tornado.gen.Task(client.fetch, request)
             if not response.headers:
-                self.write('time out')
+                retjson['code'] = 408
+                retjson['content'] = 'time out'
             else:
                 cookie = response.headers['Set-Cookie'].split(';')[0]
                 img = Image.open(io.BytesIO(response.body))
@@ -46,19 +49,24 @@ class GPAHandler(tornado.web.RequestHandler):
                                       request_timeout=TIME_OUT)
                 response = yield tornado.gen.Task(client.fetch, request)
                 if not response.headers:
-                    self.write('time out')
+                    retjson['code'] = 408
+                    retjson['content'] = 'time out'
                 else:
                     if int(response.headers['Content-Length']) > 1000:
-                        self.write('wrong username or password')
+                        retjson['code'] = 401
+                        retjson['content'] = 'wrong card number or password'
                     else:
                         request = HTTPRequest(INFO_URL,
                                               request_timeout=TIME_OUT,
                                               headers={'Cookie': cookie})
                         response = yield tornado.gen.Task(client.fetch, request)
+                        print response
                         if not response.headers:
-                            self.write('time out')
+                            retjson['code'] = 408
+                            retjson['content'] = 'time out'
                         else:
-                            self.write(self.parser(response.body))
+                            retjson['content'] = self.parser(response.body)
+        self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
 
     def recognize(self, img):
@@ -109,4 +117,4 @@ class GPAHandler(tornado.web.RequestHandler):
                 'type': tds[6].text[:-6],
                 'extra': tds[7].text[:-6]
             })
-        return json.dumps(items, ensure_ascii=False, indent=2)
+        return items

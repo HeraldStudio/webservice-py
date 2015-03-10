@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Date    : 2014-06-25 21:23:32
-# @Author  : xindervella@gamil.com
+# @Author  : xindervella@gamil.com yml_bright@163.com
 from BeautifulSoup import BeautifulSoup
 from config import CURR_URL, TIME_OUT
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
@@ -21,8 +21,10 @@ class SidebarHandler(tornado.web.RequestHandler):
     def post(self):
         cardnum = self.get_argument('cardnum', default=None)
         term = self.get_argument('term', default=None)
+        retjson = {'code':200, 'content':''}
         if not (cardnum or term):
-            self.write('params lack')
+            retjson['code'] = 400
+            retjson['content'] = 'params lack'
         else:
             params = urllib.urlencode(
                 {'queryStudentId': cardnum,
@@ -34,14 +36,17 @@ class SidebarHandler(tornado.web.RequestHandler):
             response = yield tornado.gen.Task(client.fetch, request)
             body = response.body
             if not body:
-                self.write('time out')
+                retjson['code'] = 408
+                retjson['content'] = 'time out'
             else:
                 pat = re.compile(ur'没有找到该学生信息', re.U)
                 match = pat.search(body)
                 if match:
-                    self.write('card number not exist')
+                    retjson['code'] = 401
+                    retjson['content'] = 'card number not exist'
                 else:
-                    self.write(self.parser(body))
+                    retjson['content'] = self.parser(body)
+        self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
 
     def parser(self, html):
@@ -56,7 +61,7 @@ class SidebarHandler(tornado.web.RequestHandler):
                  'credit': self.next_n_sibling(item, 4).text[6:],
                  'week': self.next_n_sibling(item, 6).text[6:]
                  })
-        return json.dumps(sidebar, ensure_ascii=False, indent=2)
+        return sidebar
 
     def next_n_sibling(self, item, n):
         for i in xrange(n):

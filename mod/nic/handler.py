@@ -6,13 +6,20 @@
 from config import *
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient, HTTPClient
 from BeautifulSoup import BeautifulSoup
+from ..models.nic_cache import NicCache
+from sqlalchemy.orm.exc import NoResultFound
+from time import time
 import tornado.web
 import tornado.gen
 import urllib, re
-import json
+import json, base64
 
 
 class NICHandler(tornado.web.RequestHandler):
+
+    @property
+    def db(self):
+        return self.application.db
 
     def get(self):
         self.write('Herald Web Service')
@@ -20,11 +27,26 @@ class NICHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     @tornado.gen.engine
     def post(self):
+        cardnum = self.get_argument('cardnum')
         data = {
-            'username':self.get_argument('cardnum'),
+            'username':cardnum,
             'password':self.get_argument('password'),
         }
-        if 1:
+        retjson = {'code':200, 'content':''}
+        isCached = True
+
+        # read from cache
+        try:
+            status = self.db.query(NicCache).filter( NicCache.cardnum ==  cardnum ).one()
+            if status.date == int(time())/1000:
+                self.write(base64.b64decode(status.text))
+                self.db.close()
+                self.finish()
+                return
+        except NoResultFound:
+            isCached = False
+
+        try:
             client = AsyncHTTPClient()
             client2 = HTTPClient()
             request = HTTPRequest(
@@ -100,12 +122,32 @@ class NICHandler(tornado.web.RequestHandler):
                 td = soup.findAll('td', {'bgcolor': '#FFFFFF', 'align': 'center'})
                 ret['left'] = td[0].text
 
-                self.write(json.dumps(ret, ensure_ascii=False, indent=2))
+                retjson['content'] = ret
             else:
-                self.write('wrong card number or password')
-        #except:
-        #    self.write('error')
+                retjson['code'] = 401
+                retjson['content'] = 'wrong card number or password'
+        except:
+            retjson['code'] = 500
+            retjson['content'] = 'error'
+        retjson = json.dumps(retjson, ensure_ascii=False, indent=2)
+        self.write(retjson)
         self.finish()
+
+        # refresh cache
+        if isCached:
+            status.date = int(time())/1000
+            status.text = base64.b64encode(retjson)
+            self.db.add(status)
+        else:
+            status = NicCache(cardnum=cardnum, text=base64.b64encode(retjson), date=int(time())/1000)
+            self.db.add(status)
+        try:
+            self.db.commit()
+        except:
+            self.db.rollback()
+        finally:
+            self.db.remove()
+        self.db.close()
 
     def chose_type(self, client, cookie, type):
         data = {

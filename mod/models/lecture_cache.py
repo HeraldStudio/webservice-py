@@ -1,0 +1,14 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# @Date    : 2015-01-09 12:11:23
+# @Author  : yml_bright@163.com
+
+from sqlalchemy import Column, String, Integer, ForeignKey
+from sqlalchemy.ext.declarative import declarative_base
+from db import engine, Base
+
+class LectureCache(Base):
+    __tablename__ = 'lecture'
+    cardnum = Column(Integer, primary_key=True)
+    text = Column(String(1024), nullable=False)
+    date = Column(Integer, nullable=False)

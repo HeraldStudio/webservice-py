@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @Date    : 2014-06-27 14:36:45
-# @Author  : xindervella@gamil.com
+# @Author  : xindervella@gamil.com yml_bright@163.com
 from config import SRTP_URL, TIME_OUT
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
 from BeautifulSoup import BeautifulSoup
@@ -20,9 +20,11 @@ class SRTPHandler(tornado.web.RequestHandler):
     @tornado.gen.engine
     def post(self):
         number = self.get_argument('number', default=None)
+        retjson = {'code':200, 'content':''}
 
         if not number:
-            self.write('params lack')
+            retjson['code'] = 400
+            retjson['content'] = 'params lack'
         else:
             params = urllib.urlencode({'Code': number})
             client = AsyncHTTPClient()
@@ -30,14 +32,17 @@ class SRTPHandler(tornado.web.RequestHandler):
                                   request_timeout=TIME_OUT)
             response = yield tornado.gen.Task(client.fetch, request)
             if not response.headers:
-                self.write('time out')
+                retjson['code'] = 408
+                retjson['content'] = 'time out'
             else:
                 pat = re.compile('不存在|请输入', re.U)
                 match = pat.search(response.body)
                 if match:
-                    self.write('number not exist')
+                    retjson['code'] = 401
+                    retjson['content'] = 'number not exist'
                 else:
-                    self.write(self.parser(response.body))
+                    retjson['content'] = self.parser(response.body)
+        self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
 
     def parser(self, html):
@@ -66,4 +71,4 @@ class SRTPHandler(tornado.web.RequestHandler):
                 'proportion': tds[5].text.replace('-', ''),
                 'credit': tds[6].text.replace('-', ''),
             })
-        return json.dumps(srtp, ensure_ascii=False, indent=2)
+        return srtp

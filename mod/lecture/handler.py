@@ -6,12 +6,19 @@
 from config import *
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
 from BeautifulSoup import BeautifulSoup
+from ..models.lecture_cache import LectureCache
+from sqlalchemy.orm.exc import NoResultFound
+from time import time
 import tornado.web
 import tornado.gen
-import json
+import json, base64
 import urllib, re
 
 class LectureHandler(tornado.web.RequestHandler):
+
+    @property
+    def db(self):
+        return self.application.db
 
     def get(self):
         self.write('Herald Web Service')
@@ -19,10 +26,25 @@ class LectureHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     @tornado.gen.engine
     def post(self):
+        cardnum = self.get_argument('cardnum')
         data = {
-            'Login.Token1':self.get_argument('cardnum'),
+            'Login.Token1':cardnum,
             'Login.Token2':self.get_argument('password'),
         }
+        retjson = {'code':200, 'content':''}
+        isCached = True
+
+        # read from cache
+        try:
+            status = self.db.query(LectureCache).filter( LectureCache.cardnum ==  cardnum ).one()
+            if status.date == int(time())/1000:
+                self.write(base64.b64decode(status.text))
+                self.db.close()
+                self.finish()
+                return
+        except NoResultFound:
+            isCached = False
+
         try:
             client = AsyncHTTPClient()
             request = HTTPRequest(
@@ -58,7 +80,7 @@ class LectureHandler(tornado.web.RequestHandler):
                     'endDate':'',
                     'pageno':0
                 }
-                fliter = ['九龙湖', '手持考', '行政楼', '网络中', '机电大']
+                fliter = ['九龙湖', '手持考', '行政楼', '网络中', '机电大', '校医院', '研究生']
                 lecture = []
                 count = 0
                 while 1:
@@ -78,14 +100,37 @@ class LectureHandler(tornado.web.RequestHandler):
                         td = td.findChildren()
                         if not td[4].text[:3].encode('utf-8') in fliter:
                             tmp = {}
+                            datecheck = td[0].text.split(' ')[0]
+                            if count>0 and datecheck == lecture[count-1]['date'].split(' ')[0]:
+                                continue
                             tmp['date'] = td[0].text
                             tmp['place'] = td[4].text
                             lecture.append(tmp)
                             count += 1
                     page += 1
-                self.write(json.dumps({'count':count, 'detial':lecture}, ensure_ascii=False, indent=2))
+                retjson['content'] = {'count':count, 'detial':lecture}
             else:
-                self.write('wrong card number or password')
+                retjson['code'] = 401
+                retjson['content'] = 'wrong card number or password'
         except:
-            self.write('error')
+            retjson['code'] = 500
+            retjson['content'] = 'error'
+        retjson = json.dumps(retjson, ensure_ascii=False, indent=2)
+        self.write(retjson)
         self.finish()
+
+        # refresh cache
+        if isCached:
+            status.date = int(time())/1000
+            status.text = base64.b64encode(retjson)
+            self.db.add(status)
+        else:
+            status = LectureCache(cardnum=cardnum, text=base64.b64encode(retjson), date=int(time())/1000)
+            self.db.add(status)
+        try:
+            self.db.commit()
+        except:
+            self.db.rollback()
+        finally:
+            self.db.remove()
+        self.db.close()

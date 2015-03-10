@@ -8,4 +8,4 @@ LOGIN_URL = "http://allinonecard.seu.edu.cn/ecard/dongnanportalHome.action"
 USERID_URL = "http://allinonecard.seu.edu.cn/accountcardUser.action"
 DATA_URL = "http://allinonecard.seu.edu.cn/mjkqBrows.action"
 
-TIME_OUT = 4
+TIME_OUT = 7
