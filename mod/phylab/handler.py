@@ -22,34 +22,100 @@ class PhylabHandler(tornado.web.RequestHandler):
         return self.application.db
 
     def get(self):
-        self.post()
-        #self.write('Herald Web Service')
+        self.write('Herald Web Service')
 
     @tornado.web.asynchronous
     @tornado.gen.engine
     def post(self):
+        number = self.get_argument('number',default=None)
+        password = self.get_argument('password',default=None)
+        term = self.get_argument('term',default=None)
+
         retjson = {'code':200, 'content':''}
-        cardnum = '213120498'
-        password = ''
-        client = AsyncHTTPClient()
-        request = HTTPRequest(
-            LOGIN_URL,
-            method='POST',
-            body=POST_DATA + "&ctl00$cphSltMain$UserLogin1$txbUserCodeID=%s&ctl00$cphSltMain$UserLogin1$txbUserPwd=%s"%(cardnum, password),
-            request_timeout=TIME_OUT,
-            headers = { 'Cache-Control': 'no-cache',
-                        'Origin': 'http://phylab.seu.edu.cn',
-                        'X-MicrosoftAjax': 'Delta=true',
-                        'Cookie':'.ASPXANONYMOUS=cgcHQ5KR0AEkAAAAOWNmNWY1MDUtZTJkYy00NmQyLTliNWEtMTUwYzkxMGYwNGYyoTztJQEuHct8TNxENP01swAAAAA1; ASPSESSIONIDCQBRRQTC=OOHHONADEEADNFCHPKMMFJNH',
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36',
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'Accept': '*/*',
-                        'Referer': 'http://phylab.seu.edu.cn/plms/UserLogin.aspx?ReturnUrl=%%2fplms%%2fSelectLabSys%%2fDefault.aspx',
-                        'Accept-Encoding': 'gzip, deflate',
-                        'Accept-Language': 'zh-CN,zh;q=0.8,en;q=0.6,ja;q=0.4'}
+
+        if not number or not password or not term:
+            retjson['code'] = 400
+            retjson['content'] = 'params lack'
+        else:
+            if term =='shangbanxueqi':
+                curType = cur_type_up
+                retjson['content'] = {'基础性实验(上)':[],'基础性实验(上)选做':[],'文科及医学实验':[],'文科及医学实验选做':[]}
+            elif term =='xiabanxueqi':
+                curType = cur_type_down
+                retjson['content'] = {'基础性实验(下)':[],'基础性实验(下)选做':[],'文科及医学实验':[],'文科及医学实验选做':[]}
+
+            client = AsyncHTTPClient()
+            loginValues['ctl00$cphSltMain$UserLogin1$txbUserCodeID'] = number
+            loginValues['ctl00$cphSltMain$UserLogin1$txbUserPwd'] = password
+
+
+            loginGet = HTTPRequest( 
+                        LOGIN_URL,
+                        method='GET',
+                        request_timeout=TIME_OUT
             )
-        response = yield tornado.gen.Task(client.fetch, request)
-        print response.headers
-        self.write(response.body)
+            Re = yield tornado.gen.Task(client.fetch, loginGet)
+            if not Re.headers:
+                    retjson['code'] = 408
+                    retjson['content'] = 'time out'
+            else:
+                cookie_first = Re.headers['Set-Cookie'].split(';')[0]
+                header['Cookie'] = cookie_first
+                request = HTTPRequest(
+                        LOGIN_URL,
+                        method='POST',
+                        headers = header,
+                        body = urllib.urlencode(loginValues),
+                        request_timeout=TIME_OUT
+                    )
+                response = yield tornado.gen.Task(client.fetch, request)
+                cookie_second = cookie_first+";"+response.headers['Set-Cookie'].split(';')[0]
+                header['Cookie'] = cookie_second
+
+                for curNumber in curType:
+                    selectData['ctl00$cphSltMain$ShowAStudentScore1$ucDdlCourseGroup$ddlCgp'] = curNumber
+                    getRequest =HTTPRequest(
+                            phyLabCurUrl,
+                            body=urllib.urlencode(selectData),
+                            method='POST',
+                            headers = header,
+                            request_timeout=TIME_OUT
+                        )
+                    getResponse = yield tornado.gen.Task(client.fetch, getRequest)
+                    getContent = getResponse.body
+                    retjson['content'][curType.get(curNumber)] = self.getCur(getContent)
+        self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
-        return
+            
+
+    def getCur(self,html):
+        dealSoup = BeautifulSoup(html)
+        curTable = dealSoup.find('table',id="ctl00_cphSltMain_ShowAStudentScore1_gvStudentCourse")
+        if curTable==None:
+            return ''
+        else:
+            ret_content = []
+            content = curTable.findAll('span')
+            length = len(content)
+            temp = {
+                'name':'',
+                'Date':'',
+                'Day':'',
+                'Teacher':'',
+                'Address':'',
+                'Grade':''
+            }
+            k = length/6
+            print k
+            for i in range(k):
+                index = i*6
+                temp = {
+                'name':content[index].string,
+                'Date':content[index+2].string,
+                'Day':content[index+3].string,
+                'Teacher':content[index+1].string,
+                'Address':content[index+4].string,
+                'Grade':content[index+5].string
+            }
+                ret_content.append(temp)
+        return ret_content

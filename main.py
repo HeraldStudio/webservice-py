@@ -17,14 +17,10 @@ from mod.lecture.handler import LectureHandler
 from mod.library.listhandler import LibListHandler
 from mod.library.renewhandler import LibRenewHandler
 from mod.library.searchhandler import LibSearchHandler
-<<<<<<< HEAD
-from mod.phyLab.phyLab_handler import PhylabHandler
-=======
 from mod.pc.handler import PCHandler
 from mod.jwc.handler import JWCHandler
 from mod.schoolbus.handler import SchoolBusHandler
 from mod.phylab.handler import PhylabHandler
->>>>>>> 1099b9be5ac9648420d7fff65b51ad60e5652f70
 import tornado.web
 import tornado.ioloop
 import tornado.options
@@ -51,15 +47,11 @@ class Application(tornado.web.Application):
             (r'/webserv2/library', LibListHandler),
             (r'/webserv2/renew', LibRenewHandler),
             (r'/webserv2/search', LibSearchHandler),
-<<<<<<< HEAD
             (r'/webserv2/phyLab',PhylabHandler),
-=======
             (r'/webserv2/pc', PCHandler),
             (r'/webserv2/jwc', JWCHandler),
             (r'/webserv2/schoolbus', SchoolBusHandler),
             (r'/webserv2/phylab', PhylabHandler),
-
->>>>>>> 1099b9be5ac9648420d7fff65b51ad60e5652f70
         ]
         settings = dict(
             cookie_secret="7CA71A57B571B5AEAC5E64C6042415DE",
