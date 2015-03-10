@@ -30,7 +30,7 @@ class PhylabHandler(tornado.web.RequestHandler):
     def post(self):
         retjson = {'code':200, 'content':''}
         cardnum = '213120498'
-        password = '57595351'
+        password = ''
         client = AsyncHTTPClient()
         request = HTTPRequest(
             LOGIN_URL,
