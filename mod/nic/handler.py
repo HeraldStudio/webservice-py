@@ -43,7 +43,7 @@ class NICHandler(tornado.web.RequestHandler):
                 self.finish()
                 return
         except NoResultFound:
-            status = LectureCache(cardnum=cardnum, text='*', date=int(time())/1000)
+            status = NicCache(cardnum=cardnum, text='*', date=int(time())/1000)
             self.db.add(status)
             self.db.commit()
 
