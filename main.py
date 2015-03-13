@@ -53,8 +53,8 @@ class Application(tornado.web.Application):
             (r'/webserv2/jwc', JWCHandler),
             (r'/webserv2/schoolbus', SchoolBusHandler),
             (r'/webserv2/phylab', PhylabHandler),
-            (r'/query/([a-z]{3})/(\d{1,2})/(\d)/(\d{1,2})/(\d{1,2})', CommonQueryHandler),
-            (r'/query/([a-z]{3})/([a-z]{1,8})/(\d{1,2})/(\d{1,2})', QuickQueryHandler),
+            (r'/webserv2/query/([a-z]{3})/(\d{1,2})/(\d)/(\d{1,2})/(\d{1,2})', CommonQueryHandler),
+            (r'/webserv2/query/([a-z]{3})/([a-z]{1,8})/(\d{1,2})/(\d{1,2})', QuickQueryHandler),
 
         ]
         settings = dict(
