@@ -37,10 +37,10 @@ class PhylabHandler(tornado.web.RequestHandler):
             retjson['code'] = 400
             retjson['content'] = 'params lack'
         else:
-            if term =='shangbanxueqi':
+            if term[-1] in [1, 2, '1', '2']:
                 curType = cur_type_up
                 retjson['content'] = {'基础性实验(上)':[],'基础性实验(上)选做':[],'文科及医学实验':[],'文科及医学实验选做':[]}
-            elif term =='xiabanxueqi':
+            else:
                 curType = cur_type_down
                 retjson['content'] = {'基础性实验(下)':[],'基础性实验(下)选做':[],'文科及医学实验':[],'文科及医学实验选做':[]}
 
@@ -48,19 +48,7 @@ class PhylabHandler(tornado.web.RequestHandler):
             loginValues['ctl00$cphSltMain$UserLogin1$txbUserCodeID'] = number
             loginValues['ctl00$cphSltMain$UserLogin1$txbUserPwd'] = password
 
-
-            loginGet = HTTPRequest( 
-                        LOGIN_URL,
-                        method='GET',
-                        request_timeout=TIME_OUT
-            )
-            Re = yield tornado.gen.Task(client.fetch, loginGet)
-            if not Re.headers:
-                    retjson['code'] = 408
-                    retjson['content'] = 'time out'
-            else:
-                cookie_first = Re.headers['Set-Cookie'].split(';')[0]
-                header['Cookie'] = cookie_first
+            if 1:
                 request = HTTPRequest(
                         LOGIN_URL,
                         method='POST',
@@ -69,8 +57,7 @@ class PhylabHandler(tornado.web.RequestHandler):
                         request_timeout=TIME_OUT
                     )
                 response = yield tornado.gen.Task(client.fetch, request)
-                cookie_second = cookie_first+";"+response.headers['Set-Cookie'].split(';')[0]
-                header['Cookie'] = cookie_second
+                header['Cookie'] = response.headers['Set-Cookie']
 
                 for curNumber in curType:
                     selectData['ctl00$cphSltMain$ShowAStudentScore1$ucDdlCourseGroup$ddlCgp'] = curNumber
@@ -82,8 +69,7 @@ class PhylabHandler(tornado.web.RequestHandler):
                             request_timeout=TIME_OUT
                         )
                     getResponse = yield tornado.gen.Task(client.fetch, getRequest)
-                    getContent = getResponse.body
-                    retjson['content'][curType.get(curNumber)] = self.getCur(getContent)
+                    retjson['content'][curType.get(curNumber)] = self.getCur(getResponse.body)
         self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
             
