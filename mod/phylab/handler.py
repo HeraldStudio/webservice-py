@@ -6,14 +6,13 @@
 from config import *
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
 from BeautifulSoup import BeautifulSoup
-from ..models.card_cache import CardCache
+from ..models.phylab_cache import PhylabCache
 from sqlalchemy.orm.exc import NoResultFound
 from time import time
 import tornado.web
 import tornado.gen
-import urllib, re
+import urllib
 import json, base64
-import datetime
 
 class PhylabHandler(tornado.web.RequestHandler):
 
@@ -37,6 +36,18 @@ class PhylabHandler(tornado.web.RequestHandler):
             retjson['code'] = 400
             retjson['content'] = 'params lack'
         else:
+            isCached = True
+            # read from cache
+            try:
+                status = self.db.query(PhylabCache).filter( PhylabCache.cardnum ==  number ).one()
+                if status.date == int(time())/1000:
+                    self.write(base64.b64decode(status.text))
+                    self.db.close()
+                    self.finish()
+                    return
+            except NoResultFound:
+                isCached = False
+
             if term[-1] in [1, 2, '1', '2']:
                 curType = cur_type_up
                 retjson['content'] = {'基础性实验(上)':[],'基础性实验(上)选做':[],'文科及医学实验':[],'文科及医学实验选做':[]}
@@ -48,7 +59,7 @@ class PhylabHandler(tornado.web.RequestHandler):
             loginValues['ctl00$cphSltMain$UserLogin1$txbUserCodeID'] = number
             loginValues['ctl00$cphSltMain$UserLogin1$txbUserPwd'] = password
 
-            if 1:
+            try:
                 request = HTTPRequest(
                         LOGIN_URL,
                         method='POST',
@@ -70,8 +81,28 @@ class PhylabHandler(tornado.web.RequestHandler):
                         )
                     getResponse = yield tornado.gen.Task(client.fetch, getRequest)
                     retjson['content'][curType.get(curNumber)] = self.getCur(getResponse.body)
-        self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
+            except:
+                retjson['code'] = 500
+                retjson['content'] = 'error'
+        retjson = json.dumps(retjson, ensure_ascii=False, indent=2)
+        self.write(retjson)
         self.finish()
+
+        # refresh cache
+        if isCached:
+            status.date = int(time())/1000
+            status.text = base64.b64encode(retjson)
+            self.db.add(status)
+        else:
+            status = PhylabCache(cardnum=number, text=base64.b64encode(retjson), date=int(time())/1000)
+            self.db.add(status)
+        try:
+            self.db.commit()
+        except:
+            self.db.rollback()
+        finally:
+            self.db.remove()
+        self.db.close()
             
 
     def getCur(self,html):
@@ -102,6 +133,6 @@ class PhylabHandler(tornado.web.RequestHandler):
                 'Teacher':content[index+1].string,
                 'Address':content[index+4].string,
                 'Grade':content[index+5].string
-            }
+                }
                 ret_content.append(temp)
         return ret_content
