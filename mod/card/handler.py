@@ -34,7 +34,6 @@ class CARDHandler(tornado.web.RequestHandler):
             'Login.Token2':self.get_argument('password'),
         }
         retjson = {'code':200, 'content':''}
-        isCached = True
 
         # read from cache
         try:
@@ -45,7 +44,9 @@ class CARDHandler(tornado.web.RequestHandler):
                 self.finish()
                 return
         except NoResultFound:
-            isCached = False
+            status = LectureCache(cardnum=cardnum, text='*', date=int(time())/1000)
+            self.db.add(status)
+            self.db.commit()
 
         try:
             client = AsyncHTTPClient()
@@ -84,17 +85,15 @@ class CARDHandler(tornado.web.RequestHandler):
                     self.finish()
 
                     # refresh cache
-                    if isCached:
-                        status.date = int(time())/1000
-                        status.text = base64.b64encode(retjson)
-                        self.db.add(status)
-                    else:
-                        status = CardCache(cardnum=cardnum, text=base64.b64encode(retjson), date=int(time())/1000)
-                        self.db.add(status)
+                    status.date = int(time())/1000
+                    status.text = base64.b64encode(retjson)
+                    self.db.add(status)
                     try:
                         self.db.commit()
                     except:
                         self.db.rollback()
+                    finally:
+                        self.db.remove()
                     self.db.close()
                     return
 
