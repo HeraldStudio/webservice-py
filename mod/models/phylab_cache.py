@@ -10,6 +10,6 @@ from db import engine, Base
 class PhylabCache(Base):
     __tablename__ = 'phylab'
     cardnum = Column(Integer, primary_key=True)
-    text = Column(String(1024), nullable=False)
+    text = Column(String(4096), nullable=False)
     date = Column(Integer, nullable=False)
 

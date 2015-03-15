@@ -221,5 +221,5 @@ try:
     get_classroom_list()
 except:
     print '初始化qec/utils失败.'
-    exit()
+    #exit()
 

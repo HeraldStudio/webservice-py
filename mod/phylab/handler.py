@@ -36,7 +36,6 @@ class PhylabHandler(tornado.web.RequestHandler):
             retjson['code'] = 400
             retjson['content'] = 'params lack'
         else:
-            isCached = True
             # read from cache
             try:
                 status = self.db.query(PhylabCache).filter( PhylabCache.cardnum ==  number ).one()
@@ -46,9 +45,11 @@ class PhylabHandler(tornado.web.RequestHandler):
                     self.finish()
                     return
             except NoResultFound:
-                isCached = False
+                status = PhylabCache(cardnum=number, text='*', date=int(time())/1000)
+                self.db.add(status)
+                self.db.commit()
 
-            if term[-1] in [1, 2, '1', '2']:
+            if int(term[3:5]) - int(number[3:5]) == 1:
                 curType = cur_type_up
                 retjson['content'] = {'基础性实验(上)':[],'基础性实验(上)选做':[],'文科及医学实验':[],'文科及医学实验选做':[]}
             else:
@@ -62,13 +63,21 @@ class PhylabHandler(tornado.web.RequestHandler):
             try:
                 request = HTTPRequest(
                         LOGIN_URL,
+                        method='GET',
+                        headers = header,
+                        request_timeout=TIME_OUT
+                    )
+                response = yield tornado.gen.Task(client.fetch, request)
+                header['Cookie'] = response.headers['Set-Cookie'].split(';')[0]
+                request = HTTPRequest(
+                        LOGIN_URL,
                         method='POST',
                         headers = header,
                         body = urllib.urlencode(loginValues),
                         request_timeout=TIME_OUT
                     )
                 response = yield tornado.gen.Task(client.fetch, request)
-                header['Cookie'] = response.headers['Set-Cookie']
+                header['Cookie'] += ';'+response.headers['Set-Cookie'].split(';')[0]
 
                 for curNumber in curType:
                     selectData['ctl00$cphSltMain$ShowAStudentScore1$ucDdlCourseGroup$ddlCgp'] = curNumber
@@ -89,13 +98,9 @@ class PhylabHandler(tornado.web.RequestHandler):
         self.finish()
 
         # refresh cache
-        if isCached:
-            status.date = int(time())/1000
-            status.text = base64.b64encode(retjson)
-            self.db.add(status)
-        else:
-            status = PhylabCache(cardnum=number, text=base64.b64encode(retjson), date=int(time())/1000)
-            self.db.add(status)
+        status.date = int(time())/1000
+        status.text = base64.b64encode(retjson)
+        self.db.add(status)
         try:
             self.db.commit()
         except:
