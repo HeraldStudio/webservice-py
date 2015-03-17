@@ -20,16 +20,16 @@ class CourseSchedule(Base):
     course_id = Column(ForeignKey(u'course_info.course_id'), primary_key=True)    # 课程ID
     course_start_week = Column(Integer, index=True)       # 第几周开始
     course_end_week = Column(Integer, index=True)         # 第几周结束
-    course_date = Column(Integer, index=True)             # 周几
-    course_start_lesson = Column(Integer, index=True)     # 第几节开始
-    course_end_lesson = Column(Integer, index=True)       # 第几节结束
-    course_type = Column(Integer, index=True)                               # 单双周，0-全，1-单，2-双
+    course_date = Column(Integer, index=True, primary_key=True)             # 周几
+    course_start_lesson = Column(Integer, index=True, primary_key=True)     # 第几节开始
+    course_end_lesson = Column(Integer, index=True, primary_key=True)       # 第几节结束
+    course_type = Column(Integer, index=True, primary_key=True)                               # 单双周，0-全，1-单，2-双
     course_place = Column(String(255))                          # 上课地点
 
 class ExamSchedule(Base):
     __tablename__ = 'exam_schedule'
-    exam_term = Column(String(100), index=True)                 # 考试学期
-    exam_campus = Column(String(100), index=True)               # 考试校区
-    exam_place = Column(String(100), index=True)                # 考试地点
-    exam_date = Column(Integer)                     # 考试日期，格式组织为 YYYY-MM-DD
-    exam_time = Column(Integer)                     # 考试时间，上午（0），下午（1），晚上（2）
+    exam_term = Column(String(100), index=True, primary_key=True)                 # 考试学期
+    exam_campus = Column(String(100), index=True, primary_key=True)               # 考试校区
+    exam_place = Column(String(100), index=True, primary_key=True)                # 考试地点
+    exam_date = Column(Integer, primary_key=True)                     # 考试日期，格式组织为 YYYY-MM-DD
+    exam_time = Column(Integer, primary_key=True)                     # 考试时间，上午（0），下午（1），晚上（2）
