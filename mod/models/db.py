@@ -11,5 +11,5 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
-engine = create_engine('mysql://%s:%s@%s/%s' %
+engine = create_engine('mysql://%s:%s@%s/%s?charset=utf8' %
                        (DB_USER, DB_PWD, DB_HOST, DB_NAME), echo=False)
