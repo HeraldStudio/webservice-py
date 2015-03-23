@@ -44,7 +44,10 @@ class LectureHandler(tornado.web.RequestHandler):
         except NoResultFound:
             status = LectureCache(cardnum=cardnum, text='*', date=int(time())/1000)
             self.db.add(status)
-            self.db.commit()
+            try:
+                self.db.commit()
+            except:
+                self.db.rollback()
 
         try:
             client = AsyncHTTPClient()

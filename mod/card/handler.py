@@ -46,7 +46,10 @@ class CARDHandler(tornado.web.RequestHandler):
         except NoResultFound:
             status = CardCache(cardnum=cardnum, text='*', date=int(time())/1000)
             self.db.add(status)
-            self.db.commit()
+            try:
+                self.db.commit()
+            except:
+                self.db.rollback()
 
         try:
             client = AsyncHTTPClient()
