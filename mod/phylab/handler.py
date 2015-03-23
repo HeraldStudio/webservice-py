@@ -39,7 +39,7 @@ class PhylabHandler(tornado.web.RequestHandler):
             # read from cache
             try:
                 status = self.db.query(PhylabCache).filter( PhylabCache.cardnum ==  number ).one()
-                if status.date == int(time())/1000:
+                if status.date == int(time())/1000 and status.text != '*':
                     self.write(base64.b64decode(status.text))
                     self.db.close()
                     self.finish()
@@ -47,7 +47,11 @@ class PhylabHandler(tornado.web.RequestHandler):
             except NoResultFound:
                 status = PhylabCache(cardnum=number, text='*', date=int(time())/1000)
                 self.db.add(status)
-                self.db.commit()
+                try:
+                    self.db.commit()
+                except:
+                    self.db.rollback()
+
 
             if int(term[3:5]) - int(number[3:5]) == 1:
                 curType = cur_type_up
