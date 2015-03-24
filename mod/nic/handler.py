@@ -37,7 +37,7 @@ class NICHandler(tornado.web.RequestHandler):
         # read from cache
         try:
             status = self.db.query(NicCache).filter( NicCache.cardnum ==  cardnum ).one()
-            if status.date == int(time())-600 and status.text != '*':
+            if status.date > int(time())-600 and status.text != '*':
                 self.write(base64.b64decode(status.text))
                 self.db.close()
                 self.finish()

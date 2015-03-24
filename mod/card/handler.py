@@ -38,7 +38,7 @@ class CARDHandler(tornado.web.RequestHandler):
         # read from cache
         try:
             status = self.db.query(CardCache).filter( CardCache.cardnum ==  cardnum ).one()
-            if timedelta == 0 and status.date == int(time())-600:
+            if timedelta == 0 and status.date > int(time())-600:
                 self.write(base64.b64decode(status.text))
                 self.db.close()
                 self.finish()

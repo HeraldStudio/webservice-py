@@ -36,7 +36,7 @@ class LectureHandler(tornado.web.RequestHandler):
         # read from cache
         try:
             status = self.db.query(LectureCache).filter( LectureCache.cardnum ==  cardnum ).one()
-            if status.date == int(time())-3600 and status.text != '*':
+            if status.date > int(time())-3600 and status.text != '*':
                 self.write(base64.b64decode(status.text))
                 self.db.close()
                 self.finish()
@@ -120,7 +120,7 @@ class LectureHandler(tornado.web.RequestHandler):
             retjson['code'] = 500
             retjson['content'] = 'error'
         ret = json.dumps(retjson, ensure_ascii=False, indent=2)
-        self.write(retjson)
+        self.write(ret)
         self.finish()
 
         # refresh cache
