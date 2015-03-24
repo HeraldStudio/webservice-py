@@ -21,6 +21,9 @@ from mod.pc.handler import PCHandler
 from mod.jwc.handler import JWCHandler
 from mod.schoolbus.handler import SchoolBusHandler
 from mod.phylab.handler import PhylabHandler
+from mod.emptyroom.handler import CommonQueryHandler, QuickQueryHandler
+from mod.lecture.noticehandler import LectureNoticeHandler
+from mod.user.handler import UserHandler
 import tornado.web
 import tornado.ioloop
 import tornado.options
@@ -52,6 +55,11 @@ class Application(tornado.web.Application):
             (r'/webserv2/jwc', JWCHandler),
             (r'/webserv2/schoolbus', SchoolBusHandler),
             (r'/webserv2/phylab', PhylabHandler),
+            (r'/webserv2/lecturenotice', LectureNoticeHandler),
+            (r'/webserv2/user', UserHandler),
+            (r'/webserv2/query/([a-z]{3})/(\d{1,2})/(\d)/(\d{1,2})/(\d{1,2})', CommonQueryHandler),
+            (r'/webserv2/query/([a-z]{3})/([a-z]{1,8})/(\d{1,2})/(\d{1,2})', QuickQueryHandler),
+
         ]
         settings = dict(
             cookie_secret="7CA71A57B571B5AEAC5E64C6042415DE",

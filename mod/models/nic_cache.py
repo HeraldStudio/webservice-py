@@ -10,6 +10,6 @@ from db import engine, Base
 class NicCache(Base):
     __tablename__ = 'nic'
     cardnum = Column(Integer, primary_key=True)
-    text = Column(String(1024), nullable=False)
+    text = Column(String(1024))
     date = Column(Integer, nullable=False)
 
