@@ -6,12 +6,12 @@
 from config import *
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
 from BeautifulSoup import BeautifulSoup
-from ..models.card_cache import CardCache
+from ..models.phylab_cache import PhylabCache
 from sqlalchemy.orm.exc import NoResultFound
 from time import time
 import tornado.web
 import tornado.gen
-import urllib, re
+import urllib
 import json, base64
 import datetime
 
