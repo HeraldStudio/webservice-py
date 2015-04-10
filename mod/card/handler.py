@@ -38,13 +38,13 @@ class CARDHandler(tornado.web.RequestHandler):
         # read from cache
         try:
             status = self.db.query(CardCache).filter( CardCache.cardnum ==  cardnum ).one()
-            if timedelta == 0 and status.date == int(time())/1000:
+            if timedelta == 0 and status.date > int(time())-600:
                 self.write(base64.b64decode(status.text))
                 self.db.close()
                 self.finish()
                 return
         except NoResultFound:
-            status = CardCache(cardnum=cardnum, text='*', date=int(time())/1000)
+            status = CardCache(cardnum=cardnum, text='*', date=int(time()))
             self.db.add(status)
             try:
                 self.db.commit()
@@ -83,20 +83,21 @@ class CARDHandler(tornado.web.RequestHandler):
 
                 if timedelta == 0:
                     retjson['content'] = {'state':cardState, 'left':cardLetf}
-                    retjson = json.dumps(retjson, ensure_ascii=False, indent=2)
+                    ret = json.dumps(retjson, ensure_ascii=False, indent=2)
                     self.write(retjson)
                     self.finish()
 
                     # refresh cache
-                    status.date = int(time())/1000
-                    status.text = base64.b64encode(retjson)
-                    self.db.add(status)
-                    try:
-                        self.db.commit()
-                    except:
-                        self.db.rollback()
-                    finally:
-                        self.db.remove()
+                    if retjson['code'] == 200:
+                        status.date = int(time())
+                        status.text = base64.b64encode(ret)
+                        self.db.add(status)
+                        try:
+                            self.db.commit()
+                        except:
+                            self.db.rollback()
+                        finally:
+                            self.db.remove()
                     self.db.close()
                     return
 

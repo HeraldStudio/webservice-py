@@ -36,13 +36,13 @@ class LectureHandler(tornado.web.RequestHandler):
         # read from cache
         try:
             status = self.db.query(LectureCache).filter( LectureCache.cardnum ==  cardnum ).one()
-            if status.date == int(time())/1000 and status.text != '*':
+            if status.date > int(time())-3600 and status.text != '*':
                 self.write(base64.b64decode(status.text))
                 self.db.close()
                 self.finish()
                 return
         except NoResultFound:
-            status = LectureCache(cardnum=cardnum, text='*', date=int(time())/1000)
+            status = LectureCache(cardnum=cardnum, text='*', date=int(time()))
             self.db.add(status)
             try:
                 self.db.commit()
@@ -119,18 +119,19 @@ class LectureHandler(tornado.web.RequestHandler):
         except:
             retjson['code'] = 500
             retjson['content'] = 'error'
-        retjson = json.dumps(retjson, ensure_ascii=False, indent=2)
-        self.write(retjson)
+        ret = json.dumps(retjson, ensure_ascii=False, indent=2)
+        self.write(ret)
         self.finish()
 
         # refresh cache
-        status.date = int(time())/1000
-        status.text = base64.b64encode(retjson)
-        self.db.add(status)
-        try:
-            self.db.commit()
-        except:
-            self.db.rollback()
-        finally:
-            self.db.remove()
+        if retjson['code'] == 200:
+            status.date = int(time())
+            status.text = base64.b64encode(ret)
+            self.db.add(status)
+            try:
+                self.db.commit()
+            except:
+                self.db.rollback()
+            finally:
+                self.db.remove()
         self.db.close()
