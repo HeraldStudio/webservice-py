@@ -68,7 +68,6 @@ class PhylabHandler(tornado.web.RequestHandler):
                 request = HTTPRequest(
                         LOGIN_URL,
                         method='GET',
-                        headers = header,
                         request_timeout=TIME_OUT
                     )
                 response = yield tornado.gen.Task(client.fetch, request)
