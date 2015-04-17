@@ -6,4 +6,4 @@ TERM_URL = 'http://xk.urp.seu.edu.cn/jw_service/service/lookCurriculum.action'
 
 CURR_URL = 'http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action'
 
-TIME_OUT = 8
+TIME_OUT = 30

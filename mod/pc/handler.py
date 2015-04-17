@@ -54,7 +54,7 @@ class PCHandler(tornado.web.RequestHandler):
             self.db.commit()
 
         ret = self.renren_request()
-        if ret and (ret['time'].find('小时')>=0 or ret['time'].find('分钟')>=0 or ret['time'].find('刚')>=0):
+        if ret and (ret['time'][:10] == strftime('%Y-%m-%d', localtime(time()))):
             self.recognize(ret['text'])
 
         lock.text == '0'
@@ -85,9 +85,8 @@ class PCHandler(tornado.web.RequestHandler):
         response = client.fetch(request)
         if response.body > 2048:
             soup = BeautifulSoup(response.body)
-            status = soup.findAll('div',{'class':'page-status'})[0].findChildren()
-            text = status[-2].text
-            time = status[-1].text
+            text = soup.findAll('span',{'class':'status-detail'})[0].text
+            time = soup.findAll('span',{'class':'pulish-time'})[0].text
             if text.find('早播报')>0:
                 return {'text':text, 'time':time}
             else:
