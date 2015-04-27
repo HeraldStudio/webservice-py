@@ -65,7 +65,7 @@ class PCHandler(tornado.web.RequestHandler):
         return int(strftime('%Y%m%d', localtime(time())))
 
     def recognize(self, text):
-        y_keyword = ['正常跑操', '跑操正常', '今天继续跑操', '今天跑操']
+        y_keyword = [u'正常跑操', u'跑操正常', u'今天继续跑操', u'今天跑操']
         result = u'今天不跑操'
         for k in y_keyword:
             if text.find(k)>=0:
