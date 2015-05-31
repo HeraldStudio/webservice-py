@@ -87,7 +87,7 @@ class PCHandler(tornado.web.RequestHandler):
             soup = BeautifulSoup(response.body)
             text = soup.findAll('span',{'class':'status-detail'})[0].text
             time = soup.findAll('span',{'class':'pulish-time'})[0].text
-            if text.find('早播报')>0:
+            if text.find('早播报')>0 or (text.find('气温')>0 and text.find('跑操')>0):
                 return {'text':text, 'time':time}
             else:
                 return None
