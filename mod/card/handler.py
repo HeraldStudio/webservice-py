@@ -108,7 +108,7 @@ class CARDHandler(tornado.web.RequestHandler):
                     request_timeout=TIME_OUT)
                 response = yield tornado.gen.Task(client.fetch, request)
                 soup = BeautifulSoup(response.body)
-                __continue = soup.findAll('form',{'id':'accounthisTrjn'})[0]['action']
+                __continue = soup.findAll('form',{'id':'accounthisTrjn1'})[0]['action']
 
                 now = datetime.datetime.now()
                 delta = datetime.timedelta(timedelta)
@@ -128,7 +128,7 @@ class CARDHandler(tornado.web.RequestHandler):
                     request_timeout=TIME_OUT)
                 response = yield tornado.gen.Task(client.fetch, request)
                 soup = BeautifulSoup(response.body)
-                __continue = soup.findAll('form',{'id':'accounthisTrjn'})[0]['action']
+                __continue = soup.findAll('form',{'id':'accounthisTrjn2'})[0]['action']
                 request = HTTPRequest(
                     INDEX_URL+__continue,
                     method='POST',
@@ -137,15 +137,15 @@ class CARDHandler(tornado.web.RequestHandler):
                     request_timeout=TIME_OUT)
                 response = yield tornado.gen.Task(client.fetch, request)
                 soup = BeautifulSoup(response.body)
-                __continue = soup.findAll('form',{'name':'form1'})[0]['action']
+                __continue = 'accounthisTrjn3.action'
                 request = HTTPRequest(
-                    INIT_URL+__continue,
-                    method='GET',
+                    INDEX_URL+__continue,
+                    method='POST',
                     headers={'Cookie':cookie},
+                    body=urllib.urlencode(data),
                     request_timeout=TIME_OUT)
                 response = yield tornado.gen.Task(client.fetch, request)
                 soup = BeautifulSoup(response.body)
-
                 detial = []
                 count = 0
                 while 1:
@@ -175,7 +175,7 @@ class CARDHandler(tornado.web.RequestHandler):
             else:
                 retjson['code'] = 401
                 retjson['content'] = 'wrong card number or password'
-        except:
+        except Exception,e:
             retjson['code'] = 500
             retjson['content'] = 'error'
         self.write(json.dumps(retjson, ensure_ascii=False, indent=2))

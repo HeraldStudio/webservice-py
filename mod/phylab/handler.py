@@ -32,7 +32,6 @@ class PhylabHandler(tornado.web.RequestHandler):
         term = self.get_argument('term',default=None)
 
         retjson = {'code':200, 'content':''}
-
         if not number or not password or not term:
             retjson['code'] = 400
             retjson['content'] = 'params lack'
@@ -82,7 +81,6 @@ class PhylabHandler(tornado.web.RequestHandler):
                     )
                 response = yield tornado.gen.Task(client.fetch, request)
                 header['Cookie'] += ';'+response.headers['Set-Cookie'].split(';')[0]
-
                 for curNumber in curType:
                     selectData['ctl00$cphSltMain$ShowAStudentScore1$ucDdlCourseGroup$ddlCgp'] = curNumber
                     getRequest =HTTPRequest(
@@ -94,7 +92,7 @@ class PhylabHandler(tornado.web.RequestHandler):
                         )
                     getResponse = yield tornado.gen.Task(client.fetch, getRequest)
                     retjson['content'][curType.get(curNumber)] = self.getCur(getResponse.body)
-            except:
+            except Exception,e:
                 retjson['code'] = 500
                 retjson['content'] = 'error'
         ret = json.dumps(retjson, ensure_ascii=False, indent=2)

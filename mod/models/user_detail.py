@@ -16,3 +16,4 @@ class UserDetail(Base):
     nation = Column(String(50), nullable=True)
     room = Column(String(50), nullable=True)
     bed = Column(String(50), nullable=True)
+

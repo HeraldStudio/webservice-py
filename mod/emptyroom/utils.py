@@ -220,6 +220,7 @@ def sort_classroom_by_CN(l):
 try:
     get_classroom_list()
 except:
-    print '初始化qec/utils失败.'
+    print 'fail'
+    # print '初始化qec/utils失败.'
     #exit()
 
