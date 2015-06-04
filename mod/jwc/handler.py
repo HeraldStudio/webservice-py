@@ -74,10 +74,10 @@ class JWCHandler(tornado.web.RequestHandler):
         #return json.dumps([[i,items[i].text] for i in range(len(items))], ensure_ascii=False, indent=2)
         info = {
             '最新动态': self.abstract(items[12:17],1), 
-            '教务信息': self.abstract(items[35:35+7],0), 
-            '学籍管理': self.abstract(items[46:46+7],0), 
-            '实践教学': self.abstract(items[57:57+7],0), 
-            '合作办学': self.abstract(items[68:68+4],0),
+            '教务信息': self.abstract(items[34:34+7],0), 
+            '学籍管理': self.abstract(items[45:45+7],0), 
+            '实践教学': self.abstract(items[56:56+7],0), 
+            '合作办学': self.abstract(items[67:67+4],0),
             }
         retjson = {'code':200, 'content':info}
         return json.dumps(retjson, ensure_ascii=False, indent=2)

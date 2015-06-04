@@ -2,10 +2,10 @@
 # @Date    : 2014-06-25 15:37:23
 # @Author  : xindervella@gamil.com yml_bright@163.com
 
-DB_HOST = ''
-DB_USER = ''
-DB_PWD = ''
-DB_NAME = ''
+DB_HOST = '127.0.0.1'
+DB_USER = 'root'
+DB_PWD = '084358'
+DB_NAME = 'herald'
 
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
