@@ -9,7 +9,8 @@ from sqlalchemy.orm.exc import NoResultFound
 import tornado.web
 import tornado.gen
 import urllib, json
-import time
+from time import time, localtime, strftime
+import traceback
 class StadiumHandler(tornado.web.RequestHandler):
 
     @property
@@ -20,28 +21,30 @@ class StadiumHandler(tornado.web.RequestHandler):
         self.db.close()
 
     def get(self):
-        # self.write('Herald Web Service')
-        url = 'http://123.57.143.92/'
-        client = HTTPClient()
-        nowtime = int(time.time())
-        print nowtime
-        content = 'hi'
+        print int(strftime('%H',localtime(time())))
+        self.write('Herald Web Service')
+        # url = 'http://123.57.143.92/'
+        # client = HTTPClient()
+        # nowtime = int(time.time())
+        # print nowtime
+        # content = 'hi'
 
-        data = {
-            'time':nowtime,
-            'content':content,
-            'movieid':'000000001',
-            'studentNum':'71113425'
-        }
-        params = urllib.urlencode(data)
-        request = HTTPRequest(url, method='POST',
-                              body=params, request_timeout=TIME_OUT)
-        try:
-            response = client.fetch(request)
-            self.write(response)
-        except Exception,e:
-            print str(e)
-            self.write(params)
+        # data = {
+        #     'time':nowtime,
+        #     'content':content,
+        #     'movieid':'000000001',
+        #     'studentNum':'71113425'
+        # }
+        # params = urllib.urlencode(data)
+        # request = HTTPRequest(url, method='POST',
+        #                       body=params, request_timeout=TIME_OUT)
+        # try:
+        #     response = client.fetch(request)
+        #     self.write(response)
+        # except Exception,e:
+              #print traceback.format_exc()
+        #     print str(e)
+        #     self.write(params)
 
     @tornado.web.asynchronous
     @tornado.gen.engine
