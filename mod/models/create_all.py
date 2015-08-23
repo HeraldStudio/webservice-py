@@ -5,7 +5,7 @@
 
 import pe_models, pc_cache, jwc_cache, data_cache, lecture_cache, card_cache, nic_cache, phylab_cache
 import empty_room, lecturedb, user_detail
+import room_cache
 from db import engine, Base
 
 Base.metadata.create_all(engine)
-
