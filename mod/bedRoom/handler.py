@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Date    : 2014-10-26 12:46:36
-# @Author  : yml_bright@163.com
+# @Date    : 2015-08-24 12:46:36
+# @Author  : LiangJ
 
 from config import *
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
