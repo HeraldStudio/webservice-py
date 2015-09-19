@@ -56,7 +56,7 @@ class PEHandler(tornado.web.RequestHandler):
                     # 超时取出缓存
                     user = self.db.query(PEUser).filter(
                         PEUser.cardnum == int(cardnum)).one()
-                    self.write(user.count)
+                    retjson['content'] = user.count
                 except NoResultFound:
                     retjson['code'] = 408
                     retjson['content'] = 'time out'
