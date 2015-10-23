@@ -186,6 +186,7 @@ def update_course():
         academy_info = department.text.strip()
         academy_id = academy_info[academy_info.find('[') + 1: academy_info.find(']')].strip()
         academy_name = academy_info[academy_info.find(']') + 1:].strip()
+        print academy_name
         academy_url = ACADEMY_PREFIX_URL + academy_href
 
         response = requests.get(academy_url)
@@ -382,6 +383,7 @@ if __name__ == "__main__":
         elif cmd == '-uc' or cmd == '--update-course':
             truncate_course()
             update_course()
+            print 'ok'
         elif cmd == '-ue' or cmd == '--update-exam':
             truncate_exam()
             update_exam()

@@ -13,6 +13,7 @@ import tornado.web
 import tornado.gen
 import json, base64
 import urllib, re
+import traceback
 
 class LectureHandler(tornado.web.RequestHandler):
 
@@ -58,7 +59,7 @@ class LectureHandler(tornado.web.RequestHandler):
                 request_timeout=TIME_OUT)
             response = yield tornado.gen.Task(client.fetch, request)
             if response.body and response.body.find('Successed')>0:
-                cookie = response.headers['Set-Cookie'].split(';')[0]
+                cookie = response.headers['Set-Cookie']
                 client = AsyncHTTPClient()
                 request = HTTPRequest(
                     LOGIN_URL,
@@ -116,7 +117,7 @@ class LectureHandler(tornado.web.RequestHandler):
             else:
                 retjson['code'] = 401
                 retjson['content'] = 'wrong card number or password'
-        except:
+        except Exception,e:
             retjson['code'] = 500
             retjson['content'] = 'error'
         ret = json.dumps(retjson, ensure_ascii=False, indent=2)

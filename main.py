@@ -39,7 +39,6 @@ class Application(tornado.web.Application):
         handlers = [
             (r'/webserv2/auth', AuthHandler),
             (r'/webserv2/srtp', SRTPHandler),
-            (r'/webserv2/term', TermHandler),
             (r'/webserv2/sidebar', SidebarHandler),
             (r'/webserv2/curriculum', CurriculumHandler),
             (r'/webserv2/gpa', GPAHandler),

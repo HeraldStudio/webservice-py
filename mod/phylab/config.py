@@ -22,7 +22,7 @@ cur_type_down = {
         }
 
 
-submit = '登录'.encode('utf-8')
+submit = '登  陆'.encode('utf-8')
 header = { 
             'Cache-Control': 'no-cache',
             'Origin': 'http://phylab.seu.edu.cn',
@@ -31,27 +31,26 @@ header = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.115 Safari/537.36',
             'Content-Type': 'application/x-www-form-urlencoded',
             'Accept': '*/*',
-            'Referer': 'http://phylab.seu.edu.cn/plms/UserLogin.aspx?ReturnUrl=%%2fplms%%2fSelectLabSys%%2fDefault.aspx',
+            'Referer': 'http://phylab.seu.edu.cn/plms/Default.aspx',
             'Accept-Encoding': 'gzip, deflate',
             'Accept-Language': 'zh-CN,zh;q=0.8,en;q=0.6,ja;q=0.4'
     }
 
 loginValues = {
             'ctl00$cphSltMain$UserLogin1$txbUserCodeID':'',
+            'ctl00$ScriptManager1':'UpdatePanel3|UserLogin1$btnLogin',
             'ctl00$cphSltMain$UserLogin1$rblUserType':'Stu',
             'ctl00$cphSltMain$UserLogin1$txbUserPwd':'',
             'ctl00$cphSltMain$UserLogin1$btnLogin':submit,
-            'ctl00$ScriptManager1':'ctl00$cphSltMain$UpdatePanel1|ctl00$cphSltMain$UserLogin1$btnLogin',
-            '__EVENTTARGET':'',   
-            '__EVENTARGUMENT':'', 
-            '__LASTFOCUS':'', 
+            # '__EVENTTARGET':'',   
+            # '__EVENTARGUMENT':'', 
+            # '__LASTFOCUS':'', 
+            '__EVENTVALIDATION':'/wEWBwKR4pj0BwKGz+fmBQLWi8GnBALIoPqxBgL6uOCYDALS7JivDAKPku6gDmbTgOYVut4URau4qec7eVYAAAAA',       
             '__VIEWSTATE':'/wEPDwUKLTQ4NDQyNDg4Nw9kFgJmD2QWAgIDD2QWBAIHD2QWAgIBD2QWAmYPZBYCAgEPZBYCAgQPZBYEAgEPEGRkFgFmZAIDDw8WAh4EVGV4dAUM5Y2h44CA5Y+377yaZGQCCQ9kFgICAg88KwAJAQAPFgQeCERhdGFLZXlzFgAeC18hSXRlbUNvdW50AgFkFgJmD2QWAgIBDw8WAh8ABZMB5a2m5Lmg6L+H56iL5Lit77yM5ZCM5a2m5Lus5aaC5pyJ6Zeu6aKY6ZyA5LiO5a6e6aqM5Lit5b+D5oiW5Lu76K++5pWZ5biI6IGU57O777yM6K+35LuO6aaW6aG16L+b5YWl4oCc55WZ6KiA5p2/4oCd55WZ6KiA77yM5oiR5Lus5Lya5Y+K5pe25YWz5rOo44CCZGRkKxkEVLSbsP4Q89+B39eC0gAAAAA=',
-            '__EVENTVALIDATION':'/wEWBwKR4pj0BwKGz+fmBQLWi8GnBALIoPqxBgL6uOCYDALS7JivDAKPku6gDmbTgOYVut4URau4qec7eVYAAAAA'         
 }
 
 selectData = {
-        'ctl00$ScriptManager1' :   'ctl00$cphSltMain$UpdatePanel1|ctl00$cphSltMain'
-            +'$ShowAStudentScore1$ucDdlCourseGroup$ddlCgp',
+        'ctl00$ScriptManager1' : 'ctl00$cphSltMain$UpdatePanel1|ctl00$cphSltMain$ShowAStudentScore1$ucDdlCourseGroup$ddlCgp',
         '__EVENTTARGET' :  'ctl00$cphSltMain$ShowAStudentScore1$ucDdlCourseGroup$ddlCgp',
         '__EVENTARGUMENT': '',
         '__LASTFOCUS' :'',

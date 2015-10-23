@@ -68,7 +68,6 @@ class PEHandler(tornado.web.RequestHandler):
                     retjson['content'] = 'wrong card number or password'
                 else:
                     state = 'success'
-
             if state == 'success':
                 cookie = headers['Set-Cookie'].split(';')[0]
                 request = HTTPRequest(

@@ -7,6 +7,7 @@ from tornado.httpclient import HTTPRequest, AsyncHTTPClient
 import tornado.web
 import tornado.gen
 import urllib
+from time import time, localtime, strftime
 
 class AuthHandler(tornado.web.RequestHandler):
 
@@ -28,10 +29,20 @@ class AuthHandler(tornado.web.RequestHandler):
                 body=urllib.urlencode(data),
                 request_timeout=TIME_OUT)
             response = yield tornado.gen.Task(client.fetch, request)
+            print response.body
+            with open('api_error.log','a+') as f:
+                    f.write(strftime('%Y%m%d %H:%M:%S in [webservice]', localtime(time()))+'\n'+'[auth]\t'+str(response.body)+'\n')
             if response.body and response.body.find('Successed')>0:
                 self.write(response.headers['Set-Cookie'])
                 self.finish()
                 return
-        except:
-            pass
+            else:
+                response = yield tornado.gen.Task(client.fetch, request)
+                if response.body and response.body.find('Successed')>0:
+                    self.write(response.headers['Set-Cookie'])
+                    self.finish()
+                    return
+        except Exception,e:
+            with open('api_error.log','a+') as f:
+                    f.write(strftime('%Y%m%d %H:%M:%S in [webservice]', localtime(time()))+'\n'+'[auth]\t'+str(e)+'\n')
         raise tornado.web.HTTPError(401)

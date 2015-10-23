@@ -14,6 +14,7 @@ import urllib
 import json, base64
 from time import time, localtime, strftime
 import datetime
+import traceback
 
 class PhylabHandler(tornado.web.RequestHandler):
 
@@ -71,7 +72,6 @@ class PhylabHandler(tornado.web.RequestHandler):
                         request_timeout=TIME_OUT
                     )
                 response = yield tornado.gen.Task(client.fetch, request)
-                print response.headers
                 header['Cookie'] = response.headers['Set-Cookie'].split(';')[0]
                 request = HTTPRequest(
                         LOGIN_URL,
@@ -81,6 +81,7 @@ class PhylabHandler(tornado.web.RequestHandler):
                         request_timeout=TIME_OUT
                     )
                 response = yield tornado.gen.Task(client.fetch, request)
+                # self.write(response.body)
                 header['Cookie'] += ';'+response.headers['Set-Cookie'].split(';')[0]
                 for curNumber in curType:
                     selectData['ctl00$cphSltMain$ShowAStudentScore1$ucDdlCourseGroup$ddlCgp'] = curNumber
@@ -96,7 +97,6 @@ class PhylabHandler(tornado.web.RequestHandler):
             except Exception,e:
                 retjson['code'] = 500
                 retjson['content'] = 'error'
-                print str(e)
                 with open('api_error.log','a+') as f:
                     f.write(strftime('%Y%m%d %H:%M:%S in [webservice]', localtime(time()))+'\n'+str(str(e)+'\n[phylab]\t'+str(number)+'\nString:'+str(retjson)+'\n\n'))
         ret = json.dumps(retjson, ensure_ascii=False, indent=2)
@@ -118,7 +118,7 @@ class PhylabHandler(tornado.web.RequestHandler):
             
 
     def getCur(self,html):
-        dealSoup = BeautifulSoup(html)
+        dealSoup = BeautifulSoup(str(html))
         curTable = dealSoup.find('table',id="ctl00_cphSltMain_ShowAStudentScore1_gvStudentCourse")
         if curTable==None:
             return ''
@@ -135,7 +135,6 @@ class PhylabHandler(tornado.web.RequestHandler):
                 'Grade':''
             }
             k = length/6
-            print k
             for i in range(k):
                 index = i*6
                 temp = {

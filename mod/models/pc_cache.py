@@ -11,3 +11,5 @@ class PCCache(Base):
     __tablename__ = 'pc'
     date = Column(Integer, primary_key=True)
     text = Column(String(255), nullable=False)
+    lastdate = Column(Integer)
+

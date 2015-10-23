@@ -14,6 +14,7 @@ import tornado.gen
 import urllib, re
 import json, base64
 import datetime
+import traceback
 
 class CARDHandler(tornado.web.RequestHandler):
 
@@ -62,7 +63,7 @@ class CARDHandler(tornado.web.RequestHandler):
                 request_timeout=TIME_OUT)
             response = yield tornado.gen.Task(client.fetch, request)
             if response.body and response.body.find('Successed')>0:
-                cookie = response.headers['Set-Cookie'].split(';')[0]
+                cookie = response.headers['Set-Cookie']
                 request = HTTPRequest(
                     LOGIN_URL,
                     method='GET',
@@ -77,6 +78,9 @@ class CARDHandler(tornado.web.RequestHandler):
                     headers={'Cookie':cookie},
                     request_timeout=TIME_OUT)
                 response = yield tornado.gen.Task(client.fetch, request)
+
+                self.write(response.body)
+
                 soup = BeautifulSoup(response.body)
                 td = soup.findAll('td',{"class": "neiwen"})
                 userid = td[3].text
@@ -178,6 +182,7 @@ class CARDHandler(tornado.web.RequestHandler):
                 retjson['code'] = 401
                 retjson['content'] = 'wrong card number or password'
         except Exception,e:
+            print traceback.print_exc()
             retjson['code'] = 500
             retjson['content'] = 'error'
         self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
