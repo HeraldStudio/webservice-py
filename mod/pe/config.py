@@ -1,9 +1,12 @@
-# -*- coding: utf-8 -*-
-# @Date    : 2014-06-25 15:34:57
-# @Author  : yml_bright@163.com
-
-
 PE_LOGIN_URL = "http://58.192.114.239/student/studentFrame.jsp"
 PE_PC_URL = "http://58.192.114.239/student/queryCheckInfo.jsp"
 
 CONNECT_TIME_OUT = 3
+
+API_SERVER_HOST = '58.192.114.239'
+API_SERVER_PORT = 10086
+API_SERVER_KEY = '1d10fbf11874589e0'
+
+SECRET_KEY1 = 180847167
+SECRET_KEY2 = 2366060863
+A = hex(SECRET_KEY1^SECRET_KEY2)[2:] + API_SERVER_KEY + hex(SECRET_KEY1)[2:]

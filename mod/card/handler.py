@@ -79,8 +79,6 @@ class CARDHandler(tornado.web.RequestHandler):
                     request_timeout=TIME_OUT)
                 response = yield tornado.gen.Task(client.fetch, request)
 
-                self.write(response.body)
-
                 soup = BeautifulSoup(response.body)
                 td = soup.findAll('td',{"class": "neiwen"})
                 userid = td[3].text

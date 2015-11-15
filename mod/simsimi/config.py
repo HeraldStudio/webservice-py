@@ -9,7 +9,7 @@ COOKIE = 'sid=s%3AvMPfAqCLbRgbGbxafygRWHdc.2Sz6BFX%2FLCEQnRAsMDo2RF0vOBS1AOyDPwX
 AGENT = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:24.0) Gecko/20100101 Firefox/24.0'
 
 KEY = ""
-TULING_URL = u"http://www.tuling123.com/openapi/api?"
+TULING_URL = u""
 
 
 TIME_OUT = 4

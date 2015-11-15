@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Date    : 2014-06-25 15:43:36
 # @Author  : yml_bright@163.com
-from config import PE_LOGIN_URL, PE_PC_URL, CONNECT_TIME_OUT
+from config import *
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
 from BeautifulSoup import BeautifulSoup
 from ..models.pe_models import PEUser
@@ -10,7 +10,7 @@ import tornado.web
 import tornado.gen
 import urllib
 import random
-import json
+import json,socket
 
 class PEHandler(tornado.web.RequestHandler):
 
@@ -21,10 +21,11 @@ class PEHandler(tornado.web.RequestHandler):
     def get(self):
         self.write('Herald Web Service')
 
+
     @tornado.web.asynchronous
     @tornado.gen.engine
     def post(self):
-        state = ''
+        state = 'success'
         cardnum = self.get_argument('cardnum', default=None)
         pwd = self.get_argument('pwd', default=cardnum)
         retjson = {'code':200, 'content':''}
@@ -34,24 +35,9 @@ class PEHandler(tornado.web.RequestHandler):
             retjson['code'] = 400
             retjson['content'] = 'params lack'
         else:
-            data = {
-                'displayName':'',
-                'displayPasswd':'',
-                'select':2,
-                'submit.x':52+int(random.random()*10),
-                'submit.y':16+int(random.random()*10),
-                'userName':str(cardnum),
-                'passwd':str(pwd)
-            }
-            client = AsyncHTTPClient()
-            request = HTTPRequest(
-                PE_LOGIN_URL, body=urllib.urlencode(data),
-                method='POST',
-                request_timeout=CONNECT_TIME_OUT)
-            response = yield tornado.gen.Task(client.fetch, request)
-            headers = response.headers
-            if not headers:
-                state = 'time out'
+            result = self.get_pe_count(cardnum)
+            if result == -1:
+                state = 'time_out'
                 try:
                     # 超时取出缓存
                     user = self.db.query(PEUser).filter(
@@ -61,36 +47,7 @@ class PEHandler(tornado.web.RequestHandler):
                     retjson['code'] = 408
                     retjson['content'] = 'time out'
             else:
-                # self.headers['Content-Length'] # 登陆成功 524 失败 1608
-                if int(headers['Content-Length']) > 1630:
-                    state = 'wrong card number or password'
-                    retjson['code'] = 401
-                    retjson['content'] = 'wrong card number or password'
-                else:
-                    state = 'success'
-            if state == 'success':
-                cookie = headers['Set-Cookie'].split(';')[0]
-                request = HTTPRequest(
-                    PE_PC_URL, method='GET', request_timeout=CONNECT_TIME_OUT,
-                    headers={'Cookie': cookie})
-                response = yield tornado.gen.Task(client.fetch, request)
-                body = response.body
-                if not body:
-                    state = 'time out'
-                    try:
-                        # 超时取出缓存
-                        user = self.db.query(PEUser).filter(
-                            PEUser.cardnum == int(cardnum)).one()
-                        retjson['content'] = user.count
-                    except NoResultFound:
-                        retjson['code'] = 408
-                        retjson['content'] = 'time out'
-                else:
-                    soup = BeautifulSoup(body)
-                    table = soup.findAll(
-                        "td", {"bgcolor": "#FFFFFF"})
-                    count = table[1].text[6:-2]
-                    retjson['content'] = count
+                retjson['content'] = str(result)
         self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
 
@@ -99,10 +56,21 @@ class PEHandler(tornado.web.RequestHandler):
             try:
                 user = self.db.query(PEUser).filter(
                     PEUser.cardnum == int(cardnum)).one()
-                user.count = count
+                user.count = int(result)
             except NoResultFound:
                 user = PEUser(cardnum=int(cardnum), count=count)
                 self.db.add(user)
             finally:
                 self.db.commit()
         self.db.close()
+
+    def get_pe_count(self,cardnum):
+        s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+        s.settimeout(3)
+        try:
+            s.connect((API_SERVER_HOST, API_SERVER_PORT))
+            s.send('\x00'+A+'\x09'+cardnum+'\x00')
+            recv = s.recv(1024).split(',')
+            return int(recv[0])+int(recv[1])
+        except socket.timeout:
+            return -1

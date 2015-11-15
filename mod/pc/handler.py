@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Date    : 2014-12-11 18:51:29
-# @Author  : yml_bright@163.com
+# @Date    : 2015-10-26 14:46:50
+# @Author  : jerry.liangj@qq.com
 
 from config import *
-from tornado.httpclient import HTTPRequest, HTTPClient
+from tornado.httpclient import HTTPRequest, HTTPClient,HTTPError
 from BeautifulSoup import BeautifulSoup
 import tornado.web
 import tornado.gen
@@ -22,18 +22,24 @@ class PCHandler(tornado.web.RequestHandler):
     @property
     def db(self):
         return self.application.db
-
     def get(self):
         self.write('Herald Web Service')
 
     def post(self):
         retjson = {'code':200, 'content':u'暂时关闭'}
         try:
-            status = self.db.query(PCCache).filter( PCCache.date == self.today() ).one()
-            retjson['content'] = base64.b64decode(status.text)
-            self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
-            self.db.close()
-            self.finish()
+            if self.ismorning():
+                status = self.db.query(PCCache).filter( PCCache.date == self.today(),PCCache.lastdate+300>int(time())).one()
+                retjson['content'] = base64.b64decode(status.text)
+                self.db.close()
+                self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
+                self.finish()
+            else:
+                status = self.db.query(PCCache).filter( PCCache.date == self.today()).one()
+                retjson['content'] = base64.b64decode(status.text)
+                self.db.close()
+                self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
+                self.finish()
         except NoResultFound:
             retjson['code'] = 201
             retjson['content'] = 'refreshing'
@@ -41,19 +47,19 @@ class PCHandler(tornado.web.RequestHandler):
             self.finish()
             self.refresh_status()
         except Exception,e:
+            # print traceback.print_exc()
             retjson['code'] = 500
             retjson['content'] = str(e)
-            with open('api_error.log','a+') as f:
-                    f.write(strftime('%Y%m%d %H:%M:%S in [webservice]', localtime(time()))+'\n'+str(str(e)+'\n[pc]\t'+'\nString:'+str(retjson)+'\n\n'))
+            self.db.close()
             self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
             self.finish()
 
+        
+
     def refresh_status(self):
-        # print 'get'
         lock = self.db.query(PCCache).filter(
                     PCCache.date == 0).one()
-        if lock.text == '1' or (lock.lastdate!=0&lock.lastdate+300>int(time())):
-            # print 'exit'
+        if lock.text == '1'or(lock.lastdate!=0 and lock.lastdate+30>int(time())):
             return
         else:
             lock.text == '1'
@@ -61,7 +67,6 @@ class PCHandler(tornado.web.RequestHandler):
             self.db.commit()
 
         ret = self.qq_request()
-        # print ret
         if ret and (ret['code'] == 200):
             self.recognize(ret['content'])
 
@@ -71,15 +76,21 @@ class PCHandler(tornado.web.RequestHandler):
 
     def today(self):
         return int(strftime('%Y%m%d', localtime(time())))
+    def ismorning(self):
+        if int(strftime('%H', localtime(time())))==6:
+            return True
+        else:
+            return False
 
     def recognize(self, text):
         y_keyword = [u'正常跑操', u'跑操正常', u'今天继续跑操', u'今天跑操']
         result = u'今天不跑操'
+        result = text
         for k in y_keyword:
             if text.find(k)>=0:
                 result = u'今天正常跑操'
                 break
-        status = PCCache(date=self.today(), text=base64.b64encode(result))
+        status = PCCache(date=self.today(), text=base64.b64encode(result),lastdate=int(time()))
         self.db.add(status)
         self.db.commit()
 
@@ -96,10 +107,8 @@ class PCHandler(tornado.web.RequestHandler):
         16
     ), 3)
     def fromhex(self, s):
-        # Python 3: bytes.fromhex
         return bytes(bytearray.fromhex(s))
     def pwdencode(self, vcode, uin, pwd):
-        # uin is the bytes of QQ number stored in unsigned long (8 bytes)
         salt = uin.replace(r'\x', '')
         h1 = hashlib.md5(pwd.encode()).digest()
         s2 = hashlib.md5(h1 + self.fromhex(salt)).hexdigest().upper()
@@ -136,7 +145,6 @@ class PCHandler(tornado.web.RequestHandler):
                 )
             response = client.fetch(request)
             init_cookie = response.headers['Set-Cookie']
-            # print init_cookie
 #check
             request = HTTPRequest(
                 checkurl,
@@ -193,16 +201,43 @@ class PCHandler(tornado.web.RequestHandler):
                 request_timeout=4
                 )
             response = client.fetch(request)
-            print response.body
-            #get_token
+            # print response.body
+#get_token
             fuckcookie = response.headers['Set-Cookie']
-            fuckcookieTemp = fuckcookie.split(';')
-            superykey = fuckcookieTemp[7].split('=')[1]
+            temp = fuckcookie.split(';')
+            
+            pt2gguin = temp[0]+';'
+            skey = temp[7].split(',')[1]+';'
+            ptcz = temp[28].split(',')[1]+';'
+            uin = temp[4].split(',')[1]+';'
+            ptsip = temp[22].split(',')[1]+';'
+
+            tempcookie = pt2gguin+skey+ptcz+uin+ptsip
+            getPtSkeyUrl = response.body.split('\'')[5]
+# get superkey
+            request1 = HTTPRequest(
+                getPtSkeyUrl,
+                method="GET",
+                headers={
+                    'Cookie':init_cookie+tempcookie+fuckcookie,
+                },
+                request_timeout = 8,
+                follow_redirects=False
+            )
+
+            ptskey = ""
+            try:
+                response = client.fetch(request1)
+            except HTTPError as e:
+                fuckfuckcookie = e.response.headers['Set-Cookie']
+                fuckcookieTemp = fuckfuckcookie.split(';')
+                ptskey = fuckcookieTemp[13].split('=')[1]
             hash1 = 5381
-            for i in superykey:
+            for i in ptskey:
                 hash1 +=(hash1<<5)+ord(i)
             super_token = hash1&2147483647
-            fuck = response.body.split('\'')
+
+
             jsonUrl = 'http://m.qzone.com/combo?g_tk='+str(super_token)+'&hostuin=3084772927&action=1&g_f=&refresh_type=1&res_type=2&format=json'#refresh_type确定说说条数
             finalUrl = 'http://m.qzone.com/infocenter#3084772927/mine'
             request = HTTPRequest(
@@ -211,49 +246,31 @@ class PCHandler(tornado.web.RequestHandler):
                 headers={
                     'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36',
                     'Accept-Encoding': 'gzip, deflate',
-                    'Cookie':init_cookie+check_cookie+fuckcookie,
+                    'Cookie':init_cookie+fuckcookie+fuckfuckcookie,
                     'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
                 },
                 request_timeout=4
                 )
             response = client.fetch(request)
             ret = json.loads(response.body)
-            print response.body
             testjson = ret['data']['feeds']['vFeeds']
+            re_regular = re.compile("\[em\]e(\d+)\[\/em\]")
+
             for i in range(len(testjson)):
                 try:
                     content =  testjson[i]['summary']['summary']
                     c_time = testjson[i]['comm']['time']
+                    # print re_regular.sub('',content)
                     if u'跑操早播报' in content:
-                        print i,'ok'
                         if strftime("%Y-%m-%d",localtime(c_time)) == strftime("%Y-%m-%d",localtime(time())):
-                            print i,'time ok',strftime("%H",localtime(c_time))
                             if strftime("%H",localtime(c_time))== '06':
                                 retjson['code'] = 200
                                 retjson['content'] =  testjson[i]['summary']['summary'][7:]
+                                # retjson['content'] =  re_regular.sub('',testjson[i]['summary']['summary'])
                 except KeyError:
                     pass
         except Exception,e:
-            print traceback.print_exc()
+            # print traceback.print_exc()
             retjson['code'] = 201
             retjson['content'] = str(e)
-            # print traceback.print_exc()
         return retjson
-    # def renren_request(self):
-    #     client = HTTPClient()
-    #     request = HTTPRequest(
-    #         RENREN_URL,
-    #         method='GET',
-    #         request_timeout=TIME_OUT,
-    #         headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.120 Safari/537.36'})
-    #     response = client.fetch(request)
-    #     if response.body > 2048:
-    #         soup = BeautifulSoup(response.body)
-    #         text = soup.findAll('span',{'class':'status-detail'})[0].text
-    #         time = soup.findAll('span',{'class':'pulish-time'})[0].text
-    #         if text.find('早播报')>0 or (text.find('气温')>0 and text.find('跑操')>0):
-    #             return {'text':text, 'time':time}
-    #         else:
-    #             return None
-    #     else:
-    #         return None
