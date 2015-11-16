@@ -64,17 +64,23 @@ class RoomHandler(tornado.web.RequestHandler):
             if response.body and response.body.find('Successed')>0:
                 cookie = response.headers['Set-Cookie']
                 request = HTTPRequest(
+                    URL,
+                    method='GET',
+                    headers={'Cookie': cookie},
+                    request_timeout=TIME_OUT)
+                response = yield tornado.gen.Task(client.fetch, request)
+                request = HTTPRequest(
                     DETAIL_URL,
                     method='GET',
                     headers={'Cookie': cookie},
                     request_timeout=TIME_OUT)
                 response = yield tornado.gen.Task(client.fetch, request)
+                retjson['code']=200
+                retjson['content'] = response.body
                 soup = BeautifulSoup(response.body)
-
-                table2 = soup.findAll('table',{'class':'portlet-table'})[0].findChildren()
-                room = table2[-5].text
-                bed = table2[-4].text + '-' + table2[-3].text
-                
+                table2 = soup.findAll('td')
+                room = table2[2].text
+                bed = table2[3].text
                 retjson['code'] = 200
                 retjson['content'] = {
                     'bed': bed,
