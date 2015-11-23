@@ -29,7 +29,7 @@ class PCHandler(tornado.web.RequestHandler):
         retjson = {'code':200, 'content':u'暂时关闭'}
         try:
             if self.ismorning():
-                status = self.db.query(PCCache).filter( PCCache.date == self.today(),PCCache.lastdate+300>int(time())).one()
+                status = self.db.query(PCCache).filter( PCCache.date == self.today(),PCCache.lastdate+180>int(time())).one()
                 retjson['content'] = base64.b64decode(status.text)
                 self.db.close()
                 self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
@@ -59,7 +59,7 @@ class PCHandler(tornado.web.RequestHandler):
     def refresh_status(self):
         lock = self.db.query(PCCache).filter(
                     PCCache.date == 0).one()
-        if lock.text == '1'or(lock.lastdate!=0 and lock.lastdate+30>int(time())):
+        if lock.text == '1'or(lock.lastdate!=0 and lock.lastdate+180>int(time())):
             return
         else:
             lock.text == '1'
@@ -69,7 +69,6 @@ class PCHandler(tornado.web.RequestHandler):
         ret = self.qq_request()
         if ret and (ret['code'] == 200):
             self.recognize(ret['content'])
-
         lock.text == '0'
         self.db.commit()
         self.db.close()
@@ -85,13 +84,26 @@ class PCHandler(tornado.web.RequestHandler):
     def recognize(self, text):
         y_keyword = [u'正常跑操', u'跑操正常', u'今天继续跑操', u'今天跑操']
         result = u'今天不跑操'
-        result = text
         for k in y_keyword:
             if text.find(k)>=0:
                 result = u'今天正常跑操'
                 break
-        status = PCCache(date=self.today(), text=base64.b64encode(result),lastdate=int(time()))
-        self.db.add(status)
+        if self.ismorning():
+            try:
+                status = self.db.query(PCCache).filter(PCCache.date==self.today()).one()
+                status.text = base64.b64encode(result)
+                status.lastdate = int(time())
+                self.db.add(status)
+            except NoResultFound:
+                status = PCCache(date=self.today(), text=base64.b64encode(result),lastdate=int(time()))
+                self.db.add(status)
+            except:
+                pass
+                # print traceback.print_exc()
+        else:
+            status = PCCache(date=self.today(), text=base64.b64encode(result),lastdate=int(time()))
+            self.db.add(status)
+
         self.db.commit()
 
 
