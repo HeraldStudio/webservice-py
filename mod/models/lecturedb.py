@@ -5,7 +5,7 @@
 
 from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-from db import engine
+from db import engine,Base
 
 
 class LectureDB(Base):
