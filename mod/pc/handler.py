@@ -11,6 +11,7 @@ import tornado.gen
 from ..models.pc_cache import PCCache
 from sqlalchemy.orm.exc import NoResultFound
 from time import time, localtime, strftime
+import datetime
 import urllib, re
 import json
 import base64
@@ -23,6 +24,7 @@ class PCHandler(tornado.web.RequestHandler):
     def db(self):
         return self.application.db
     def get(self):
+        self.getData()
         self.write('Herald Web Service')
 
     def post(self):
@@ -66,12 +68,27 @@ class PCHandler(tornado.web.RequestHandler):
             lock.lastdate = int(time())
             self.db.commit()
 
-        ret = self.qq_request()
+        # ret = self.qq_request()
+        ret = self.getData()
         if ret and (ret['code'] == 200):
-            self.recognize(ret['content'])
+            self.recognize1(ret['content'])
         lock.text == '0'
         self.db.commit()
         self.db.close()
+
+
+
+    def getData(self):
+        ret = {'code':200,'content':''}
+        try:
+            content = self.db.execute("select * from wechat.boardcast where date like '"+datetime.datetime.now().strftime("%Y-%m-%d")+"%%' order by mid DESC LIMIT 1").fetchall()
+            if content:
+                ret['content'] = content[0]['msg']
+            else:
+                ret['code'] = 400
+        except Exception,e:
+            ret['code'] = 500
+        return ret
 
     def today(self):
         return int(strftime('%Y%m%d', localtime(time())))
@@ -106,6 +123,30 @@ class PCHandler(tornado.web.RequestHandler):
 
         self.db.commit()
 
+    def recognize1(self,text):
+        y_keyword = [u'早操正常进行', u'正常进行', u'今天继续跑操', u'今天跑操']
+        result = u'今天不跑操'
+        for k in y_keyword:
+            if text.find(k)>=0:
+                result = u'今天正常跑操'
+                break
+        if self.ismorning():
+            try:
+                status = self.db.query(PCCache).filter(PCCache.date==self.today()).one()
+                status.text = base64.b64encode(result)
+                status.lastdate = int(time())
+                self.db.add(status)
+            except NoResultFound:
+                status = PCCache(date=self.today(), text=base64.b64encode(result),lastdate=int(time()))
+                self.db.add(status)
+            except:
+                pass
+                # print traceback.print_exc()
+        else:
+            status = PCCache(date=self.today(), text=base64.b64encode(result),lastdate=int(time()))
+            self.db.add(status)
+
+        self.db.commit()
 
     pubKey=rsa.PublicKey(int(
         'F20CE00BAE5361F8FA3AE9CEFA495362'

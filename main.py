@@ -25,6 +25,7 @@ from mod.emptyroom.handler import CommonQueryHandler, QuickQueryHandler
 from mod.lecture.noticehandler import LectureNoticeHandler
 from mod.user.handler import UserHandler
 from mod.bedRoom.handler import RoomHandler
+from mod.exam.handler import ExamHandler
 import tornado.web
 import tornado.ioloop
 import tornado.options
@@ -59,7 +60,8 @@ class Application(tornado.web.Application):
             (r'/webserv2/user', UserHandler),
             (r'/webserv2/query/([a-z]{3})/(\d{1,2})/(\d)/(\d{1,2})/(\d{1,2})', CommonQueryHandler),
             (r'/webserv2/query/([a-z]{3})/([a-z]{1,8})/(\d{1,2})/(\d{1,2})', QuickQueryHandler),
-            (r'/webserv2/room',RoomHandler)
+            (r'/webserv2/room',RoomHandler),
+            (r'/webserv2/exam',ExamHandler)
         ]
         settings = dict(
             cookie_secret="7CA71A57B571B5AEAC5E64C6042415DE",

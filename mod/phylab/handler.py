@@ -4,7 +4,7 @@
 # @Author  : yml_bright@163.com
 
 from config import *
-from tornado.httpclient import HTTPRequest, AsyncHTTPClient
+from tornado.httpclient import HTTPRequest, AsyncHTTPClient,HTTPClient
 from BeautifulSoup import BeautifulSoup
 from ..models.phylab_cache import PhylabCache
 from sqlalchemy.orm.exc import NoResultFound
@@ -53,7 +53,6 @@ class PhylabHandler(tornado.web.RequestHandler):
                 except:
                     self.db.rollback()
 
-
             if int(term[3:5]) - int(number[3:5]) == 1:
                 curType = cur_type_up
                 retjson['content'] = {'基础性实验(上)':[],'基础性实验(上)选做':[],'文科及医学实验':[],'文科及医学实验选做':[]}
@@ -72,6 +71,7 @@ class PhylabHandler(tornado.web.RequestHandler):
                         request_timeout=TIME_OUT
                     )
                 response = yield tornado.gen.Task(client.fetch, request)
+                self.init_data(response.body)
                 header['Cookie'] = response.headers['Set-Cookie'].split(';')[0]
                 request = HTTPRequest(
                         LOGIN_URL,
@@ -81,8 +81,8 @@ class PhylabHandler(tornado.web.RequestHandler):
                         request_timeout=TIME_OUT
                     )
                 response = yield tornado.gen.Task(client.fetch, request)
-                # self.write(response.body)
                 header['Cookie'] += ';'+response.headers['Set-Cookie'].split(';')[0]
+                self.init_select_data(header['Cookie'])
                 for curNumber in curType:
                     selectData['ctl00$cphSltMain$ShowAStudentScore1$ucDdlCourseGroup$ddlCgp'] = curNumber
                     getRequest =HTTPRequest(
@@ -97,13 +97,11 @@ class PhylabHandler(tornado.web.RequestHandler):
             except Exception,e:
                 retjson['code'] = 500
                 retjson['content'] = 'error'
-                with open('api_error.log','a+') as f:
-                    f.write(strftime('%Y%m%d %H:%M:%S in [webservice]', localtime(time()))+'\n'+str(str(e)+'\n[phylab]\t'+str(number)+'\nString:'+str(retjson)+'\n\n'))
         ret = json.dumps(retjson, ensure_ascii=False, indent=2)
         self.write(ret)
         self.finish()
 
-        # refresh cache
+        #refresh cache
         if retjson['code'] == 200:
             status.date = int(time())
             status.text = base64.b64encode(ret)
@@ -147,3 +145,31 @@ class PhylabHandler(tornado.web.RequestHandler):
                 }
                 ret_content.append(temp)
         return ret_content
+
+    def init_data(self,body):
+        try:
+            content = BeautifulSoup(body)
+            viewstate_value = content.find('input',{'id':'__VIEWSTATE'})
+            EVENTVALIDATION = content.find('input',{'id':'__EVENTVALIDATION'})
+            loginValues['__VIEWSTATE'] = viewstate_value['value']
+            loginValues['__EVENTVALIDATION'] = EVENTVALIDATION['value']
+        except:
+            pass
+
+    def init_select_data(self,cookie):
+        try:
+            client = HTTPClient()
+            request = HTTPRequest(
+                SELECTURL,
+                method = "GET",
+                headers = header,
+                request_timeout=TIME_OUT
+                )
+            response = client.fetch(request)
+            content = BeautifulSoup(response.body)
+            viewstate_value = content.find('input',{'id':'__VIEWSTATE'})
+            EVENTVALIDATION = content.find('input',{'id':'__EVENTVALIDATION'})
+            selectData['__VIEWSTATE'] = viewstate_value['value']
+            selectData['__EVENTVALIDATION'] = EVENTVALIDATION['value']
+        except Exception,e:
+            pass
