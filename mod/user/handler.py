@@ -60,21 +60,25 @@ class UserHandler(tornado.web.RequestHandler):
             if response.body and response.body.find('Successed')>0:
                 cookie = response.headers['Set-Cookie']
                 request = HTTPRequest(
+                    URL,
+                    method='GET',
+                    headers={'Cookie': cookie},
+                    request_timeout=TIME_OUT)
+                response = yield tornado.gen.Task(client.fetch, request)
+                request = HTTPRequest(
                     DETAIL_URL,
                     method='GET',
                     headers={'Cookie': cookie},
                     request_timeout=TIME_OUT)
                 response = yield tornado.gen.Task(client.fetch, request)
                 soup = BeautifulSoup(response.body)
-                table1 = soup.findAll('table',{'class':'pa-main-table'})[0].findChildren()
-                schoolnum = table1[5].text.replace('&nbsp;', '')
-                name = table1[8].text.replace('&nbsp;', '')
-                sex = table1[15].text.replace('&nbsp;', '')
-                nation = table1[18].text.replace('&nbsp;', '')
-
-                table2 = soup.findAll('table',{'class':'portlet-table'})[0].findChildren()
-                room = table2[-5].text
-                bed = table2[-4].text + '-' + table2[-3].text
+                td = soup.findAll('td')
+                schoolnum = td[11].text
+                name = td[2].text
+                nation = td[4].text
+                sex = td[5].text
+                room = ''
+                bed = ''
 
                 user = UserDetail(
                     cardnum = cardnum,
