@@ -14,7 +14,7 @@ import tornado.gen
 import json, base64
 import urllib, re
 import traceback
-
+from ..auth.handler import authApi
 class LectureHandler(tornado.web.RequestHandler):
 
     @property
@@ -51,15 +51,9 @@ class LectureHandler(tornado.web.RequestHandler):
                 self.db.rollback()
 
         try:
-            client = AsyncHTTPClient()
-            request = HTTPRequest(
-                CHECK_URL,
-                method='POST',
-                body=urllib.urlencode(data),
-                request_timeout=TIME_OUT)
-            response = yield tornado.gen.Task(client.fetch, request)
-            if response.body and response.body.find('Successed')>0:
-                cookie = response.headers['Set-Cookie']
+            response = authApi(cardnum,self.get_argument('password'))
+            if response['code']==200:
+                cookie = response['content']
                 client = AsyncHTTPClient()
                 request = HTTPRequest(
                     LOGIN_URL,
@@ -118,6 +112,7 @@ class LectureHandler(tornado.web.RequestHandler):
                 retjson['code'] = 401
                 retjson['content'] = 'wrong card number or password'
         except Exception,e:
+            print str(e)
             retjson['code'] = 500
             retjson['content'] = 'error'
         ret = json.dumps(retjson, ensure_ascii=False, indent=2)

@@ -10,6 +10,7 @@ from sqlalchemy.orm.exc import NoResultFound
 import tornado.web
 import tornado.gen
 import urllib, json
+from ..auth.handler import authApi
 
 class UserHandler(tornado.web.RequestHandler):
 
@@ -51,20 +52,16 @@ class UserHandler(tornado.web.RequestHandler):
 
         try:
             client = AsyncHTTPClient()
-            request = HTTPRequest(
-                CHECK_URL,
-                method='POST',
-                body=urllib.urlencode(data),
-                request_timeout=TIME_OUT)
-            response = yield tornado.gen.Task(client.fetch, request)
-            if response.body and response.body.find('Successed')>0:
-                cookie = response.headers['Set-Cookie']
+            response = authApi(cardnum,self.get_argument('password'))
+            if response['code'] == 200:
+                cookie = response['content']
                 request = HTTPRequest(
                     URL,
                     method='GET',
                     headers={'Cookie': cookie},
                     request_timeout=TIME_OUT)
                 response = yield tornado.gen.Task(client.fetch, request)
+                cookie = cookie.split(";")[0]+";"+response.headers['Set-Cookie']
                 request = HTTPRequest(
                     DETAIL_URL,
                     method='GET',
@@ -99,7 +96,7 @@ class UserHandler(tornado.web.RequestHandler):
                     'name': user.name,
                     'sex': user.sex,
                 }
-        except:
+        except Exception,e:
             pass
         self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()

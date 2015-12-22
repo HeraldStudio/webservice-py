@@ -10,7 +10,8 @@ import tornado.web
 import tornado.gen
 import urllib
 import random
-import json,socket
+import json,socket,base64
+from sqlalchemy.orm.exc import NoResultFound
 from time import time, localtime, strftime,mktime,strptime
 import datetime
 
@@ -22,6 +23,9 @@ class PEHandler(tornado.web.RequestHandler):
 
     def get(self):
         self.write('Herald Web Service')
+
+    def on_finish(self):
+        self.db.close()
 
 
     @tornado.web.asynchronous
@@ -94,3 +98,67 @@ class PEHandler(tornado.web.RequestHandler):
         if current_date<=6:
             workday_count = workday_count-1
         return workday_count
+#体测信息
+class ticeInfoHandler(tornado.web.RequestHandler):
+    @property
+    def db(self):
+        return self.application.db
+
+    def get(self):
+        self.write('Herald Web Service')
+
+    @tornado.web.asynchronous
+    @tornado.gen.engine
+    def post(self):
+        cardnum = self.get_argument('cardnum',default=None)
+        retjson = {'code':200,'content':''}
+        state = 'fail'
+        if not cardnum:
+            retjson['code'] = 400
+            retjson['content'] = 'params lack'
+        else:
+            #read from cache
+            try:
+                status = self.db.query(TiceCache).filter(TiceCache.cardnum == cardnum).one()
+                if status.date > int(time()-100000) and status.text != '*':
+                    self.write(base64.b64decode(status.text))
+                    self.finish()
+                    return
+            except NoResultFound:
+                status = TiceCache(cardnum = cardnum,text='*',date = int(time()))
+                self.db.add(status)
+            try:
+                sefl.db.commit()
+            except:
+                self.db.rollback()
+
+            try:
+                result = self.get_tice_info(cardnum)
+                if result == -1:
+                    retjson['code'] = 408
+                    retjson['content'] = 'time out'
+                else:
+                    state = 'success'
+                    retjson['content'] = result
+        ret = json.dumps(retjson, ensure_ascii=False, indent=2)
+        self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
+        self.finish()
+
+        #refresh cache
+
+        if state == 'success':
+            try:
+                status.date = int(time())
+                status.text = base64.b64encode(ret)
+                self.db.add(status)
+                self.db.commit()
+            except:
+                self.db.rollback()
+    def get_tice_info(self,cardnum):
+        s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)   
+        s.settimeout(3)  
+        s.connect((API_SERVER_HOST, API_SERVER_PORT))
+        s.send('\x01'+A+'\x09'+cardnum+'\x00')
+        recv = s.recv(1024).split(',')
+
+

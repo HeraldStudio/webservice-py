@@ -12,6 +12,7 @@ import tornado.gen
 from time import time,localtime, strftime
 import json, base64,traceback,urllib
 from config import *
+from ..auth.handler import authApi
 
 class ExamHandler(tornado.web.RequestHandler):
 
@@ -51,24 +52,19 @@ class ExamHandler(tornado.web.RequestHandler):
 
 		try:
 			client = AsyncHTTPClient()
-			request = HTTPRequest(
-			    CHECK_URL,
-			    method='POST',
-			    body=urllib.urlencode(data),
-			    request_timeout=TIME_OUT)
-			response = yield tornado.gen.Task(client.fetch, request)
-			if response.body and response.body.find('Successed')>0:
-			    cookie = response.headers['Set-Cookie']
-			    header['Cookie'] = cookie
-			    request = HTTPRequest(
-			        DETAIL_URL,
-			        method='GET',
-			        headers=header,
-			        request_timeout=TIME_OUT)
-			    response = yield tornado.gen.Task(client.fetch, request)
-			    retjson['content'] = self.dealData(response.body)
+			response = authApi(number,self.get_argument('password'))
+			if response['code'] == 200:
+				header['Cookie'] = response['content']
+				request = HTTPRequest(
+					DETAIL_URL,
+					method="GET",
+					headers = header,
+					request_timeout=TIME_OUT
+				)
+				response = yield tornado.gen.Task(client.fetch,request)
+				retjson['content'] = self.dealData(response.body)
 			else:
-			    retjson['code'] = 408
+				retjson['code'] = 408
 		except Exception,e:
 			# print traceback.print_exc()
 			retjson['code'] = 500
