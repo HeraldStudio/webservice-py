@@ -9,7 +9,7 @@ API_SERVER_KEY = ''
 
 SECRET_KEY1 = 
 SECRET_KEY2 = 
-A = hex(SECRET_KEY1^SECRET_KEY2)[2:] + API_SERVER_KEY + hex(SECRET_KEY1)[2:]
+A = hex(SECRET_KEY1^SECRET_KEY2)[2:-1] + API_SERVER_KEY + hex(SECRET_KEY1)[2:]
 daymap = {'Mon':1, 'Tue':2, 'Wed':3, 'Thu':4, 'Fri':5, 'Sat':6, 'Sun':7}
 finay_day = '2016-01-08'
 final_date = 5

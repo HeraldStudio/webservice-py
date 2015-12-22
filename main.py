@@ -8,7 +8,7 @@ from mod.curriculum.sidebar_handler import SidebarHandler
 from mod.curriculum.curriculum_handler import CurriculumHandler
 from mod.simsimi.handler import SIMSIMIHandler
 from mod.gpa.gpa_handler import GPAHandler
-from mod.pe.handler import PEHandler
+from mod.pe.handler import PEHandler,ticeInfoHandler
 from mod.srtp.srtp_handler import SRTPHandler
 from mod.card.handler import CARDHandler
 from mod.nic.handler import NICHandler
@@ -60,7 +60,8 @@ class Application(tornado.web.Application):
             (r'/webserv2/user', UserHandler),
             (r'/webserv2/query', NewHandler),
             (r'/webserv2/room',RoomHandler),
-            (r'/webserv2/exam',ExamHandler)
+            (r'/webserv2/exam',ExamHandler),
+            (r'/webserv2/tice',ticeInfoHandler)
         ]
         settings = dict(
             cookie_secret="7CA71A57B571B5AEAC5E64C6042415DE",

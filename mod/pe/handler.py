@@ -5,6 +5,7 @@ from config import *
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
 from BeautifulSoup import BeautifulSoup
 from ..models.pe_models import PEUser
+from ..models.tice_cache import TiceCache
 from sqlalchemy.orm.exc import NoResultFound
 import tornado.web
 import tornado.gen
@@ -140,7 +141,10 @@ class ticeInfoHandler(tornado.web.RequestHandler):
                 else:
                     state = 'success'
                     retjson['content'] = result
-        ret = json.dumps(retjson, ensure_ascii=False, indent=2)
+            except Exception,e:
+                retjson['code'] = 500
+                retjson['content'] = str(e)
+        ret = json.dumps(retjson,ensure_ascii=False,indent=2)
         self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
 
@@ -155,10 +159,49 @@ class ticeInfoHandler(tornado.web.RequestHandler):
             except:
                 self.db.rollback()
     def get_tice_info(self,cardnum):
-        s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)   
-        s.settimeout(3)  
-        s.connect((API_SERVER_HOST, API_SERVER_PORT))
-        s.send('\x01'+A+'\x09'+cardnum+'\x00')
-        recv = s.recv(1024).split(',')
+        try:
+            s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)   
+            s.settimeout(3)  
+            s.connect((API_SERVER_HOST, API_SERVER_PORT))
+            s.send('\x01'+A+'\x09'+cardnum+'\x00')
+            recv = s.recv(1024).split(',')
+            ret = {
+                'height':recv[0],
+                'weight':recv[1],
+                'fei':{
+                    'value':recv[2],
+                    'score':recv[3],
+                    'comment':recv[4].decode('gbk').encode('utf-8')
+                },
+                '50meter':{
+                    'value':recv[5],
+                    'score':recv[6],
+                    'comment':recv[7].decode('gbk').encode('utf-8')
+                },
+                'jump':{
+                    'value':recv[8],
+                    'score':recv[9],
+                    'comment':recv[10].decode('gbk').encode('utf-8')
+                },
+                '1000meter':{
+                    'value':recv[14],
+                    'score':recv[15],
+                    'comment':recv[16].decode('gbk').encode('utf-8')
+                },
+                'zuoqian':{
+                    'value':recv[17],
+                    'score':recv[18],
+                    'comment':recv[19].decode('gbk').encode('utf-8')
+                },
+                'up-down':{
+                    'value':recv[20],
+                    'score':recv[21],
+                    'comment':recv[22].decode('gbk').encode('utf-8')
+                },
+                'score':recv[23].decode('gbk').encode('utf-8')
+            }
+            return ret
+        except:
+            return -1
 
 
