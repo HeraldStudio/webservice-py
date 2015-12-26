@@ -22,7 +22,8 @@ class CurriculumHandler(tornado.web.RequestHandler):
     def post(self):
         cardnum = self.get_argument('cardnum', default=None)
         term = self.get_argument('term', default=None)
-        retjson = {'code':200, 'content':''}
+        date = self.get_argument('date',default=None)
+        retjson = {'code':200, 'content':'','week':''}
         if not (cardnum and term):
             retjson['code'] = 400
             retjson['content'] = 'params lack'
@@ -36,7 +37,6 @@ class CurriculumHandler(tornado.web.RequestHandler):
                                   request_timeout=TIME_OUT)
             response = yield tornado.gen.Task(client.fetch, request)
             body = response.body
-
             if not body:
                 retjson['code'] = 408
                 retjson['content'] = 'time out'
@@ -48,6 +48,20 @@ class CurriculumHandler(tornado.web.RequestHandler):
                     retjson['content'] = 'card number not exist'
                 else:
                     retjson['content'] = self.parser(body)
+        if  date:
+            try:
+                url = "http://58.192.114.179/classroom/common/getdateofweek?date="+date
+                client = AsyncHTTPClient()
+                request = HTTPRequest(
+                url = url, 
+                method = "GET"
+                )
+                response = response = yield tornado.gen.Task(client.fetch, request)
+                retjson['week'] = json.loads(response.body)
+            except Exception,e:
+                print str(e)
+                retjson['code'] = 500
+                retjson['week'] = u'系统错误'
         self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
 
