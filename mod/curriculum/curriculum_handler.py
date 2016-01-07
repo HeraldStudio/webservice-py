@@ -33,8 +33,11 @@ class CurriculumHandler(tornado.web.RequestHandler):
                  'queryAcademicYear': term}
             )
             client = AsyncHTTPClient()
-            request = HTTPRequest(CURR_URL, body=params, method='POST',
-                                  request_timeout=TIME_OUT)
+            request = HTTPRequest(
+                CURR_URL, 
+                body=params, 
+                method='POST',
+                request_timeout=TIME_OUT)
             response = yield tornado.gen.Task(client.fetch, request)
             body = response.body
             if not body:
@@ -54,12 +57,12 @@ class CurriculumHandler(tornado.web.RequestHandler):
                 client = AsyncHTTPClient()
                 request = HTTPRequest(
                 url = url, 
-                method = "GET"
+                method = "GET",
+                request_timeout=TIME_OUT
                 )
                 response = response = yield tornado.gen.Task(client.fetch, request)
                 retjson['week'] = json.loads(response.body)
             except Exception,e:
-                print str(e)
                 retjson['code'] = 500
                 retjson['week'] = u'系统错误'
         self.write(json.dumps(retjson, ensure_ascii=False, indent=2))

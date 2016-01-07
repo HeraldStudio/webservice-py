@@ -56,6 +56,14 @@ class ExamHandler(tornado.web.RequestHandler):
 			if response['code'] == 200:
 				header['Cookie'] = response['content']
 				request = HTTPRequest(
+					FIRST_URL,
+					method="GET",
+					headers = header,
+					request_timeout=TIME_OUT
+				)
+				response = yield tornado.gen.Task(client.fetch,request)
+				header['Cookie'] = header['Cookie'].split(';')[0]+';'+response.headers['Set-Cookie']
+				request = HTTPRequest(
 					DETAIL_URL,
 					method="GET",
 					headers = header,
@@ -95,13 +103,14 @@ class ExamHandler(tornado.web.RequestHandler):
 		else:
 			for i in range(1,length):
 				td = tr[i].findAll('td')
+				print td
 				retTemp = {
 					'course':td[2].text,
-					'type':td[3].text,
-					'teacher':td[4].text,
-					'time':td[5].text,
-					'location':td[6].text,
-					'hour':td[7].text
+					'type':"",
+					'teacher':td[3].text,
+					'time':td[4].text,
+					'location':td[5].text,
+					'hour':td[6].text
 				}
 				ret.append(retTemp)
 		return ret
