@@ -52,7 +52,7 @@ class GPAHandler(tornado.web.RequestHandler):
                     retjson['code'] = 408
                     retjson['content'] = 'time out'
                 else:
-                    if int(response.headers['Content-Length']) > 1000:
+                    if u'vercode' in response.body:
                         retjson['code'] = 401
                         retjson['content'] = 'wrong card number or password'
                     else:
@@ -60,7 +60,6 @@ class GPAHandler(tornado.web.RequestHandler):
                                               request_timeout=TIME_OUT,
                                               headers={'Cookie': cookie})
                         response = yield tornado.gen.Task(client.fetch, request)
-                        print response
                         if not response.headers:
                             retjson['code'] = 408
                             retjson['content'] = 'time out'

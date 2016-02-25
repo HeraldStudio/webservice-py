@@ -9,6 +9,7 @@ from mod.curriculum.curriculum_handler import CurriculumHandler
 from mod.simsimi.handler import SIMSIMIHandler
 from mod.gpa.gpa_handler import GPAHandler
 from mod.pe.handler import PEHandler,ticeInfoHandler
+from mod.pe.pedetailHandler import pedetailHandler
 from mod.srtp.srtp_handler import SRTPHandler
 from mod.card.handler import CARDHandler
 from mod.nic.handler import NICHandler
@@ -45,6 +46,7 @@ class Application(tornado.web.Application):
             (r'/webserv2/curriculum', CurriculumHandler),
             (r'/webserv2/gpa', GPAHandler),
             (r'/webserv2/pe', PEHandler),
+            (r'/webserv2/pedetail', pedetailHandler),
             (r'/webserv2/simsimi', SIMSIMIHandler),
             (r'/webserv2/nic', NICHandler),
             (r'/webserv2/card', CARDHandler),

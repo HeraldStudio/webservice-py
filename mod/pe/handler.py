@@ -12,7 +12,6 @@ import tornado.gen
 import urllib
 import random
 import json,socket,base64
-from sqlalchemy.orm.exc import NoResultFound
 from time import time, localtime, strftime,mktime,strptime
 import datetime
 

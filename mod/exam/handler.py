@@ -74,7 +74,7 @@ class ExamHandler(tornado.web.RequestHandler):
 			else:
 				retjson['code'] = 408
 		except Exception,e:
-			# print traceback.print_exc()
+			print traceback.print_exc()
 			retjson['code'] = 500
 		ret = json.dumps(retjson, ensure_ascii=False, indent=2)
 		self.write(ret)
