@@ -73,6 +73,9 @@ class ExamHandler(tornado.web.RequestHandler):
 				retjson['content'] = self.dealData(response.body)
 			else:
 				retjson['code'] = 408
+		except IndexError:
+			retjson['code'] = 200
+			retjson['content'] = u'当前不在考试周'
 		except Exception,e:
 			print traceback.print_exc()
 			retjson['code'] = 500

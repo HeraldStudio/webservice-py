@@ -35,85 +35,60 @@ class CurriculumHandler(tornado.web.RequestHandler):
             retjson['code'] = 400
             retjson['content'] = 'params lack'
         else:
-            params = urllib.urlencode(
-                {'queryStudentId': cardnum,
-                 'queryAcademicYear': term}
-            )
-            client = AsyncHTTPClient()
-            header = { 
-                'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-                'Accept-Encoding': 'gzip, deflate, sdch',
-                'Accept-Language': 'zh-CN,zh;q=0.8',
-                'Host':'xk.urp.seu.edu.cn',
-                'Connection':'keep-alive',
-                'Referer':'http://jwc.seu.edu.cn/',
-                'Upgrade-Insecure-Requests':'1'
-            }
-            cookie = ""
-            state = 0
             try:
-                dbcookie = self.db.query(Curriculum_CookieCache).one()
-                if(int(time())-dbcookie.date)>600:
-                    state = 1
-                header['Cookie'] = dbcookie.cookie
-            except NoResultFound:
-                dbcookie = Curriculum_CookieCache(cookie="",date=int(time()))
-                state = 1
-            if state==1:
-                request = HTTPRequest(
-                    JWC_URL,
-                    method='GET',
-                    request_timeout=TIME_OUT
-                    )
-                response = yield tornado.gen.Task(client.fetch, request)
-                request = HTTPRequest(
-                    TERM_URL,
-                    method='GET',
-                    headers=header,
-                    request_timeout=TIME_OUT
-                    )
-                response = yield tornado.gen.Task(client.fetch, request)
-                if "Set-Cookie" in response.headers.keys():
-                    cookie = response.headers['Set-Cookie']
-                    header['Cookie'] = cookie
-                    dbcookie.cookie = cookie
-                    dbcookie.date = int(time())
-
-
-            request = HTTPRequest(
-                CURR_URL, 
-                body=params, 
-                method='POST',
-                headers=header,
-                request_timeout=TIME_OUT)
-            response = yield tornado.gen.Task(client.fetch, request)
-            body = response.body
-            if not body:
-                retjson['code'] = 408
-                retjson['content'] = 'time out'
-            else:
-                pat = re.compile(ur'没有找到该学生信息', re.U)
-                match = pat.search(body)
-                if match:
-                    retjson['code'] = 401
-                    retjson['content'] = 'card number not exist'
-                else:
-                    retjson['content'] = self.parser(body)
-        if date != "-1":
-            try:
-                url = "http://58.192.114.179/classroom/common/getdateofweek?date="+date
+                params = urllib.urlencode(
+                    {'queryStudentId': cardnum,
+                     'queryAcademicYear': term}
+                )
                 client = AsyncHTTPClient()
                 request = HTTPRequest(
-                url = url, 
-                method = "GET",
-                request_timeout=TIME_OUT
+                    CURR_URL, 
+                    body=params, 
+                    method='POST',
+                    request_timeout=TIME_OUT)
+                response = yield tornado.gen.Task(client.fetch, request)
+                body = response.body
+                if not body:
+                    retjson['code'] = 408
+                    retjson['content'] = 'time out'
+                else:
+                    pat = re.compile(ur'没有找到该学生信息', re.U)
+                    match = pat.search(body)
+                    if match:
+                        retjson['code'] = 401
+                        retjson['content'] = 'card number not exist'
+                    else:
+                        retjson['content'] = self.parser(body)
+                if date != "-1":
+                    url = "http://58.192.114.179/classroom/common/getdateofweek?date="+date
+                    client = AsyncHTTPClient()
+                    request = HTTPRequest(
+                        url = url, 
+                        method = "GET",
+                        request_timeout=TIME_OUT
+                    )
+                    response = yield tornado.gen.Task(client.fetch, request)
+                    retjson['week'] = json.loads(response.body)
+                url = "http://58.192.114.179/classroom/common/gettermlistex"
+                client = AsyncHTTPClient()
+                request = HTTPRequest(
+                    url = url, 
+                    method = "GET",
+                    request_timeout=TIME_OUT
                 )
                 response = yield tornado.gen.Task(client.fetch, request)
-                retjson['week'] = json.loads(response.body)
+                content = json.loads(response.body)
+                retjson['startdate'] = {}
+                termTemp = term.split('-')
+                term = "20"+termTemp[0]+"-"+"20"+termTemp[1]+"-"+termTemp[2]
+                for i in content:
+                    if i['code'] == term:
+                        retjson['startdate']['month'] = i['startDate']['month']
+                        retjson['startdate']['day'] = i['startDate']['date']       
             except Exception,e:
                 retjson['code'] = 500
                 retjson['week'] = u'系统错误'
+        
         self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
 
@@ -123,7 +98,6 @@ class CurriculumHandler(tornado.web.RequestHandler):
                 self.db.commit()
             except:
                 self.db.rollback()
-
     def parser(self, html):
         soup = BeautifulSoup(html)
         table = soup.findAll('td', rowspan='5')

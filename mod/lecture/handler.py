@@ -61,7 +61,6 @@ class LectureHandler(tornado.web.RequestHandler):
                     headers={'Cookie':cookie},
                     request_timeout=TIME_OUT)
                 response = yield tornado.gen.Task(client.fetch, request)
-
                 cookie += ';' + response.headers['Set-Cookie'].split(';')[0]
                 request = HTTPRequest(
                     USERID_URL,
