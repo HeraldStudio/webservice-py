@@ -55,13 +55,16 @@ class UserHandler(tornado.web.RequestHandler):
             response = authApi(cardnum,self.get_argument('password'))
             if response['code'] == 200:
                 cookie = response['content']
+                print cookie
                 request = HTTPRequest(
                     URL,
                     method='GET',
                     headers={'Cookie': cookie},
                     request_timeout=TIME_OUT)
                 response = yield tornado.gen.Task(client.fetch, request)
-                cookie = cookie.split(";")[0]+";"+response.headers['Set-Cookie']
+                print response.headers
+                tempCookie = response.headers['Set-Cookie'].split(';')
+                cookie = cookie.split(";")[0]+";"+tempCookie[0]+";"+tempCookie[1].split(',')[1]
                 request = HTTPRequest(
                     DETAIL_URL,
                     method='GET',
@@ -97,6 +100,7 @@ class UserHandler(tornado.web.RequestHandler):
                     'sex': user.sex,
                 }
         except Exception,e:
+            print str(e)
             pass
         self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
