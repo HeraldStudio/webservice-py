@@ -78,13 +78,13 @@ class CurriculumHandler(tornado.web.RequestHandler):
                 )
                 response = yield tornado.gen.Task(client.fetch, request)
                 content = json.loads(response.body)
-                retjson['startdate'] = {}
+                retjson['content']['startdate']={}
                 termTemp = term.split('-')
                 term = "20"+termTemp[0]+"-"+"20"+termTemp[1]+"-"+termTemp[2]
                 for i in content:
                     if i['code'] == term:
-                        retjson['startdate']['month'] = i['startDate']['month']
-                        retjson['startdate']['day'] = i['startDate']['date']       
+                        retjson['content']['startdate']['month'] = i['startDate']['month']
+                        retjson['content']['startdate']['day'] = i['startDate']['date'] 
             except Exception,e:
                 retjson['code'] = 500
                 retjson['week'] = u'系统错误'

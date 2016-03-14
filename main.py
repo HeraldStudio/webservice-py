@@ -18,6 +18,7 @@ from mod.lecture.handler import LectureHandler
 from mod.library.listhandler import LibListHandler
 from mod.library.renewhandler import LibRenewHandler
 from mod.library.searchhandler import LibSearchHandler
+from mod.library.hothandler import HotHandler
 from mod.pc.handler import PCHandler
 from mod.jwc.handler import JWCHandler
 from mod.schoolbus.handler import SchoolBusHandler
@@ -52,6 +53,7 @@ class Application(tornado.web.Application):
             (r'/webserv2/card', CARDHandler),
             (r'/webserv2/lecture', LectureHandler),
             (r'/webserv2/library', LibListHandler),
+            (r'/webserv2/library_hot',HotHandler),
             (r'/webserv2/renew', LibRenewHandler),
             (r'/webserv2/search', LibSearchHandler),
             (r'/webserv2/phyLab',PhylabHandler),
