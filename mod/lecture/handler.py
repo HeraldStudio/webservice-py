@@ -111,9 +111,13 @@ class LectureHandler(tornado.web.RequestHandler):
                 retjson['code'] = 401
                 retjson['content'] = 'wrong card number or password'
         except Exception,e:
-            print str(e)
+            # print str(e)
             retjson['code'] = 500
             retjson['content'] = 'error'
+            if status.text!='*':
+                self.write(base64.b64decode(status.text))
+                self.finish()
+                return
         ret = json.dumps(retjson, ensure_ascii=False, indent=2)
         self.write(ret)
         self.finish()

@@ -4,12 +4,22 @@
 from config import TIME_OUT
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
 from BeautifulSoup import BeautifulSoup
+from ..models.library import LibraryHotCache
+from sqlalchemy.orm.exc import NoResultFound
 import tornado.web
+from time import time
+import datetime
 import tornado.gen
 import urllib
-import json, re
+import json, re,base64
 
 class HotHandler(tornado.web.RequestHandler):
+
+    @property
+    def db(self):
+        return self.application.db
+    def on_finish(self):
+        self.db.close()
 
     def get(self):
         self.write('Herald Web Service')
@@ -22,6 +32,16 @@ class HotHandler(tornado.web.RequestHandler):
             'code':200,
             'content':''
         }
+        try:
+            status = self.db.query(LibraryHotCache).one()
+            if status.date > int(time())-600000:
+                self.write(base64.b64decode(status.text))
+                self.db.close()
+                self.finish()
+                return
+        except NoResultFound:
+            status = LibraryHotCache(text='*', date=int(time()))
+
         try:
             client = AsyncHTTPClient()
             request = HTTPRequest(
@@ -46,8 +66,21 @@ class HotHandler(tornado.web.RequestHandler):
         except:
             retjson['code'] = 500
             retjson['content'] = 'error'
+        ret = json.dumps(retjson, ensure_ascii=False, indent=2)
         self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
+
+        # refresh cache
+        if retjson['code'] == 200:
+            status.date = int(time())
+            status.text = base64.b64encode(ret)
+            self.db.add(status)
+            try:
+                self.db.commit()
+            except:
+                self.db.rollback()
+            finally:
+                self.db.remove()
 
     def entity_parser(self, string):
         x = re.findall('&#x(.{4});', string)
