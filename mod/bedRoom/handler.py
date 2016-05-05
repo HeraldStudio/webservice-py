@@ -67,17 +67,10 @@ class RoomHandler(tornado.web.RequestHandler):
                     headers={'Cookie': cookie},
                     request_timeout=TIME_OUT)
                 response = yield tornado.gen.Task(client.fetch, request)
-                cookie = cookie.split(";")[0]+";"+response.headers['Set-Cookie']
-                request = HTTPRequest(
-                    DETAIL_URL,
-                    method='GET',
-                    headers={'Cookie': cookie},
-                    request_timeout=TIME_OUT)
-                response = yield tornado.gen.Task(client.fetch, request)
                 soup = BeautifulSoup(response.body)
                 table2 = soup.findAll('td')
-                room = table2[2].text
-                bed = table2[3].text
+                room = table2[9].text
+                bed = table2[10].text
                 retjson['code'] = 200
                 retjson['content'] = {
                     'bed': bed,

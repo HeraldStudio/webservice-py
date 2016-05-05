@@ -38,7 +38,6 @@ class GPAHandler(tornado.web.RequestHandler):
             else:
                 cookie = response.headers['Set-Cookie'].split(';')[0]+";"+response.headers['Set-Cookie'].split(';')[1].split(',')[1]
                 img = Image.open(io.BytesIO(response.body))
-                img.save('test.jpg')
                 vercode = self.recognize(img)
                 params = urllib.urlencode({
                     'userName': username,
@@ -53,7 +52,6 @@ class GPAHandler(tornado.web.RequestHandler):
                     retjson['code'] = 408
                     retjson['content'] = 'time out'
                 else:
-                    self.write(response.headers)
                     if 'vercode' in str(response.body):
                         retjson['code'] = 401
                         retjson['content'] = 'wrong card number or password'

@@ -92,12 +92,6 @@ class CurriculumHandler(tornado.web.RequestHandler):
         self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
 
-        if state==1:
-            try:
-                self.db.add(dbcookie)
-                self.db.commit()
-            except:
-                self.db.rollback()
     def parser(self, html):
         soup = BeautifulSoup(html)
         table = soup.findAll('td', rowspan='5')

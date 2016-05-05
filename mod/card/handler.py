@@ -159,6 +159,8 @@ class CARDHandler(tornado.web.RequestHandler):
                         tmp['system'] = td[4].text
                         tmp['price'] = td[5].text
                         tmp['left'] = td[6].text
+                        if(tmp['type']==u'扣款'):
+                            tmp['type'] = u'水电扣费'
                         detial.append(tmp)
                     page += 1
                     data['pageNum'] = page

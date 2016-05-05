@@ -45,6 +45,7 @@ class SidebarHandler(tornado.web.RequestHandler):
                     retjson['code'] = 401
                     retjson['content'] = 'card number not exist'
                 else:
+                    retjson['body'] = body
                     retjson['content'] = self.parser(body)
         self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
