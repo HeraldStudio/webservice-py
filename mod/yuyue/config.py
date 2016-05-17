@@ -16,7 +16,7 @@ method = {
         'cancelUrl':{
             'url':'http://yuyue.seu.edu.cn/eduplus/phoneOrder/delOrderP.do?sclId=1',
             'method':'GET',
-            'param':[]
+            'param':['id']
         },
         'getOrder':{
             'url':'http://yuyue.seu.edu.cn/eduplus/phoneOrder/phoneOrder/getOrderInfoP.do?sclId=1',
@@ -34,14 +34,14 @@ method = {
             'param':[]
         },
         'getFriendList':{
-            'url':'http://yuyue.seu.edu.cn/eduplus/phoneOrder/searchUserP.do?sclId=1&pageNumber=1&start=0&pageSize=5',
-            'method':'GET',
+            'url':'http://yuyue.seu.edu.cn/eduplus/order/order/order/order/searchUser.do?sclId=1',
+            'method':'POST',
             'param':['cardNo']
         },
         'new':{
             'url':'http://yuyue.seu.edu.cn/eduplus/phoneOrder/insertOredrP.do?sclId=1',
             'method':'GET',
-            'param':['orderVO.useMode','orderVO.useTime','orderVO.itemId','orderVO.phone','useUserIds']
+            'param':['orderVO.useMode','orderVO.useTime','orderVO.itemId','orderVO.phone','useUserIds','orderVO.remark']
         }
  }
 

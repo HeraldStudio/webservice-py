@@ -43,7 +43,7 @@ class YuyueHandler(tornado.web.RequestHandler):
                     data = {}
                     for i in meth['param']:
                         if method_type=='new' and i=='useUserIds':
-                            ar = self.get_arguments(i)
+                            ar = json.loads(self.get_argument(i))
                             count = 0
                             data[i] = ''
                             for j in ar:
@@ -55,6 +55,7 @@ class YuyueHandler(tornado.web.RequestHandler):
                             print data[i]
                         else:
                             data[i] = self.get_argument(i)
+                    print data
                     retjson['content'] = self.getData(meth['url'],meth['method'],data,cookie['content'])
                 else:
                     retjson['code'] = 408
@@ -83,6 +84,7 @@ class YuyueHandler(tornado.web.RequestHandler):
                 )
             if data and method=="GET":
                 url = url_concat(url,data)
+                url = url.replace("+","%20")
                 request.url = url
             elif data and method=="POST":
                 data = urllib.urlencode(data)
