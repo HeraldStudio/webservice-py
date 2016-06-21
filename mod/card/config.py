@@ -9,5 +9,5 @@ USERID_URL = "http://allinonecard.seu.edu.cn/accountcardUser.action"
 INIT_URL = "http://allinonecard.seu.edu.cn/accounthisTrjn.action"
 INDEX_URL = "http://allinonecard.seu.edu.cn/"
 DATA_URL = "http://allinonecard.seu.edu.cn/accountconsubBrows.action"
-
+TODAYDATA_URL = "http://allinonecard.seu.edu.cn/accounttodatTrjnObject.action"
 TIME_OUT = 7

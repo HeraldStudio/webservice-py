@@ -94,6 +94,11 @@ class PhylabHandler(tornado.web.RequestHandler):
                         )
                     getResponse = yield tornado.gen.Task(client.fetch, getRequest)
                     retjson['content'][curType.get(curNumber)] = self.getCur(getResponse.body)
+            except KeyError:
+                retjson = {
+                    'code':200,
+                    'content':{}
+                }
             except Exception,e:
                 retjson['code'] = 500
                 retjson['content'] = 'error'

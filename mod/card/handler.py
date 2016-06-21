@@ -32,6 +32,8 @@ class CARDHandler(tornado.web.RequestHandler):
     @tornado.gen.engine
     def post(self):
         timedelta = int(self.get_argument('timedelta', default=0))
+        # if int(timedelta)>7:
+        #     timedelta = 7
         cardnum = self.get_argument('cardnum')
         data = {
             'Login.Token1':cardnum,
@@ -42,7 +44,7 @@ class CARDHandler(tornado.web.RequestHandler):
         # read from cache
         try:
             status = self.db.query(CardCache).filter( CardCache.cardnum ==  cardnum ).one()
-            if timedelta == 0 and status.date > int(time())-600:
+            if int(timedelta) == 0 and status.date > int(time())-600:
                 self.write(base64.b64decode(status.text))
                 self.db.close()
                 self.finish()
@@ -79,7 +81,7 @@ class CARDHandler(tornado.web.RequestHandler):
                 userid = td[3].text
                 cardState = td[42].text
                 cardLetf = td[46].text.encode('utf-8').split('元')[0]
-
+                # do not need to get the detail
                 if timedelta == 0:
                     retjson['content'] = {'state':cardState, 'left':cardLetf}
                     ret = json.dumps(retjson, ensure_ascii=False, indent=2)
@@ -99,80 +101,108 @@ class CARDHandler(tornado.web.RequestHandler):
                             self.db.remove()
                     self.db.close()
                     return
-
-                request = HTTPRequest(
-                    INIT_URL,
-                    method='GET',
-                    headers={'Cookie':cookie},
-                    request_timeout=TIME_OUT)
-                response = yield tornado.gen.Task(client.fetch, request)
-                soup = BeautifulSoup(response.body)
-                __continue = soup.findAll('form',{'id':'accounthisTrjn1'})[0]['action']
-
-                now = datetime.datetime.now()
-                delta = datetime.timedelta(timedelta)
-                page = 1
-                data = {
-                    'account':userid,
-                    'inputObject':'all',
-                    'inputStartDate':(now - delta).strftime('%Y%m%d'),
-                    'inputEndDate':now.strftime('%Y%m%d'),
-                    'pageNum':page
-                }
-                request = HTTPRequest(
-                    INDEX_URL+__continue,
-                    method='POST',
-                    headers={'Cookie':cookie},
-                    body=urllib.urlencode(data),
-                    request_timeout=TIME_OUT)
-                response = yield tornado.gen.Task(client.fetch, request)
-                soup = BeautifulSoup(response.body)
-                __continue = soup.findAll('form',{'id':'accounthisTrjn2'})[0]['action']
-                request = HTTPRequest(
-                    INDEX_URL+__continue,
-                    method='POST',
-                    headers={'Cookie':cookie},
-                    body=urllib.urlencode(data),
-                    request_timeout=TIME_OUT)
-                response = yield tornado.gen.Task(client.fetch, request)
-                soup = BeautifulSoup(response.body)
-                __continue = 'accounthisTrjn3.action'
-                request = HTTPRequest(
-                    INDEX_URL+__continue,
-                    method='POST',
-                    headers={'Cookie':cookie},
-                    body=urllib.urlencode(data),
-                    request_timeout=TIME_OUT)
-                response = yield tornado.gen.Task(client.fetch, request)
-                soup = BeautifulSoup(response.body)
-                detial = []
-                count = 0
-                while 1:
-                    tr = soup.findAll('tr',{"class": re.compile("listbg")})
-                    if not tr:
-                        break
-                    for td in tr:
-                        td = td.findChildren()
-                        tmp = {}
-                        tmp['date'] = td[0].text
-                        tmp['type'] = td[3].text
-                        tmp['system'] = td[4].text
-                        tmp['price'] = td[5].text
-                        tmp['left'] = td[6].text
-                        if(tmp['type']==u'扣款'):
-                            tmp['type'] = u'水电扣费'
-                        detial.append(tmp)
-                    page += 1
-                    data['pageNum'] = page
+                #get today detail
+                elif timedelta == 1:
+                    data = {
+                        'account':userid,
+                        'inputObject':"all",
+                    }
                     request = HTTPRequest(
-                        DATA_URL,
+                        TODAYDATA_URL,
+                        method='POST',
+                        body=urllib.urlencode(data),
+                        headers={'Cookie':cookie},
+                        request_timeout=TIME_OUT
+                    )
+                    response = yield tornado.gen.Task(client.fetch, request)
+                    soup = BeautifulSoup(response.body)
+                    tr = soup.findAll('tr',{"class": re.compile("listbg")})
+                    detail=[]
+                    for td in tr:
+                            td = td.findChildren()
+                            tmp = {}
+                            tmp['date'] = td[0].text
+                            tmp['type'] = td[3].text
+                            tmp['system'] = td[4].text
+                            tmp['price'] = td[5].text
+                            tmp['left'] = td[6].text
+                            detail.append(tmp)
+                    retjson['content'] = {'state':cardState,'left':cardLetf,'detial':detail}
+                #get other days detail depend on timedelta
+                else:
+                    request = HTTPRequest(
+                        INIT_URL,
+                        method='GET',
+                        headers={'Cookie':cookie},
+                        request_timeout=TIME_OUT)
+                    response = yield tornado.gen.Task(client.fetch, request)
+                    soup = BeautifulSoup(response.body)
+                    __continue = soup.findAll('form',{'id':'accounthisTrjn1'})[0]['action']
+
+                    now = datetime.datetime.now()
+                    delta = datetime.timedelta(timedelta)
+                    page = 1
+                    data = {
+                        'account':userid,
+                        'inputObject':'all',
+                        'inputStartDate':(now - delta).strftime('%Y%m%d'),
+                        'inputEndDate':now.strftime('%Y%m%d'),
+                        'pageNum':page
+                    }
+                    request = HTTPRequest(
+                        INDEX_URL+__continue,
                         method='POST',
                         headers={'Cookie':cookie},
                         body=urllib.urlencode(data),
                         request_timeout=TIME_OUT)
                     response = yield tornado.gen.Task(client.fetch, request)
                     soup = BeautifulSoup(response.body)
-                retjson['content'] = {'state':cardState, 'left':cardLetf, 'detial':detial}
+                    __continue = soup.findAll('form',{'id':'accounthisTrjn2'})[0]['action']
+                    request = HTTPRequest(
+                        INDEX_URL+__continue,
+                        method='POST',
+                        headers={'Cookie':cookie},
+                        body=urllib.urlencode(data),
+                        request_timeout=TIME_OUT)
+                    response = yield tornado.gen.Task(client.fetch, request)
+                    soup = BeautifulSoup(response.body)
+                    __continue = 'accounthisTrjn3.action'
+                    request = HTTPRequest(
+                        INDEX_URL+__continue,
+                        method='POST',
+                        headers={'Cookie':cookie},
+                        body=urllib.urlencode(data),
+                        request_timeout=TIME_OUT)
+                    response = yield tornado.gen.Task(client.fetch, request)
+                    soup = BeautifulSoup(response.body)
+                    detial = []
+                    count = 0
+                    while 1:
+                        tr = soup.findAll('tr',{"class": re.compile("listbg")})
+                        if not tr:
+                            break
+                        for td in tr:
+                            td = td.findChildren()
+                            tmp = {}
+                            tmp['date'] = td[0].text
+                            tmp['type'] = td[3].text
+                            tmp['system'] = td[4].text
+                            tmp['price'] = td[5].text
+                            tmp['left'] = td[6].text
+                            if(tmp['type']==u'扣款'):
+                                tmp['type'] = u'水电扣费'
+                            detial.append(tmp)
+                        page += 1
+                        data['pageNum'] = page
+                        request = HTTPRequest(
+                            DATA_URL,
+                            method='POST',
+                            headers={'Cookie':cookie},
+                            body=urllib.urlencode(data),
+                            request_timeout=TIME_OUT)
+                        response = yield tornado.gen.Task(client.fetch, request)
+                        soup = BeautifulSoup(response.body)
+                    retjson['content'] = {'state':cardState, 'left':cardLetf, 'detial':detial}
             else:
                 retjson['code'] = 401
                 retjson['content'] = 'wrong card number or password'

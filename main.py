@@ -68,7 +68,7 @@ class Application(tornado.web.Application):
             (r'/webserv2/room',RoomHandler),
             (r'/webserv2/exam',ExamHandler),
             (r'/webserv2/tice',ticeInfoHandler),
-            (r'/webserv2/yuyue/([\S]+)',YuyueHandler)
+            (r'/webserv2/yuyue',YuyueHandler)
         ]
         settings = dict(
             cookie_secret="7CA71A57B571B5AEAC5E64C6042415DE",

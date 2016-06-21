@@ -97,7 +97,7 @@ class PEHandler(tornado.web.RequestHandler):
         workday_count = (all_week+1)*5+front_day
         if current_date<=6:
             workday_count = workday_count-1
-        return workday_count
+        return workday_count if workday_count > 0  else 0
 #体测信息
 class ticeInfoHandler(tornado.web.RequestHandler):
     @property

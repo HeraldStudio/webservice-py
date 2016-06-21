@@ -26,16 +26,26 @@ class JWCHandler(tornado.web.RequestHandler):
     def post(self):
         retjson = {'code':200, 'content':''}
         try:
-            status = self.db.query(JWCCache).filter( JWCCache.date == self.today()).one()
+            status = self.db.query(JWCCache).filter( JWCCache.date > int(time())-7200).one()
             self.write(base64.b64decode(status.text))
             self.db.close()
             self.finish()
         except NoResultFound:
-            retjson['code'] = 201
-            retjson['content'] = 'refreshing'
-            self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
+            ret = self.parser()
+            if ret['code'] == 200:
+                ret = json.dumps(ret, ensure_ascii=False, indent=2)
+                status = JWCCache(date=int(time()), text=base64.b64encode(ret))
+                self.db.add(status)
+                self.db.commit()
+                self.db.close()
+                self.write(ret)
+                self.finish()
+                return
+            else:
+                ret['code'] = 500
+                retjson['content'] = 'error'
+            self.write(json.dumps(ret, ensure_ascii=False, indent=2))
             self.finish()
-            self.refresh_status()
         except:
             retjson['code'] = 500
             retjson['content'] = 'error'
