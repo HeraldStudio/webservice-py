@@ -3,7 +3,7 @@
 # @Author  : yml_bright@163.com
 
 from config import CHECK_URL, TIME_OUT
-from tornado.httpclient import HTTPRequest, AsyncHTTPClient,HTTPClient
+from tornado.httpclient import HTTPRequest, AsyncHTTPClient,HTTPClient,HTTPError
 import tornado.web
 import tornado.gen
 import urllib,json
@@ -38,6 +38,7 @@ def authApi(username,password):
             request_timeout=TIME_OUT)
         response = client.fetch(request)
         header = response.headers
+        print header
         if 'Ssocookie' in header.keys():
             headertemp = json.loads(header['Ssocookie'])
             cookie = headertemp[1]['cookieName']+"="+headertemp[1]['cookieValue']
@@ -45,6 +46,9 @@ def authApi(username,password):
             result['content'] = cookie
         else:
             result['code'] = 400
+    except HTTPError as e:
+        print e.code
+        result['code'] = 400
     except Exception,e:
         result['code'] = 500
     return result

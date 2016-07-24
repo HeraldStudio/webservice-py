@@ -21,55 +21,54 @@ class JWCHandler(tornado.web.RequestHandler):
         return self.application.db
 
     def get(self):
-        self.write(self.parser())
+        self.write("hello")
+
+    def on_finish(self):
+        self.db.close()
 
     def post(self):
         retjson = {'code':200, 'content':''}
         try:
-            status = self.db.query(JWCCache).filter( JWCCache.date > int(time())-7200).one()
+            status = self.db.query(JWCCache).filter(JWCCache.date > int(time())-14000).order_by(JWCCache.date.desc()).all()
+            if len(status) == 0:
+                raise NoResultFound
+            status = status[0]
             self.write(base64.b64decode(status.text))
-            self.db.close()
             self.finish()
+            return
         except NoResultFound:
-            ret = self.parser()
+            ret = self.refresh_status()
             if ret['code'] == 200:
                 ret = json.dumps(ret, ensure_ascii=False, indent=2)
                 status = JWCCache(date=int(time()), text=base64.b64encode(ret))
                 self.db.add(status)
                 self.db.commit()
-                self.db.close()
                 self.write(ret)
                 self.finish()
                 return
             else:
-                ret['code'] = 500
-                retjson['content'] = 'error'
-            self.write(json.dumps(ret, ensure_ascii=False, indent=2))
-            self.finish()
+                retjson['code'] = 201
+                retjson['content'] = 'refresh'
         except:
             retjson['code'] = 500
             retjson['content'] = 'error'
-            self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
-            self.finish()
+        self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
+        self.finish()
+
 
     def refresh_status(self):
         lock = self.db.query(JWCCache).filter(
                     JWCCache.date == 0).one()
         if lock.text == '1':
-            return
+            return {'code':201}
         else:
             lock.text == '1'
             self.db.commit()
-
         ret = self.parser()
-        if ret['code'] == 200:
-            ret = json.dumps(ret, ensure_ascii=False, indent=2)
-            status = JWCCache(date=self.today(), text=base64.b64encode(ret))
-            self.db.add(status)
-
         lock.text == '0'
         self.db.commit()
-        self.db.close()
+        return ret
+
 
     def today(self):
         return int(strftime('%Y%m%d', localtime(time())))

@@ -48,8 +48,9 @@ class YuyueHandler(tornado.web.RequestHandler):
                             user = ""
                             for j in ar:
                                 user+=j+","
+                            print user
                             data.append((i,user))
-                        if i=='orderVO.useMode':
+                        elif i=='orderVO.useMode':
                             data.append((i,{'1':2,'2':1}[self.get_argument(i)]))
                         else:
                             data.append((i,self.get_argument(i)))
@@ -87,6 +88,7 @@ class YuyueHandler(tornado.web.RequestHandler):
                 url = url_concat(url,data)
                 url = url.replace("+","%20")
                 request.url = url
+                print url
             elif data and method=="POST":
                 realData = {}
                 for i in data:

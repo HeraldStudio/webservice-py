@@ -4,7 +4,7 @@
 
 import time,json
 import urllib
-from tornado.httpclient import HTTPRequest, HTTPClient
+from tornado.httpclient import HTTPRequest, HTTPClient,HTTPError
 from ..models.cookie_cache import CookieCache
 from sqlalchemy.orm.exc import NoResultFound
 from config import *
