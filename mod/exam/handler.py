@@ -12,7 +12,8 @@ import tornado.gen
 from time import time,localtime, strftime
 import json, base64,traceback,urllib
 import io
-import Image
+# import Image
+from PIL import Image
 from config import *
 from ..auth.handler import authApi
 

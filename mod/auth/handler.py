@@ -8,6 +8,7 @@ import tornado.web
 import tornado.gen
 import urllib,json
 from time import time, localtime, strftime
+from newHandler import newAuthApi
 
 class AuthHandler(tornado.web.RequestHandler):
 
@@ -16,12 +17,15 @@ class AuthHandler(tornado.web.RequestHandler):
 
    
     def post(self):
-        result = authApi(self.get_argument('cardnum'),self.get_argument('password'))
+        result = newAuthApi(self.get_argument('cardnum'),self.get_argument('password'))
         if(result['code']==200):
             self.write(result['content'])
             self.finish()
         raise tornado.web.HTTPError(401)
 
+def authApi(username,password):
+    return newAuthApi(username,password)
+"""
 def authApi(username,password):
     data = {
             'username':username,
@@ -47,8 +51,8 @@ def authApi(username,password):
         else:
             result['code'] = 400
     except HTTPError as e:
-        print e.code
         result['code'] = 400
     except Exception,e:
         result['code'] = 500
     return result
+"""

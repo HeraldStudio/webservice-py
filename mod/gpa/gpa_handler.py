@@ -10,7 +10,8 @@ import tornado.gen
 import urllib
 import json
 import io
-import Image
+# import Image
+from PIL import Image
 
 
 class GPAHandler(tornado.web.RequestHandler):
