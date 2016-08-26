@@ -3,7 +3,7 @@
 # @Author  : yml_bright@163.com
 
 from config import *
-from tornado.httpclient import HTTPRequest, AsyncHTTPClient
+from tornado.httpclient import HTTPRequest, AsyncHTTPClient,HTTPClient
 from ..models.user_detail import UserDetail
 from BeautifulSoup import BeautifulSoup
 from sqlalchemy.orm.exc import NoResultFound
@@ -71,7 +71,8 @@ class UserHandler(tornado.web.RequestHandler):
                 response = yield tornado.gen.Task(client.fetch, request)
                 soup = BeautifulSoup(response.body)
                 td = soup.findAll('td')
-                schoolnum = td[11].text
+                schoolnum = self.get_schoolnum(cardnum)
+                # schoolnum = td[11].text
                 name = td[2].text
                 nation = td[4].text
                 sex = td[5].text
@@ -101,3 +102,27 @@ class UserHandler(tornado.web.RequestHandler):
             pass
         self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
+
+    def get_schoolnum(self,cardnum):
+        try:
+            CURR_URL = 'http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action'
+            term = "16-17-1"
+            params = urllib.urlencode({
+                'queryStudentId': cardnum,
+                'queryAcademicYear': term})
+            client = HTTPClient()
+            request = HTTPRequest(
+                CURR_URL,
+                method='POST',
+                body=params,
+                request_timeout=TIME_OUT)
+            response = client.fetch(request)
+            body = response.body
+            if not body:
+                return "-1"
+            else:
+                soup = BeautifulSoup(body)
+                number = soup.findAll('td', align='left')[2].text[3:]
+                return number
+        except Exception,e:
+            return "-1"

@@ -82,6 +82,8 @@ class PEHandler(tornado.web.RequestHandler):
             return int(recv[0])+int(recv[1])
         except socket.timeout:
             return -1
+        except:
+            return -1
     def get_remain_day(self):
         finay_day_strp = strptime(finay_day,"%Y-%m-%d")
         final = datetime.datetime(finay_day_strp[0],finay_day_strp[1],finay_day_strp[2])

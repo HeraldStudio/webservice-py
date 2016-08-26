@@ -77,7 +77,7 @@ class RoomHandler(tornado.web.RequestHandler):
                     'room': room
                 }
             else:
-                retjson['code'] = 408
+                retjson['code'] = 401
         except Exception,e:
             retjson['code'] = 200
             retjson['content'] = {'bed': "",'room': ""}
