@@ -75,9 +75,15 @@ class LibRenewHandler(tornado.web.RequestHandler):
                         if response.body == 'invalid call':
                             flag = False
                         else:
+                            retjson['content'] = response.body
                             flag = True
                 if flag:
-                    retjson['content'] = 'success'
+                    if u'续借成功' in retjson['content']:
+                        retjson['content'] = 'success'
+                    else:
+                        temp = retjson['content']
+                        temp = re.search('>.*<',temp,re.I).group()
+                        retjson['content '] = temp[1:len(temp)-1]
                 else:
                     retjson['content'] = 'fail'
             else:

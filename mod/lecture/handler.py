@@ -13,7 +13,8 @@ import tornado.web
 import tornado.gen
 import json, base64
 import urllib, re
-
+import traceback
+from ..auth.handler import authApi
 class LectureHandler(tornado.web.RequestHandler):
 
     @property
@@ -50,15 +51,9 @@ class LectureHandler(tornado.web.RequestHandler):
                 self.db.rollback()
 
         try:
-            client = AsyncHTTPClient()
-            request = HTTPRequest(
-                CHECK_URL,
-                method='POST',
-                body=urllib.urlencode(data),
-                request_timeout=TIME_OUT)
-            response = yield tornado.gen.Task(client.fetch, request)
-            if response.body and response.body.find('Successed')>0:
-                cookie = response.headers['Set-Cookie'].split(';')[0]
+            response = authApi(cardnum,self.get_argument('password'))
+            if response['code']==200:
+                cookie = response['content']
                 client = AsyncHTTPClient()
                 request = HTTPRequest(
                     LOGIN_URL,
@@ -66,7 +61,6 @@ class LectureHandler(tornado.web.RequestHandler):
                     headers={'Cookie':cookie},
                     request_timeout=TIME_OUT)
                 response = yield tornado.gen.Task(client.fetch, request)
-
                 cookie += ';' + response.headers['Set-Cookie'].split(';')[0]
                 request = HTTPRequest(
                     USERID_URL,
@@ -116,9 +110,14 @@ class LectureHandler(tornado.web.RequestHandler):
             else:
                 retjson['code'] = 401
                 retjson['content'] = 'wrong card number or password'
-        except:
+        except Exception,e:
+            # print str(e)
             retjson['code'] = 500
             retjson['content'] = 'error'
+            if status.text!='*':
+                self.write(base64.b64decode(status.text))
+                self.finish()
+                return
         ret = json.dumps(retjson, ensure_ascii=False, indent=2)
         self.write(ret)
         self.finish()

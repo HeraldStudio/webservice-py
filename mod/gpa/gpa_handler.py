@@ -10,7 +10,8 @@ import tornado.gen
 import urllib
 import json
 import io
-import Image
+# import Image
+from PIL import Image
 
 
 class GPAHandler(tornado.web.RequestHandler):
@@ -36,7 +37,7 @@ class GPAHandler(tornado.web.RequestHandler):
                 retjson['code'] = 408
                 retjson['content'] = 'time out'
             else:
-                cookie = response.headers['Set-Cookie'].split(';')[0]
+                cookie = response.headers['Set-Cookie'].split(';')[0]+";"+response.headers['Set-Cookie'].split(';')[1].split(',')[1]
                 img = Image.open(io.BytesIO(response.body))
                 vercode = self.recognize(img)
                 params = urllib.urlencode({
@@ -52,7 +53,7 @@ class GPAHandler(tornado.web.RequestHandler):
                     retjson['code'] = 408
                     retjson['content'] = 'time out'
                 else:
-                    if int(response.headers['Content-Length']) > 1000:
+                    if 'vercode' in str(response.body):
                         retjson['code'] = 401
                         retjson['content'] = 'wrong card number or password'
                     else:
@@ -60,7 +61,6 @@ class GPAHandler(tornado.web.RequestHandler):
                                               request_timeout=TIME_OUT,
                                               headers={'Cookie': cookie})
                         response = yield tornado.gen.Task(client.fetch, request)
-                        print response
                         if not response.headers:
                             retjson['code'] = 408
                             retjson['content'] = 'time out'

@@ -32,7 +32,7 @@ class SchoolBusHandler(tornado.web.RequestHandler):
     def init_db(self):
         bus_json = {
             "weekend":{
-                "出九龙湖":[
+                "前往地铁站":[
                     { "time":"8:00-9:30", "bus":"每 30min 一班"},
                     { "time":"9:30-11:30", "bus":"每 1h 一班"},
                     { "time":"11:30-13:00", "bus":"每 30min 一班"},
@@ -40,7 +40,7 @@ class SchoolBusHandler(tornado.web.RequestHandler):
                     { "time":"17:00-19:00", "bus":"每 30min 一班"},
                     { "time":"19:00-22:00", "bus":"每 1h 一班"}
                 ],
-                "进九龙湖":[
+                "返回九龙湖":[
                     { "time":"8:00-9:30", "bus":"每 30min 一班"},
                     { "time":"9:30-11:30", "bus":"每 1h 一班"},
                     { "time":"11:30-13:00", "bus":"每 30min 一班"},
@@ -50,7 +50,7 @@ class SchoolBusHandler(tornado.web.RequestHandler):
                 ]
             },
             "weekday":{
-                "出九龙湖":[
+                "前往地铁站":[
                     { "time":"7:10-10:00", "bus":"每 10min 一班"},
                     { "time":"10:00-11:30", "bus":"每 30min 一班"},
                     { "time":"11:30-13:30", "bus":"每 10min 一班"},
@@ -60,7 +60,7 @@ class SchoolBusHandler(tornado.web.RequestHandler):
                     { "time":"17:00-18:30", "bus":"每 10min 一班"},
                     { "time":"18:30-22:00", "bus":"每 30min 一班(20:30没有班车)"}
                 ],
-                "进九龙湖":[
+                "返回九龙湖":[
                     { "time":"7:10-10:00", "bus":"每 10min 一班"},
                     { "time":"10:00-11:30", "bus":"每 30min 一班"},
                     { "time":"11:30-13:30", "bus":"每 10min 一班"},

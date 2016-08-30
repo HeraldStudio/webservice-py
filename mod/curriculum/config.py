@@ -5,5 +5,6 @@
 TERM_URL = 'http://xk.urp.seu.edu.cn/jw_service/service/lookCurriculum.action'
 
 CURR_URL = 'http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action'
+JWC_URL = 'http://jwc.seu.edu.cn'
 
 TIME_OUT = 30

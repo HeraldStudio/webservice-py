@@ -16,6 +16,8 @@ from BeautifulSoup import BeautifulSoup
 import urllib
 from time import time, localtime, strftime
 import datetime
+from ..auth.handler import authApi
+
 class RoomHandler(tornado.web.RequestHandler):
 
     @property
@@ -55,37 +57,30 @@ class RoomHandler(tornado.web.RequestHandler):
 
         try:
             client = AsyncHTTPClient()
-            request = HTTPRequest(
-                CHECK_URL,
-                method='POST',
-                body=urllib.urlencode(data),
-                request_timeout=TIME_OUT)
-            response = yield tornado.gen.Task(client.fetch, request)
-            if response.body and response.body.find('Successed')>0:
-                cookie = response.headers['Set-Cookie']
+            response = authApi(number,self.get_argument("password"))
+            
+            if response['code'] == 200:
+                cookie = response['content']
                 request = HTTPRequest(
-                    DETAIL_URL,
+                    URL,
                     method='GET',
                     headers={'Cookie': cookie},
                     request_timeout=TIME_OUT)
                 response = yield tornado.gen.Task(client.fetch, request)
                 soup = BeautifulSoup(response.body)
-
-                table2 = soup.findAll('table',{'class':'portlet-table'})[0].findChildren()
-                room = table2[-5].text
-                bed = table2[-4].text + '-' + table2[-3].text
-                
+                table2 = soup.findAll('td')
+                room = table2[9].text
+                bed = table2[10].text
                 retjson['code'] = 200
                 retjson['content'] = {
                     'bed': bed,
                     'room': room
                 }
             else:
-                retjson['code'] = 408
+                retjson['code'] = 401
         except Exception,e:
-            retjson['code'] = 500
-            with open('api_error.log','a+') as f:
-                f.write(strftime('%Y%m%d %H:%M:%S in [webservice]', localtime(time()))+'\n'+str(str(e)+'\n[room]\t'+str(number)+'\nString:'+str(retjson)+'\n\n'))
+            retjson['code'] = 200
+            retjson['content'] = {'bed': "",'room': ""}
         ret = json.dumps(retjson, ensure_ascii=False, indent=2)
         self.write(ret)
         self.finish()
