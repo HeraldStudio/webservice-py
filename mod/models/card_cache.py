@@ -14,3 +14,5 @@ class CardCache(Base):
     date = Column(Integer, nullable=False)
 
 
+if __name__ == '__main__':
+	Base.metadata.create_all(engine)

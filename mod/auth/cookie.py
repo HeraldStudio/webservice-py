@@ -27,9 +27,11 @@ def getCookie(db,cardnum,card_pwd):
 		ret['content'] = str(e)
 	if state==0:
 		result = newAuthApi(cardnum,card_pwd)
+		res = db.query(CookieCache).filter(CookieCache.cardnum==cardnum).one()
 		if result['code']==200:
+			cookie = result['content']
 			ret['content'] = cookie
-			result.cookie = cookie
+			res.cookie = cookie
 			try:
 				db.add(result)
 				db.commit()

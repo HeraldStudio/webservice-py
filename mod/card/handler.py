@@ -16,6 +16,11 @@ import json, base64
 import datetime
 import traceback
 from ..auth.handler import authApi
+import sys
+
+reload(sys)
+sys.setdefaultencoding("utf-8")
+
 
 class CARDHandler(tornado.web.RequestHandler):
 
@@ -42,20 +47,20 @@ class CARDHandler(tornado.web.RequestHandler):
         retjson = {'code':200, 'content':''}
 
         # read from cache
-        try:
-            status = self.db.query(CardCache).filter( CardCache.cardnum ==  cardnum ).one()
-            if int(timedelta) == 0 and status.date > int(time())-600:
-                self.write(base64.b64decode(status.text))
-                self.db.close()
-                self.finish()
-                return
-        except NoResultFound:
-            status = CardCache(cardnum=cardnum, text='*', date=int(time()))
-            self.db.add(status)
-            try:
-                self.db.commit()
-            except:
-                self.db.rollback()
+        # try:
+        #     status = self.db.query(CardCache).filter( CardCache.cardnum ==  cardnum ).one()
+        #     if int(timedelta) == 0 and status.date > int(time())-600:
+        #         self.write(base64.b64decode(status.text))
+        #         self.db.close()
+        #         self.finish()
+        #         return
+        # except NoResultFound:
+        #     status = CardCache(cardnum=cardnum, text='*', date=int(time()))
+        #     self.db.add(status)
+        #     try:
+        #         self.db.commit()
+        #     except:
+        #         self.db.rollback()
 
         try:
             client = AsyncHTTPClient()
@@ -122,11 +127,12 @@ class CARDHandler(tornado.web.RequestHandler):
                             td = td.findChildren()
                             tmp = {}
                             tmp['date'] = td[0].text
-                            tmp['type'] = td[3].text
+                            tmp['type'] = str(td[3].text).decode('gbk')
                             tmp['system'] = td[4].text
                             tmp['price'] = td[5].text
                             tmp['left'] = td[6].text
                             detail.append(tmp)
+                    print detail
                     retjson['content'] = {'state':cardState,'left':cardLetf,'detial':detail}
                 #get other days detail depend on timedelta
                 else:
