@@ -35,6 +35,7 @@ class CARDHandler(tornado.web.RequestHandler):
         # if int(timedelta)>7:
         #     timedelta = 7
         cardnum = self.get_argument('cardnum')
+        cardnum_with_delta = cardnum + str(timedelta)
         data = {
             'Login.Token1':cardnum,
             'Login.Token2':self.get_argument('password'),
@@ -43,14 +44,14 @@ class CARDHandler(tornado.web.RequestHandler):
 
         # read from cache
         try:
-            status = self.db.query(CardCache).filter( CardCache.cardnum ==  cardnum ).one()
-            if int(timedelta) == 0 and status.date > int(time())-600:
+            status = self.db.query(CardCache).filter( CardCache.cardnum ==  cardnum_with_delta ).one()
+            if status.date > int(time())-600 and status.text != '*':
                 self.write(base64.b64decode(status.text))
                 self.db.close()
                 self.finish()
                 return
         except NoResultFound:
-            status = CardCache(cardnum=cardnum, text='*', date=int(time()))
+            status = CardCache(cardnum=cardnum_with_delta, text='*', date=int(time()))
             self.db.add(status)
             try:
                 self.db.commit()
@@ -208,6 +209,18 @@ class CARDHandler(tornado.web.RequestHandler):
                 retjson['content'] = 'wrong card number or password'
         except Exception,e:
             retjson['code'] = 500
-            retjson['content'] = 'error'
+            retjson['content'] = str(e)
+            print traceback.print_exc()
         self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
+        # refresh cache
+        if retjson['code'] == 200:
+            status.date = int(time())
+            status.text = base64.b64encode(ret)
+            self.db.add(status)
+            try:
+                self.db.commit()
+            except:
+                self.db.rollback()
+            finally:
+                self.db.remove()

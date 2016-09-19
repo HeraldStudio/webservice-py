@@ -17,15 +17,15 @@ class AuthHandler(tornado.web.RequestHandler):
 
    
     def post(self):
-        result = newAuthApi(self.get_argument('cardnum'),self.get_argument('password'))
+        result = authApi(self.get_argument('cardnum'),self.get_argument('password'))
         if(result['code']==200):
             self.write(result['content'])
             self.finish()
         raise tornado.web.HTTPError(401)
 
-def authApi(username,password):
-    return newAuthApi(username,password)
-"""
+# def authApi(username,password):
+#     return newAuthApi(username,password)
+
 def authApi(username,password):
     data = {
             'username':username,
@@ -42,10 +42,9 @@ def authApi(username,password):
             request_timeout=TIME_OUT)
         response = client.fetch(request)
         header = response.headers
-        print header
         if 'Ssocookie' in header.keys():
             headertemp = json.loads(header['Ssocookie'])
-            cookie = headertemp[1]['cookieName']+"="+headertemp[1]['cookieValue']
+            cookie = headertemp[0]['cookieName']+"="+headertemp[0]['cookieValue']
             cookie += ";"+header['Set-Cookie'].split(";")[0]
             result['content'] = cookie
         else:
@@ -55,4 +54,3 @@ def authApi(username,password):
     except Exception,e:
         result['code'] = 500
     return result
-"""

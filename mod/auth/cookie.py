@@ -9,6 +9,7 @@ from ..models.cookie_cache import CookieCache
 from sqlalchemy.orm.exc import NoResultFound
 from config import *
 from newHandler import newAuthApi
+from handler import authApi
 
 def getCookie(db,cardnum,card_pwd):
 	state = 1
@@ -26,7 +27,7 @@ def getCookie(db,cardnum,card_pwd):
 		ret['code'] = 500
 		ret['content'] = str(e)
 	if state==0:
-		result = newAuthApi(cardnum,card_pwd)
+		result = authApi(cardnum,card_pwd)
 		if result['code']==200:
 			ret['content'] = cookie
 			result.cookie = cookie
