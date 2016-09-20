@@ -40,7 +40,7 @@ class SRTPHandler(tornado.web.RequestHandler):
             #read from cache
             try:
                 status = self.db.query(SRTPCache).filter(SRTPCache.cardnum == number).one()
-                if status.date > int(time())-100000 and status.text != '*':
+                if status.date > int(time())-129600 and status.text != '*':
                         self.write(base64.b64decode(status.text))
                         self.finish()
                         return
