@@ -39,7 +39,7 @@ class SRTPHandler(tornado.web.RequestHandler):
         else:
             #read from cache
             try:
-                status = self.db.query(SRTPCache).filter(SRTPCache.cardnum == cardnum).one()
+                status = self.db.query(SRTPCache).filter(SRTPCache.cardnum == number).one()
                 if status.date > int(time())-100000 and status.text != '*':
                         self.write(base64.b64decode(status.text))
                         self.finish()
@@ -68,7 +68,8 @@ class SRTPHandler(tornado.web.RequestHandler):
                     retjson['content'] = 'number not exist'
                 else:
                     retjson['content'] = self.parser(response.body)
-        self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
+		ret = json.dumps(retjson, ensure_ascii=False, indent=2)
+        self.write(ret)
         self.finish()
 
         # refresh cache
