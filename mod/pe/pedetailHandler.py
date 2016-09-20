@@ -68,6 +68,7 @@ class pedetailHandler(tornado.web.RequestHandler):
 		retjson = {'code':200,'content':''}
 		cardnum = self.get_argument('cardnum',default=None)
 		password = self.get_argument('password',default=None)
+		status = None
 		if not (cardnum and password):
 			retjson['code'] = 400
 			retjson['content'] = 'params lack'

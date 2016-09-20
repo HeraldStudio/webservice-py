@@ -33,6 +33,7 @@ class GPAHandler(tornado.web.RequestHandler):
     def post(self):
         username = self.get_argument('username', default=None)
         pwd = self.get_argument('password', default=None)
+        status = None
 
         retjson = {'code':200, 'content':''}
         if not (username or pwd):

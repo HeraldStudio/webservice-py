@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # @Date    : 2014-06-27 14:36:45
 # @Author  : xindervella@gamil.com yml_bright@163.com
+import base64
+from sqlalchemy.orm.exc import NoResultFound
 from config import SRTP_URL, TIME_OUT
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
 from BeautifulSoup import BeautifulSoup
@@ -9,23 +11,47 @@ import tornado.gen
 import urllib
 import json
 import re
+from time import time
+from ..models.srtp_cache import SRTPCache
 
 
 class SRTPHandler(tornado.web.RequestHandler):
 
+    @property
+    def db(self):
+        return self.application.db
+    def on_finish(self):
+        self.db.close()
     def get(self):
         self.write('Herald Web Service')
+
 
     @tornado.web.asynchronous
     @tornado.gen.engine
     def post(self):
         number = self.get_argument('number', default=None)
         retjson = {'code':200, 'content':''}
+        status = None
 
         if not number:
             retjson['code'] = 400
             retjson['content'] = 'params lack'
         else:
+            #read from cache
+            try:
+                status = self.db.query(SRTPCache).filter(SRTPCache.cardnum == cardnum).one()
+                if status.date > int(time())-100000 and status.text != '*':
+                        self.write(base64.b64decode(status.text))
+                        self.finish()
+                        return
+            except NoResultFound:
+                status = SRTPCache(cardnum = number,text = '*',date = int(time()))
+                self.db.add(status)
+                try:
+                    self.db.commit()
+                except:
+                    self.db.rollback()
+
             params = urllib.urlencode({'Code': number})
             client = AsyncHTTPClient()
             request = HTTPRequest(SRTP_URL, body=params, method='POST',
@@ -44,6 +70,18 @@ class SRTPHandler(tornado.web.RequestHandler):
                     retjson['content'] = self.parser(response.body)
         self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
+
+        # refresh cache
+        if retjson['code'] == 200:
+            status.date = int(time())
+            status.text = base64.b64encode(ret)
+            self.db.add(status)
+            try:
+                self.db.commit()
+            except Exception,e:
+                self.db.rollback()
+            finally:
+                self.db.remove()
 
     def parser(self, html):
         soup = BeautifulSoup(html)
