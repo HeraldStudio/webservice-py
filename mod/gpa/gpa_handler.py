@@ -4,7 +4,7 @@
 from config import VERCODE_URL, LOGIN_URL, INFO_URL
 from config import STANDARD, TIME_OUT
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 import tornado.web
 import tornado.gen
 import urllib

@@ -5,7 +5,7 @@ import base64
 from sqlalchemy.orm.exc import NoResultFound
 from config import SRTP_URL, TIME_OUT
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 import tornado.web
 import tornado.gen
 import urllib

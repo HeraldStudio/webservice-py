@@ -3,7 +3,7 @@
 # @Author  : yml_bright@163.com
 from config import *
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from ..models.pe_models import PEUser
 from ..models.tice_cache import TiceCache
 from sqlalchemy.orm.exc import NoResultFound

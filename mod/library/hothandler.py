@@ -3,7 +3,7 @@
 # @Author  : jerry.liangj@qq.com
 from config import TIME_OUT
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from ..models.library import LibraryHotCache
 from sqlalchemy.orm.exc import NoResultFound
 import tornado.web

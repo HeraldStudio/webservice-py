@@ -4,7 +4,7 @@
 # @Author  : jerry.liangj@qq.com
 
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from sqlalchemy.orm.exc import NoResultFound
 from ..models.exam_cache import ExamCache
 import tornado.web

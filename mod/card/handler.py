@@ -5,7 +5,7 @@
 
 from config import *
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from ..models.card_cache import CardCache
 from sqlalchemy.orm.exc import NoResultFound
 from time import time
