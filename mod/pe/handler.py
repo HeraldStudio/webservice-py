@@ -15,6 +15,10 @@ import json,socket,base64
 from time import time, localtime, strftime,mktime,strptime
 import datetime
 
+last_refresh = 0
+all_count = {}
+all_sum = 0
+
 class PEHandler(tornado.web.RequestHandler):
 
     @property
@@ -49,12 +53,14 @@ class PEHandler(tornado.web.RequestHandler):
                     user = self.db.query(PEUser).filter(
                         PEUser.cardnum == int(cardnum)).one()
                     retjson['content'] = user.count
+                    retjson['rank'] = self.get_rank(user.count)
                     retjson['remain'] = self.get_remain_day()
                 except NoResultFound:
                     retjson['code'] = 408
                     retjson['content'] = 'time out'
             else:
                 retjson['content'] = str(result)
+                retjson['rank'] = self.get_rank(result)
                 retjson['remain'] = self.get_remain_day()
         self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
@@ -84,7 +90,7 @@ class PEHandler(tornado.web.RequestHandler):
             return -1
         except:
             return -1
-    def get_remain_day(self):
+    def get_remain_day(self, count):
         finay_day_strp = strptime(finay_day,"%Y-%m-%d")
         final = datetime.datetime(finay_day_strp[0],finay_day_strp[1],finay_day_strp[2])
         current_day_strp = strptime(strftime('%Y-%m-%d', localtime(time())),"%Y-%m-%d")
@@ -100,6 +106,28 @@ class PEHandler(tornado.web.RequestHandler):
         if current_date<=6:
             workday_count = workday_count-1
         return workday_count if workday_count > 0  else 0
+    def get_rank(self, count):
+        global last_refresh
+        global all_count
+        global all_sum
+        try:
+            if last_refresh + 300 < int(time()):
+                last_refresh = int(time())
+                db_instance = self.db.execute("select count, count(*) as all_sum from pe group by count").fetchall()
+                all_count = {}
+                all_sum = 0
+                for item in db_instance:
+                    all_count[item.count] = int(item.all_sum)
+                    all_sum += int(item.all_sum)
+            temp_sum = 0
+            for i, j in all_count.items():
+                if int(i) >= int(count):
+                    temp_sum += all_count[i]
+            print temp_sum
+            return '%.2f' % ((float(all_sum)-temp_sum)/all_sum*100)
+        except Exception,e:
+            return '0'
+
 #体测信息
 class ticeInfoHandler(tornado.web.RequestHandler):
     @property
