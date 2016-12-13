@@ -15,6 +15,7 @@ import urllib, re
 import json, base64
 import datetime
 import traceback
+import IPython
 from ..auth.handler import authApi
 
 class CARDHandler(tornado.web.RequestHandler):
@@ -123,8 +124,8 @@ class CARDHandler(tornado.web.RequestHandler):
                             td = td.findChildren()
                             tmp = {}
                             tmp['date'] = td[0].text
-                            tmp['type'] = td[3].text
-                            tmp['system'] = td[4].text
+                            tmp['type'] = td[3].text.encode('ISO-8859-1').decode('gbk')
+                            tmp['system'] = td[4].text.encode('ISO-8859-1').decode('gbk')
                             tmp['price'] = td[5].text
                             tmp['left'] = td[6].text
                             detail.append(tmp)
@@ -186,12 +187,12 @@ class CARDHandler(tornado.web.RequestHandler):
                             td = td.findChildren()
                             tmp = {}
                             tmp['date'] = td[0].text
-                            tmp['type'] = td[3].text
-                            tmp['system'] = td[4].text
+                            tmp['type'] = td[3].text.encode('ISO-8859-1').decode('gbk')
+                            tmp['system'] = td[4].text.encode('ISO-8859-1').decode('gbk')
                             tmp['price'] = td[5].text
                             tmp['left'] = td[6].text
-                            if(tmp['type']==u'扣款'):
-                                tmp['type'] = u'水电扣费'
+                            if(tmp['type']== u'扣款'):
+                                tmp['type'] = '水电扣费'
                             detial.append(tmp)
                         page += 1
                         data['pageNum'] = page
@@ -211,7 +212,8 @@ class CARDHandler(tornado.web.RequestHandler):
             retjson['code'] = 500
             retjson['content'] = str(e)
             print traceback.print_exc()
-        self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
+        ret = json.dumps(retjson, ensure_ascii=False, indent=2)
+        self.write(ret)
         self.finish()
         # refresh cache
         if retjson['code'] == 200:
