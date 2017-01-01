@@ -4,7 +4,7 @@
 
 DB_HOST = '192.168.56.1'
 DB_USER = 'herald'
-DB_PWD = 'CexZw2mpZn89DM8c'
+DB_PWD = '******'
 DB_NAME = 'herald_webservice'
 
 from sqlalchemy import create_engine
