@@ -22,17 +22,16 @@ class JWCHandler(tornado.web.RequestHandler):
 
     def get(self):
         self.write("hello")
-
     def on_finish(self):
         self.db.close()
 
     def post(self):
         retjson = {'code':200, 'content':''}
         try:
-            status = self.db.query(JWCCache).filter(JWCCache.date > int(time())-14000).order_by(JWCCache.date.desc()).all()
-            if len(status) == 0:
-                raise NoResultFound
-            status = status[0]
+            status = self.db.query(JWCCache).filter( JWCCache.date > int(time())-14000).order_by(JWCCache.date.desc()).all()
+	    if len(status) == 0:
+		raise NoResultFound
+	    status = status[0]
             self.write(base64.b64decode(status.text))
             self.finish()
             return
@@ -49,9 +48,9 @@ class JWCHandler(tornado.web.RequestHandler):
             else:
                 retjson['code'] = 201
                 retjson['content'] = 'refresh'
-        except:
+        except Exception,e:
             retjson['code'] = 500
-            retjson['content'] = 'error'
+            retjson['content'] = "error:"+str(e)
         self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
 
@@ -123,4 +122,5 @@ class JWCHandler(tornado.web.RequestHandler):
             #except:
             #    pass
         return abst
+
 

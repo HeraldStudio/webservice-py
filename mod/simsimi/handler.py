@@ -38,7 +38,7 @@ class SIMSIMIHandler(tornado.web.RequestHandler):
             response = yield tornado.gen.Task(client.fetch, request)
             retjson = json.loads(response.body)
             self.write(self.msgmap[retjson['code']](retjson).replace(u'小Q',u'小猴'))
-        except:
+        except Exception,e:
             self.write('error')
         self.finish()
 

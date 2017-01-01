@@ -11,6 +11,11 @@ from sgmllib import SGMLParser
 
 from config import loginurl1,runurl
 
+import base64
+from sqlalchemy.orm.exc import NoResultFound
+from ..models.pe_models import PeDetailCache
+from time import time,localtime, strftime
+
 class RunningParser(SGMLParser):
     def __init__(self):
         SGMLParser.__init__(self)
@@ -49,6 +54,11 @@ class RunningParser(SGMLParser):
 
 
 class pedetailHandler(tornado.web.RequestHandler):
+	@property
+	def db(self):
+		return self.application.db
+	def on_finish(self):
+		self.db.close()
 	def get(self):
 		self.write('Herald Web Service')
 
@@ -62,6 +72,26 @@ class pedetailHandler(tornado.web.RequestHandler):
 			retjson['code'] = 400
 			retjson['content'] = 'params lack'
 		else:
+			# read from cache
+			try:
+				status = self.db.query(PeDetailCache).filter(PeDetailCache.cardnum == cardnum).one()
+				if int(strftime('%H', localtime(time())))<8 or (status.date > int(time())-10000 and status.text != '*'):
+					if status.text == '*':
+						retjson['content'] = []
+						self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
+						self.finish()
+						return	
+					self.write(base64.b64decode(status.text))
+					self.finish()
+					return
+			except NoResultFound:
+				status = PeDetailCache(cardnum = cardnum,text = '*',date = int(time()))
+				self.db.add(status)
+				try:
+					self.db.commit()
+				except:
+					self.db.rollback()
+
 			try:
 				client = AsyncHTTPClient()
 				data = {
@@ -121,8 +151,21 @@ class pedetailHandler(tornado.web.RequestHandler):
 				spider = RunningParser()
 				spider.getRunningTable(response.body)
 				retjson['content'] = spider.table
-			except HTTPError as e:
+			except Exception,e:
 				retjson['code'] = 500
 				retjson['content'] = str(e)
-		self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
+		ret = json.dumps(retjson, ensure_ascii=False, indent=2)
+		self.write(ret)
 		self.finish()
+
+		# refresh cache
+		if retjson['code'] == 200:
+			status.date = int(time())
+			status.text = base64.b64encode(ret)
+			self.db.add(status)
+			try:
+				self.db.commit()
+			except Exception,e:
+				self.db.rollback()
+			finally:
+				self.db.remove()

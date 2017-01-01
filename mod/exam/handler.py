@@ -12,7 +12,6 @@ import tornado.gen
 from time import time,localtime, strftime
 import json, base64,traceback,urllib
 import io
-# import Image
 from PIL import Image
 from config import *
 from ..auth.handler import authApi
@@ -106,6 +105,7 @@ class ExamHandler(tornado.web.RequestHandler):
 		else:
 			for i in range(1,length):
 				td = tr[i].findAll('td')
+				print td
 				retTemp = {
 					'course':td[2].text,
 					'type':"",
@@ -141,7 +141,7 @@ class ExamHandler(tornado.web.RequestHandler):
 					request_timeout=TIME_OUT)
 				response = yield tornado.gen.Task(client.fetch, request)
 				if not response.headers:
-					retjson['code'] = 409
+					retjson['code'] = 408
 					retjson['content'] = 'time out'
 				else:
 					if 'vercode' in str(response.body):
@@ -153,7 +153,7 @@ class ExamHandler(tornado.web.RequestHandler):
 							headers={'Cookie': cookie})
 						response = yield tornado.gen.Task(client.fetch, request)
 						if not response.headers:
-							retjson['code'] = 410
+							retjson['code'] = 408
 							retjson['content'] = 'time out'
 						else:
 							retjson['content'] = self.parser(response.body)
@@ -210,4 +210,5 @@ class ExamHandler(tornado.web.RequestHandler):
 
 			result = result + str(max_match)
 		return result
+
 

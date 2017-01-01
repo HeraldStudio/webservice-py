@@ -24,7 +24,6 @@ class PCHandler(tornado.web.RequestHandler):
     def db(self):
         return self.application.db
     def get(self):
-        self.getData()
         self.write('Herald Web Service')
 
     def post(self):
@@ -124,7 +123,7 @@ class PCHandler(tornado.web.RequestHandler):
         self.db.commit()
 
     def recognize1(self,text):
-        y_keyword = [u'早操正常进行', u'正常进行', u'今天继续跑操', u'今天跑操']
+        y_keyword = [u'早操正常进行', u'正常', u'今天继续跑操', u'今天跑操']
         result = u'今天不跑操'
         for k in y_keyword:
             if text.find(k)>=0:

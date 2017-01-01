@@ -104,7 +104,6 @@ def newAuthApi(username,password):
 			method='GET')
 		response = client.fetch(request)
 		img = Image.open(io.BytesIO(response.body))
-		img.save("test.jpg")
 		cookie = response.headers['Set-Cookie']
 		cookieTemp = cookie.split(";")
 		cookie = cookieTemp[0] + ";" + cookieTemp[1].split(",")[1]
@@ -147,7 +146,6 @@ def recognize(img):
             result.append([arrangeTemp[start],arrangeTemp[x-1],x-start])
             start = x
     result.append([arrangeTemp[start],arrangeTemp[length-1],length-start])
-    # print "divide result",result
     length = len(result)
     if(length!=4):
         recognize_result = "0000"
@@ -177,3 +175,4 @@ def recognize(img):
                         max_match = x
             recognize_result += str(max_match)
     return recognize_result
+

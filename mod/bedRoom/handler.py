@@ -43,7 +43,8 @@ class RoomHandler(tornado.web.RequestHandler):
         # read from cache
         try:
             status = self.db.query(RoomCache).filter(RoomCache.cardnum == number).one()
-            if status.date > int(time())-10000 and status.text != '*':
+            #if status.date > int(time())-600 and status.text != '*':
+	    if status.text != '*':
                 self.write(base64.b64decode(status.text))
                 self.finish()
                 return
@@ -80,7 +81,7 @@ class RoomHandler(tornado.web.RequestHandler):
                 retjson['code'] = 401
         except Exception,e:
             retjson['code'] = 200
-            retjson['content'] = {'bed': "",'room': ""}
+	    retjson['content']={"bed":"","room":""}
         ret = json.dumps(retjson, ensure_ascii=False, indent=2)
         self.write(ret)
         self.finish()

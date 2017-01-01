@@ -62,7 +62,6 @@ class NewHandler(tornado.web.RequestHandler):
                 response = client.fetch(request)
                 ret['content'] = json.loads(response.body)
         except Exception,e:
-            print str(e)
             ret['code'] = 500
             ret['content'] = u'系统错误'
         self.write(json.dumps(ret,ensure_ascii=False, indent=2))

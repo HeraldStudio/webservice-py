@@ -43,18 +43,18 @@ class Application(tornado.web.Application):
         handlers = [
             (r'/webserv2/auth', AuthHandler),
             (r'/webserv2/srtp', SRTPHandler),
-            (r'/webserv2/term',TermHandler),
+	    (r'/webserv2/term',TermHandler),
             (r'/webserv2/sidebar', SidebarHandler),
             (r'/webserv2/curriculum', CurriculumHandler),
             (r'/webserv2/gpa', GPAHandler),
             (r'/webserv2/pe', PEHandler),
-            (r'/webserv2/pedetail', pedetailHandler),
+	    (r'/webserv2/pedetail', pedetailHandler),
             (r'/webserv2/simsimi', SIMSIMIHandler),
             (r'/webserv2/nic', NICHandler),
             (r'/webserv2/card', CARDHandler),
             (r'/webserv2/lecture', LectureHandler),
             (r'/webserv2/library', LibListHandler),
-            (r'/webserv2/library_hot',HotHandler),
+	    (r'/webserv2/library_hot',HotHandler),
             (r'/webserv2/renew', LibRenewHandler),
             (r'/webserv2/search', LibSearchHandler),
             (r'/webserv2/phyLab',PhylabHandler),
@@ -66,9 +66,9 @@ class Application(tornado.web.Application):
             (r'/webserv2/user', UserHandler),
             (r'/webserv2/query', NewHandler),
             (r'/webserv2/room',RoomHandler),
-            (r'/webserv2/exam',ExamHandler),
-            (r'/webserv2/tice',ticeInfoHandler),
-            (r'/webserv2/yuyue',YuyueHandler)
+	    (r'/webserv2/exam',ExamHandler),
+	    (r'/webserv2/tice',ticeInfoHandler),
+	    (r'/webserv2/yuyue',YuyueHandler)
         ]
         settings = dict(
             cookie_secret="7CA71A57B571B5AEAC5E64C6042415DE",
