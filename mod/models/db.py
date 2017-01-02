@@ -2,7 +2,7 @@
 # @Date    : 2014-06-25 15:37:23
 # @Author  : xindervella@gamil.com yml_bright@163.com
 
-DB_HOST = '192.168.56.1'
+DB_HOST = '127.0.0.1'
 DB_USER = 'herald'
 DB_PWD = '******'
 DB_NAME = 'herald_webservice'
