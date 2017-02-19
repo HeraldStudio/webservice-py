@@ -11,7 +11,7 @@ from time import time
 import tornado.web
 import tornado.gen
 import urllib
-import json
+import json, base64
 import re,sys,traceback
 
 
@@ -36,6 +36,22 @@ class CurriculumHandler(tornado.web.RequestHandler):
             retjson['content'] = 'params lack'
         else:
             try:
+
+                try:
+                    status = self.db.query(Curriculum_CookieCache).filter(Curriculum_CookieCache.cid ==  cardnum ).one()
+                    if status.date > int(time())- 3600 * 12 and status.cookie != '*':
+                        self.write(base64.b64decode(status.cookie))
+                        self.db.close()
+                        self.finish()
+                        return
+                except NoResultFound:
+                    status = Curriculum_CookieCache(cid =cardnum, cookie='*', date=int(time()))
+                    self.db.add(status)
+                    try:
+                        self.db.commit()
+                    except:
+                        self.db.rollback()
+
                 params = urllib.urlencode(
                     {'queryStudentId': cardnum,
                      'queryAcademicYear': term}
@@ -89,9 +105,25 @@ class CurriculumHandler(tornado.web.RequestHandler):
             except Exception,e:
                 retjson['code'] = 500
                 retjson['content'] = str(e)
-        
-        self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
+
+        ret = json.dumps(retjson, ensure_ascii=False, indent=2)
+        self.write(ret)
         self.finish()
+
+        # refresh cache
+        if retjson['code'] == 200:
+            status.date = int(time())
+            status.cookie= base64.b64encode(ret)
+            self.db.add(status)
+            try:
+                self.db.commit()
+            except:
+                self.db.rollback()
+            finally:
+                self.db.remove()
+        self.db.close()
+
+
 
     def parser(self, html):
         soup = BeautifulSoup(html)
