@@ -5,16 +5,17 @@
 
 from config import *
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
-from bs4 import BeautifulSoup
+from BeautifulSoup import BeautifulSoup
 from ..models.card_cache import CardCache
 from sqlalchemy.orm.exc import NoResultFound
-from time import time,localtime, strftime
+from time import time
 import tornado.web
 import tornado.gen
 import urllib, re
 import json, base64
 import datetime
 import traceback
+import IPython
 from ..auth.handler import authApi
 
 class CARDHandler(tornado.web.RequestHandler):
@@ -35,7 +36,7 @@ class CARDHandler(tornado.web.RequestHandler):
         # if int(timedelta)>7:
         #     timedelta = 7
         cardnum = self.get_argument('cardnum')
-	cardnum_with_delta = cardnum + str(timedelta)
+        cardnum_with_delta = cardnum + str(timedelta)
         data = {
             'Login.Token1':cardnum,
             'Login.Token2':self.get_argument('password'),
@@ -44,8 +45,8 @@ class CARDHandler(tornado.web.RequestHandler):
 
         # read from cache
         try:
-            status = self.db.query(CardCache).filter( CardCache.cardnum == cardnum_with_delta).one()
-            if (int(strftime('%H', localtime(time())))<8 and status.text != '*') or (status.date > int(time())-7200 and status.text != '*'):
+            status = self.db.query(CardCache).filter( CardCache.cardnum ==  cardnum_with_delta ).one()
+            if status.date > int(time()) - 3600 and status.text != '*':
                 self.write(base64.b64decode(status.text))
                 self.db.close()
                 self.finish()
@@ -77,16 +78,16 @@ class CARDHandler(tornado.web.RequestHandler):
                     request_timeout=TIME_OUT)
                 response = yield tornado.gen.Task(client.fetch, request)
 
-                soup = BeautifulSoup(str(response.body))
+                soup = BeautifulSoup(response.body)
                 td = soup.findAll('td',{"class": "neiwen"})
                 userid = td[3].text
                 cardState = td[42].text
-                cardLetf = td[46].text.encode('utf-8').split('元')[0].replace(',','')
+                cardLetf = td[46].text.encode('utf-8').split('元')[0]
                 # do not need to get the detail
                 if timedelta == 0:
                     retjson['content'] = {'state':cardState, 'left':cardLetf}
                     ret = json.dumps(retjson, ensure_ascii=False, indent=2)
-                    self.write(ret)
+                    self.write(retjson)
                     self.finish()
 
                     # refresh cache
@@ -116,20 +117,19 @@ class CARDHandler(tornado.web.RequestHandler):
                         request_timeout=TIME_OUT
                     )
                     response = yield tornado.gen.Task(client.fetch, request)
-                    soup = BeautifulSoup(response.body.decode('gbk'))
+                    soup = BeautifulSoup(response.body)
                     tr = soup.findAll('tr',{"class": re.compile("listbg")})
                     detail=[]
                     for td in tr:
                             td = td.findChildren()
                             tmp = {}
                             tmp['date'] = td[0].text
-                            tmp['type'] = td[3].text
-                            tmp['system'] = td[4].text
-			    tmp['mail'] = td[4].text
-                            tmp['price'] = td[5].text.replace(',','')
-                            tmp['left'] = td[6].text.replace(',','')
+                            tmp['type'] = td[3].text.encode('ISO-8859-1').decode('gbk')
+                            tmp['system'] = td[4].text.encode('ISO-8859-1').decode('gbk')
+                            tmp['price'] = td[5].text
+                            tmp['left'] = td[6].text
                             detail.append(tmp)
-                    retjson['content'] = {'state':cardState,'left':cardLetf,'detial':detail,'cardLeft':cardLetf,'detail':detail}
+                    retjson['content'] = {'state':cardState,'left':cardLetf,'detial':detail}
                 #get other days detail depend on timedelta
                 else:
                     request = HTTPRequest(
@@ -176,7 +176,7 @@ class CARDHandler(tornado.web.RequestHandler):
                         body=urllib.urlencode(data),
                         request_timeout=TIME_OUT)
                     response = yield tornado.gen.Task(client.fetch, request)
-                    soup = BeautifulSoup(response.body.decode('gbk'))
+                    soup = BeautifulSoup(response.body)
                     detial = []
                     count = 0
                     while 1:
@@ -187,12 +187,12 @@ class CARDHandler(tornado.web.RequestHandler):
                             td = td.findChildren()
                             tmp = {}
                             tmp['date'] = td[0].text
-                            tmp['type'] = td[3].text
-                            tmp['system'] = td[4].text
-                            tmp['price'] = td[5].text.replace(',','')
-                            tmp['left'] = td[6].text.replace(',','')
-                            if(tmp['type']==u'扣款'):
-                                tmp['type'] = u'扣费'
+                            tmp['type'] = td[3].text.encode('ISO-8859-1').decode('gbk')
+                            tmp['system'] = td[4].text.encode('ISO-8859-1').decode('gbk')
+                            tmp['price'] = td[5].text
+                            tmp['left'] = td[6].text
+                            if(tmp['type']== u'扣款'):
+                                tmp['type'] = '水电扣费'
                             detial.append(tmp)
                         page += 1
                         data['pageNum'] = page
@@ -203,18 +203,19 @@ class CARDHandler(tornado.web.RequestHandler):
                             body=urllib.urlencode(data),
                             request_timeout=TIME_OUT)
                         response = yield tornado.gen.Task(client.fetch, request)
-                        soup = BeautifulSoup(response.body.decode('gbk'))
+                        soup = BeautifulSoup(response.body)
                     retjson['content'] = {'state':cardState, 'left':cardLetf, 'detial':detial}
             else:
-                retjson['code'] = 500
-                retjson['content'] = "wrong cardnum or password"
+                retjson['code'] = 401
+                retjson['content'] = 'wrong card number or password'
         except Exception,e:
             retjson['code'] = 500
             retjson['content'] = str(e)
-	ret = json.dumps(retjson, ensure_ascii=False, indent=2)
-        self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
+            print traceback.print_exc()
+        ret = json.dumps(retjson, ensure_ascii=False, indent=2)
+        self.write(ret)
         self.finish()
-	 # refresh cache
+        # refresh cache
         if retjson['code'] == 200:
             status.date = int(time())
             status.text = base64.b64encode(ret)
