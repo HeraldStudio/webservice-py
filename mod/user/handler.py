@@ -5,7 +5,7 @@
 from config import *
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient,HTTPClient
 from ..models.user_detail import UserDetail
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from sqlalchemy.orm.exc import NoResultFound
 import tornado.web
 import tornado.gen

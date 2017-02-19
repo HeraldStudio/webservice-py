@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Date    : 2014-06-25 21:23:32
 # @Author  : xindervella@gamil.com yml_bright@163.com
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from config import CURR_URL, TIME_OUT
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
 import tornado.web

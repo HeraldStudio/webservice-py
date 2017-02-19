@@ -4,7 +4,7 @@
 from config import VERCODE_URL, LOGIN_URL, INFO_URL
 from config import STANDARD, TIME_OUT
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 import tornado.web
 import tornado.gen
 import urllib
@@ -21,9 +21,10 @@ from time import time,localtime, strftime
 class GPAHandler(tornado.web.RequestHandler):
     @property
     def db(self):
-	return self.application.db
+        return self.application.db
     def on_finish(self):
-	self.db.close()
+        self.db.close()
+    
     def get(self):
         self.write('Herald Web Service')
 
@@ -32,6 +33,7 @@ class GPAHandler(tornado.web.RequestHandler):
     def post(self):
         username = self.get_argument('username', default=None)
         pwd = self.get_argument('password', default=None)
+        status = None
 
         retjson = {'code':200, 'content':''}
         if not (username or pwd):

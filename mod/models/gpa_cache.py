@@ -14,4 +14,3 @@ class GpaCache(Base):
     date = Column(Integer, nullable=False)
 
 
-

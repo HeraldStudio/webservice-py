@@ -89,5 +89,3 @@ class HotHandler(tornado.web.RequestHandler):
             s += unichr(int(c,16))
         return s
 
-
-

@@ -156,4 +156,3 @@ class CurriculumHandler(tornado.web.RequestHandler):
         for i in xrange(n):
             item = item.nextSibling
         return item
-

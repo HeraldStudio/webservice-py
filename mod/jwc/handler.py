@@ -3,7 +3,7 @@
 # @Date    : 2014-12-12 18:17:20
 # @Author  : yml_bright@163.com
 
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from config import JWC_URL, TIME_OUT
 from tornado.httpclient import HTTPRequest, HTTPClient
 import tornado.web
