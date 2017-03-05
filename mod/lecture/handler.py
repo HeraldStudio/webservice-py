@@ -5,7 +5,7 @@
 
 from config import *
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
-from bs4 import BeautifulSoup
+from BeautifulSoup import BeautifulSoup
 from ..models.lecture_cache import LectureCache
 from sqlalchemy.orm.exc import NoResultFound
 from time import time
@@ -14,7 +14,6 @@ import tornado.gen
 import json, base64
 import urllib, re
 import traceback
-import StringIO
 from ..auth.handler import authApi
 class LectureHandler(tornado.web.RequestHandler):
 
@@ -38,7 +37,7 @@ class LectureHandler(tornado.web.RequestHandler):
         # read from cache
         try:
             status = self.db.query(LectureCache).filter( LectureCache.cardnum ==  cardnum ).one()
-            if status.date > int(time())-259200 and status.text != '*':
+            if status.date > int(time()) - 3600 * 24 * 3 and status.text != '*':
                 self.write(base64.b64decode(status.text))
                 self.db.close()
                 self.finish()
@@ -54,7 +53,7 @@ class LectureHandler(tornado.web.RequestHandler):
         try:
             response = authApi(cardnum,self.get_argument('password'))
             if response['code']==200:
-                cookie = response['content']  
+                cookie = response['content']
                 client = AsyncHTTPClient()
                 request = HTTPRequest(
                     LOGIN_URL,
@@ -62,67 +61,60 @@ class LectureHandler(tornado.web.RequestHandler):
                     headers={'Cookie':cookie},
                     request_timeout=TIME_OUT)
                 response = yield tornado.gen.Task(client.fetch, request)
-                if len(str(response.body))==0:
-                    retjson['code'] = 500
-                    retjson['content'] = '服务器忙，请稍后再测试'
-                else:
-                    cookie += ';' + response.headers['Set-Cookie'].split(';')[0]
+                cookie += ';' + response.headers['Set-Cookie'].split(';')[0]
+                request = HTTPRequest(
+                    USERID_URL,
+                    method='GET',
+                    headers={'Cookie':cookie},
+                    request_timeout=TIME_OUT)
+                response = yield tornado.gen.Task(client.fetch, request)
+                soup = BeautifulSoup(response.body)
+                userid = soup.findAll(attrs={"align": "left"})[2].text
+
+                page = 1
+                data = {
+                    'account':userid,
+                    'startDate':'',
+                    'endDate':'',
+                    'pageno':0
+                }
+                fliter = ['九龙湖', '手持考', '行政楼', '网络中', '机电大', '校医院', '研究生']
+                lecture = []
+                count = 0
+                while 1:
+                    data['pageno'] = page
                     request = HTTPRequest(
-                        USERID_URL,
-                        method='GET',
+                        DATA_URL,
+                        method='POST', 
+                        body=urllib.urlencode(data),
                         headers={'Cookie':cookie},
                         request_timeout=TIME_OUT)
                     response = yield tornado.gen.Task(client.fetch, request)
-                    #retjson['content'] = 'body:%s' % str(response.body)
-                    soup = BeautifulSoup(str(response.body),'lxml')
-                    userid = soup.findAll('div',attrs={"align": "left"})[1].text
-                    page = 1
-                    data = {
-                        'account':userid,
-                        'startDate':'',
-                        'endDate':'',
-                        'pageno':0
-                    }
-                    fliter = ['九龙湖', '手持考', '行政楼', '网络中', '机电大', '校医院', '研究生']
-                    lecture = []
-                    count = 0
-                    while 1:
-                        data['pageno'] = page
-                        request = HTTPRequest(
-                            DATA_URL,
-                            method='POST', 
-                            body=urllib.urlencode(data),
-                            headers={'Cookie':cookie},
-                            request_timeout=TIME_OUT)
-                        response = yield tornado.gen.Task(client.fetch, request)
-                        soup = BeautifulSoup(str(response.body),'lxml')
-                        tr = soup.findAll('tr',{"class": re.compile('listbg')})
-                        if not tr:
-                            break
-                        for td in tr:
-                            td = td.findChildren()
-                            if not td[4].text[:3].encode('utf-8') in fliter:
-                                tmp = {}
-                                datecheck = td[0].text.split(' ')[0]
-                                if count>0 and datecheck == lecture[count-1]['date'].split(' ')[0]:
-                                    continue
-                                tmp['date'] = td[0].text
-                                tmp['place'] = td[4].text
-                                lecture.append(tmp)
-                                count += 1
-                        page += 1
-                    retjson['content'] = {'count':count, 'detial':lecture}
+                    soup = BeautifulSoup(response.body)
+                    tr = soup.findAll('tr',{"class": re.compile("listbg")})
+                    if not tr:
+                        break
+                    for td in tr:
+                        td = td.findChildren()
+                        if not td[4].text[:3].encode('utf-8') in fliter:
+                            tmp = {}
+                            datecheck = td[0].text.split(' ')[0]
+                            if count>0 and datecheck == lecture[count-1]['date'].split(' ')[0]:
+                                continue
+                            tmp['date'] = td[0].text
+                            tmp['place'] = td[4].text
+                            lecture.append(tmp)
+                            count += 1
+                    page += 1
+                retjson['content'] = {'count':count, 'detial':lecture}
             else:
                 retjson['code'] = 401
                 retjson['content'] = 'wrong card number or password'
         except Exception,e:
-            fp = StringIO.StringIO()
-            traceback.print_exc(file=fp)
-            message = fp.getvalue()
+            # print str(e)
             retjson['code'] = 500
-            retjson['content'] +='\n%s' % str(message)
-            #retjson['content'] = 'error'
-	    if status.text!='*':
+            retjson['content'] = 'error'
+            if status.text!='*':
                 self.write(base64.b64decode(status.text))
                 self.finish()
                 return

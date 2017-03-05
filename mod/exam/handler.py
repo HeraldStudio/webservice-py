@@ -211,4 +211,3 @@ class ExamHandler(tornado.web.RequestHandler):
 			result = result + str(max_match)
 		return result
 
-

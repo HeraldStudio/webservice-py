@@ -67,10 +67,10 @@ class Application(tornado.web.Application):
             (r'/webserv2/room',RoomHandler),
 	    (r'/webserv2/exam',ExamHandler),
 	    (r'/webserv2/tice',ticeInfoHandler),
-	    (r'/webserv2/yuyue',YuyueHandler)
-        ]
-        settings = dict(
-            cookie_secret="7CA71A57B571B5AEAC5E64C6042415DE",
+	    (r'/webserv2/yuyue',YuyueHandler),
+            ]
+	    
+	setting = dict(cookie_secret="7CA71A57B571B5AEAC5E64C6042415DE",
             debug=True
         )
         tornado.web.Application.__init__(self, handlers, **settings)

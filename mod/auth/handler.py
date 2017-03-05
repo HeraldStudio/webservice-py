@@ -56,4 +56,3 @@ def authApi(username,password):
     except Exception,e:
         result['code'] = 500
     return result
-
