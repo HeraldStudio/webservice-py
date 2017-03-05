@@ -48,7 +48,6 @@ class Application(tornado.web.Application):
             (r'/webserv2/curriculum', CurriculumHandler),
             (r'/webserv2/gpa', GPAHandler),
             (r'/webserv2/pe', PEHandler),
-	    (r'/webserv2/pedetail', pedetailHandler),
             (r'/webserv2/simsimi', SIMSIMIHandler),
             (r'/webserv2/nic', NICHandler),
             (r'/webserv2/card', CARDHandler),
