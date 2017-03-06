@@ -5,7 +5,7 @@
 
 from config import *
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 import tornado.web
 import tornado.gen
 import urllib
@@ -29,17 +29,16 @@ class LibSearchHandler(tornado.web.RequestHandler):
             'showmod': 'json',
             'dept': 'ALL'
         }
-        
         retjson = {'code':200, 'content':''}
         try:
             client = AsyncHTTPClient()
             request = HTTPRequest(
                 SEARCH_URL,
-                method='GET',
+                method='POST',
                 body=urllib.urlencode(data),
                 request_timeout=TIME_OUT)
             response = yield tornado.gen.Task(client.fetch, request)
-            soup = BeautifulSoup(str(response.body))
+            soup = BeautifulSoup(response.body)
             li = soup.findAll('li', {'class': 'book_list_info'})
             books = [] 
             for b in li:

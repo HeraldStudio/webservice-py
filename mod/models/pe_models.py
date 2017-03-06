@@ -13,3 +13,9 @@ class PEUser(Base):
 
     def __repr__(self):
         return '<PE (%s, %d)' % (self.cardnum, self.count)
+
+class PeDetailCache(Base):
+    __tablename__ = 'pedetail'
+    cardnum = Column(Integer, primary_key=True)
+    text = Column(String(10240))
+    date = Column(Integer, nullable=False)

@@ -3,7 +3,7 @@
 # @Author  : yml_bright@163.com
 from config import *
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from ..models.pe_models import PEUser
 from ..models.tice_cache import TiceCache
 from sqlalchemy.orm.exc import NoResultFound
@@ -12,8 +12,12 @@ import tornado.gen
 import urllib
 import random
 import json,socket,base64
+from sqlalchemy.orm.exc import NoResultFound
 from time import time, localtime, strftime,mktime,strptime
 import datetime
+last_refresh = 0
+all_count = {}
+all_sum = 0
 
 class PEHandler(tornado.web.RequestHandler):
 
@@ -49,12 +53,14 @@ class PEHandler(tornado.web.RequestHandler):
                     user = self.db.query(PEUser).filter(
                         PEUser.cardnum == int(cardnum)).one()
                     retjson['content'] = user.count
+		    retjson['rank'] = self.get_rank(user.count)
                     retjson['remain'] = self.get_remain_day()
                 except NoResultFound:
                     retjson['code'] = 408
                     retjson['content'] = 'time out'
             else:
                 retjson['content'] = str(result)
+		retjson['rank'] = self.get_rank(result)
                 retjson['remain'] = self.get_remain_day()
         self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
@@ -66,12 +72,31 @@ class PEHandler(tornado.web.RequestHandler):
                     PEUser.cardnum == int(cardnum)).one()
                 user.count = int(result)
             except NoResultFound:
-                user = PEUser(cardnum=int(cardnum), count=count)
+                user = PEUser(cardnum=int(cardnum), count=int(result))
                 self.db.add(user)
             finally:
                 self.db.commit()
         self.db.close()
-
+    def get_rank(self, count):
+        global last_refresh
+        global all_count
+        global all_sum
+        try:
+            if last_refresh + 300 < int(time()):
+                last_refresh = int(time())
+                db_instance = self.db.execute("select count, count(*) as all_sum from pe group by count").fetchall()
+                all_count = {}
+                all_sum = 0
+                for item in db_instance:
+                    all_count[item.count] = int(item.all_sum)
+                    all_sum += int(item.all_sum)
+            temp_sum = 0
+            for i, j in all_count.items():
+                if int(i) >= int(count):
+                    temp_sum += all_count[i]
+            return '%.2f' % ((float(all_sum)-temp_sum)/all_sum*100)
+        except Exception,e:
+            return '0'
     def get_pe_count(self,cardnum):
         s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         s.settimeout(3)
@@ -82,8 +107,8 @@ class PEHandler(tornado.web.RequestHandler):
             return int(recv[0])+int(recv[1])
         except socket.timeout:
             return -1
-        except:
-            return -1
+	except:
+	    return -1
     def get_remain_day(self):
         finay_day_strp = strptime(finay_day,"%Y-%m-%d")
         final = datetime.datetime(finay_day_strp[0],finay_day_strp[1],finay_day_strp[2])

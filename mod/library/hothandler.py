@@ -63,9 +63,9 @@ class HotHandler(tornado.web.RequestHandler):
                 }
                 ret.append(book)
             retjson['content'] = ret
-        except:
+        except Exception,e:
             retjson['code'] = 500
-            retjson['content'] = 'error'
+            retjson['content'] = str(e)
         ret = json.dumps(retjson, ensure_ascii=False, indent=2)
         self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
@@ -88,5 +88,4 @@ class HotHandler(tornado.web.RequestHandler):
         for c in x:
             s += unichr(int(c,16))
         return s
-
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # @Date    : 2014-06-25 21:23:32
 # @Author  : xindervella@gamil.com yml_bright@163.com
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from config import CURR_URL, TIME_OUT
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
 import tornado.web
@@ -45,7 +45,6 @@ class SidebarHandler(tornado.web.RequestHandler):
                     retjson['code'] = 401
                     retjson['content'] = 'card number not exist'
                 else:
-                    retjson['body'] = body
                     retjson['content'] = self.parser(body)
         self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()

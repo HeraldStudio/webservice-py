@@ -11,8 +11,8 @@ from time import time
 import tornado.web
 import tornado.gen
 import urllib
-import json
-import re
+import json, base64
+import re,sys,traceback
 
 
 class CurriculumHandler(tornado.web.RequestHandler):
@@ -30,12 +30,28 @@ class CurriculumHandler(tornado.web.RequestHandler):
         cardnum = self.get_argument('cardnum', default=None)
         term = self.get_argument('term', default=None)
         date = self.get_argument('date',default="-1")
-        retjson = {'code':200, 'content':'','week':''}
+        retjson = {'code':200, 'content':'','week':'','term':term}
         if not (cardnum and term):
             retjson['code'] = 400
             retjson['content'] = 'params lack'
         else:
             try:
+
+                try:
+                    status = self.db.query(Curriculum_CookieCache).filter(Curriculum_CookieCache.cid ==  cardnum ).one()
+                    if status.date > int(time())- 3600 * 12 and status.cookie != '*':
+                        self.write(base64.b64decode(status.cookie))
+                        self.db.close()
+                        self.finish()
+                        return
+                except NoResultFound:
+                    status = Curriculum_CookieCache(cid =cardnum, cookie='*', date=int(time()))
+                    self.db.add(status)
+                    try:
+                        self.db.commit()
+                    except:
+                        self.db.rollback()
+
                 params = urllib.urlencode(
                     {'queryStudentId': cardnum,
                      'queryAcademicYear': term}
@@ -59,6 +75,7 @@ class CurriculumHandler(tornado.web.RequestHandler):
                         retjson['content'] = 'card number not exist'
                     else:
                         retjson['content'] = self.parser(body)
+                        retjson['sidebar'] = self.sidebarparser(body)
                 if date != "-1":
                     url = "http://58.192.114.179/classroom/common/getdateofweek?date="+date
                     client = AsyncHTTPClient()
@@ -78,19 +95,35 @@ class CurriculumHandler(tornado.web.RequestHandler):
                 )
                 response = yield tornado.gen.Task(client.fetch, request)
                 content = json.loads(response.body)
-                retjson['content']['startdate']={}
                 termTemp = term.split('-')
                 term = "20"+termTemp[0]+"-"+"20"+termTemp[1]+"-"+termTemp[2]
+		retjson['content']['startdate']={}
                 for i in content:
                     if i['code'] == term:
                         retjson['content']['startdate']['month'] = i['startDate']['month']
-                        retjson['content']['startdate']['day'] = i['startDate']['date'] 
+                        retjson['content']['startdate']['day'] = i['startDate']['date']       
             except Exception,e:
                 retjson['code'] = 500
-                retjson['week'] = u'系统错误'
-        
-        self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
+                retjson['content'] = str(e)
+
+        ret = json.dumps(retjson, ensure_ascii=False, indent=2)
+        self.write(ret)
         self.finish()
+
+        # refresh cache
+        if retjson['code'] == 200:
+            status.date = int(time())
+            status.cookie= base64.b64encode(ret)
+            self.db.add(status)
+            try:
+                self.db.commit()
+            except:
+                self.db.rollback()
+            finally:
+                self.db.remove()
+        self.db.close()
+
+
 
     def parser(self, html):
         soup = BeautifulSoup(html)
@@ -136,3 +169,22 @@ class CurriculumHandler(tornado.web.RequestHandler):
                 [course[i], course[i + 1], course[i + 2]]
             )
         return curriculum
+
+    def sidebarparser(self, html):
+        soup = BeautifulSoup(html)
+        items = soup.findAll('td', height='34', width='35%')[:-1]
+        items = [item for item in items if item.text != u'&nbsp;']
+        sidebar = []
+        for item in items:
+            sidebar.append(
+                {'course': item.text,
+                 'lecturer': self.next_n_sibling(item, 2).text[6:],
+                 'credit': self.next_n_sibling(item, 4).text[6:],
+                 'week': self.next_n_sibling(item, 6).text[6:]
+                 })
+        return sidebar
+
+    def next_n_sibling(self, item, n):
+        for i in xrange(n):
+            item = item.nextSibling
+        return item

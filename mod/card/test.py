@@ -1,33 +1,12 @@
-# -*- coding: utf-8 -*-
-# @Date    : 2014-11-03 15:34:57
-# @Author  : yml_bright@163.com
-
-from config import CHECK_URL, TIME_OUT
+from config import *
+from BeautifulSoup import BeautifulSoup
+from time import time
+import urllib, re
+import json, base64
+import datetime
+import traceback
+import requests
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient,HTTPClient,HTTPError
-import tornado.web
-import tornado.gen
-import urllib,json
-from time import time, localtime, strftime
-from newHandler import newAuthApi
-
-class AuthHandler(tornado.web.RequestHandler):
-
-    def get(self):
-        self.write('Herald Web Service')
-
-   
-    def post(self):
-        result = authApi(self.get_argument('cardnum'),self.get_argument('password'))
-        if(result['code']==200):
-            self.write(result['content'])
-            self.finish()
-        raise tornado.web.HTTPError(401)
-
-'''
-def authApi(username,password):
-    return newAuthApi(username,password)
-
-'''
 def authApi(username,password):
     data = {
             'username':username,
@@ -37,7 +16,7 @@ def authApi(username,password):
     try:
         client = HTTPClient()
         request = HTTPRequest(
-            CHECK_URL,
+            "https://mobile4.seu.edu.cn/_ids_mobile/login18_9",
             method='POST',
             body=urllib.urlencode(data),
             validate_cert=False,
@@ -51,8 +30,29 @@ def authApi(username,password):
             result['content'] = cookie
         else:
             result['code'] = 400
-    except HTTPError:
+    except HTTPError as e:
         result['code'] = 400
     except Exception,e:
         result['code'] = 500
     return result
+
+
+def post():
+  cardnum = "213131592"
+  retjson = {'code':200, 'content':''}
+
+  try:
+    response = authApi(cardnum,"lj084358!!")
+    if response['code']==200:
+      cookie = response['content']
+      print "cookie: ", cookie
+      response = requests.get(LOGIN_URL,headers={'Cookie':cookie})
+      cookie += ';' + response.headers['Set-Cookie'].split(';')[0]
+      response = requests.get(USERID_URL,headers={'Cookie':cookie})
+      soup = BeautifulSoup(response.content)
+      td = soup.findAll('td',{"class": "neiwen"})
+    else:
+      print "login error"
+  except Exception,e:
+    print str(e)
+post()

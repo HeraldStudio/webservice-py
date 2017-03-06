@@ -12,10 +12,19 @@ import json
 import io
 # import Image
 from PIL import Image
+import base64
+from sqlalchemy.orm.exc import NoResultFound
+from ..models.gpa_cache import GpaCache
+from time import time,localtime, strftime
 
 
 class GPAHandler(tornado.web.RequestHandler):
-
+    @property
+    def db(self):
+        return self.application.db
+    def on_finish(self):
+        self.db.close()
+    
     def get(self):
         self.write('Herald Web Service')
 
@@ -24,12 +33,28 @@ class GPAHandler(tornado.web.RequestHandler):
     def post(self):
         username = self.get_argument('username', default=None)
         pwd = self.get_argument('password', default=None)
+        status = None
 
         retjson = {'code':200, 'content':''}
         if not (username or pwd):
             retjson['code'] = 400
             retjson['content'] = 'params lack'
         else:
+            # read from cache
+            try:
+                status = self.db.query(GpaCache).filter(GpaCache.cardnum == username).one()
+                if status.date > int(time())-129600 and status.text != '*':
+                    self.write(base64.b64decode(status.text))
+                    self.finish()
+                    return
+            except NoResultFound:
+                status = GpaCache(cardnum = username,text = '*',date = int(time()))
+                self.db.add(status)
+            try:
+                self.db.commit()
+            except:
+                self.db.rollback()
+
             client = AsyncHTTPClient()
             request = HTTPRequest(VERCODE_URL, request_timeout=TIME_OUT)
             response = yield tornado.gen.Task(client.fetch, request)
@@ -37,7 +62,7 @@ class GPAHandler(tornado.web.RequestHandler):
                 retjson['code'] = 408
                 retjson['content'] = 'time out'
             else:
-                cookie = response.headers['Set-Cookie'].split(';')[0]+";"+response.headers['Set-Cookie'].split(';')[1].split(',')[1]
+                cookie = response.headers['Set-Cookie'].split(';')[0]#+";"+response.headers['Set-Cookie'].split(';')[1].split(',')[1]
                 img = Image.open(io.BytesIO(response.body))
                 vercode = self.recognize(img)
                 params = urllib.urlencode({
@@ -53,7 +78,7 @@ class GPAHandler(tornado.web.RequestHandler):
                     retjson['code'] = 408
                     retjson['content'] = 'time out'
                 else:
-                    if 'vercode' in str(response.body):
+                    if 'vercode' in response.body:
                         retjson['code'] = 401
                         retjson['content'] = 'wrong card number or password'
                     else:
@@ -66,8 +91,20 @@ class GPAHandler(tornado.web.RequestHandler):
                             retjson['content'] = 'time out'
                         else:
                             retjson['content'] = self.parser(response.body)
-        self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
+        ret = json.dumps(retjson, ensure_ascii=False, indent=2)
+        self.write(ret)
         self.finish()
+        # refresh cache
+        if retjson['code'] == 200:
+            status.date = int(time())
+            status.text = base64.b64encode(ret)
+            self.db.add(status)
+            try:
+                self.db.commit()
+            except Exception,e:
+                self.db.rollback()
+            finally:
+                self.db.remove()
 
     def recognize(self, img):
         start = [13, 59, 105, 151]
@@ -118,3 +155,4 @@ class GPAHandler(tornado.web.RequestHandler):
                 'extra': tds[7].text[:-6]
             })
         return items
+

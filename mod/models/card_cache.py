@@ -10,9 +10,7 @@ from db import engine, Base
 class CardCache(Base):
     __tablename__ = 'card'
     cardnum = Column(Integer, primary_key=True)
-    text = Column(String(1024))
+    text = Column(String(4096))
     date = Column(Integer, nullable=False)
 
 
-if __name__ == '__main__':
-	Base.metadata.create_all(engine)

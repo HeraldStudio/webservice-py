@@ -36,7 +36,7 @@ class SchoolBusHandler(tornado.web.RequestHandler):
                     { "time":"8:00-9:30", "bus":"每 30min 一班"},
                     { "time":"9:30-11:30", "bus":"每 1h 一班"},
                     { "time":"11:30-13:00", "bus":"每 30min 一班"},
-                    { "time":"13:30-17:00", "bus":"每 1h 一班(最后一班为17:00)"},
+                    { "time":"13:30-16:30", "bus":"每 1h 一班"},
                     { "time":"17:00-19:00", "bus":"每 30min 一班"},
                     { "time":"19:00-22:00", "bus":"每 1h 一班"}
                 ],
@@ -44,7 +44,7 @@ class SchoolBusHandler(tornado.web.RequestHandler):
                     { "time":"8:00-9:30", "bus":"每 30min 一班"},
                     { "time":"9:30-11:30", "bus":"每 1h 一班"},
                     { "time":"11:30-13:00", "bus":"每 30min 一班"},
-                    { "time":"13:30-17:00", "bus":"每 1h 一班(最后一班为17:00)"},
+                    { "time":"13:30-16:30", "bus":"每 1h 一班"},
                     { "time":"17:00-19:00", "bus":"每 30min 一班"},
                     { "time":"19:00-22:00", "bus":"每 1h 一班"}
                 ]

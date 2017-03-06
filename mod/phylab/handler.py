@@ -5,7 +5,7 @@
 
 from config import *
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient,HTTPClient
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from ..models.phylab_cache import PhylabCache
 from sqlalchemy.orm.exc import NoResultFound
 import tornado.web
@@ -94,7 +94,7 @@ class PhylabHandler(tornado.web.RequestHandler):
                         )
                     getResponse = yield tornado.gen.Task(client.fetch, getRequest)
                     retjson['content'][curType.get(curNumber)] = self.getCur(getResponse.body)
-            except KeyError:
+	    except KeyError:
                 retjson = {
                     'code':200,
                     'content':{}

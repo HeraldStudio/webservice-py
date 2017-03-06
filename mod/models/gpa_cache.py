@@ -1,19 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Date    : 2015-12-22 12:46:36
+# @Date    : 2016-09-19 12:35:45
 # @Author  : jerry.liangj@qq.com
+
 from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-from db import engine
+from db import engine, Base
 
-Base = declarative_base()
-
-class TiceCache(Base):
-    __tablename__ = 'tice'
+class GpaCache(Base):
+    __tablename__ = 'gpa'
     cardnum = Column(Integer, primary_key=True)
-    text = Column(String(4096), nullable=False)
+    text = Column(String(4096))
     date = Column(Integer, nullable=False)
 
 
-if __name__ == '__main__':
-	Base.metadata.create_all(engine)
