@@ -11,6 +11,7 @@ from mod.gpa.gpa_handler import GPAHandler
 from mod.pe.handler import PEHandler,ticeInfoHandler
 from mod.pe.pedetailHandler import pedetailHandler
 from mod.srtp.srtp_handler import SRTPHandler
+from mod.srtp.srtp_proj_handler import SrtpProjHandler
 from mod.card.handler import CARDHandler
 from mod.nic.handler import NICHandler
 from mod.auth.handler import AuthHandler
@@ -43,6 +44,7 @@ class Application(tornado.web.Application):
         handlers = [
             (r'/webserv2/auth', AuthHandler),
             (r'/webserv2/srtp', SRTPHandler),
+            (r'/webserv2/srtpproj', SrtpProjHandler),
             (r'/webserv2/term',TermHandler),
             (r'/webserv2/sidebar', SidebarHandler),
             (r'/webserv2/curriculum', CurriculumHandler),
