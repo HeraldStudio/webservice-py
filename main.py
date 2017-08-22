@@ -23,6 +23,7 @@ from mod.library.hothandler import HotHandler
 from mod.pc.handler import PCHandler
 from mod.jwc.handler import JWCHandler
 from mod.schoolbus.handler import SchoolBusHandler
+from mod.schoolbus.new_handler import NewSchoolBusHandler
 from mod.phylab.handler import PhylabHandler
 from mod.emptyroom.handler import CommonQueryHandler, QuickQueryHandler,NewHandler
 from mod.lecture.noticehandler import LectureNoticeHandler
@@ -63,6 +64,7 @@ class Application(tornado.web.Application):
             (r'/webserv2/pc', PCHandler),
             (r'/webserv2/jwc', JWCHandler),
             (r'/webserv2/schoolbus', SchoolBusHandler),
+            (r'/webserv2/newbus', NewSchoolBusHandler),
             (r'/webserv2/phylab', PhylabHandler),
             (r'/webserv2/lecturenotice', LectureNoticeHandler),
             (r'/webserv2/user', UserHandler),
