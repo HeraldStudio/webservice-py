@@ -14,7 +14,7 @@ class NewSchoolBusHandler(tornado.web.RequestHandler):
             client = AsyncHTTPClient()
             request = HTTPRequest('http://121.248.63.119/busservice/lines')
             response = yield tornado.gen.Task(client.fetch, request)
-            lines = json.loads(response.body)['lines']
+            lines = json.loads(response.body)['data']['lines']
 
             for line in lines:
                 line_id = line['id']
