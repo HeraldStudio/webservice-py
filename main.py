@@ -64,7 +64,6 @@ class Application(tornado.web.Application):
             (r'/webserv2/pc', PCHandler),
             (r'/webserv2/jwc', JWCHandler),
             (r'/webserv2/schoolbus', SchoolBusHandler),
-            (r'/webserv2/newbus', NewSchoolBusHandler),
             (r'/webserv2/phylab', PhylabHandler),
             (r'/webserv2/lecturenotice', LectureNoticeHandler),
             (r'/webserv2/user', UserHandler),
