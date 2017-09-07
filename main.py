@@ -23,11 +23,11 @@ from mod.library.hothandler import HotHandler
 from mod.pc.handler import PCHandler
 from mod.jwc.handler import JWCHandler
 from mod.schoolbus.handler import SchoolBusHandler
-from mod.schoolbus.new_handler import NewSchoolBusHandler
 from mod.phylab.handler import PhylabHandler
 from mod.emptyroom.handler import CommonQueryHandler, QuickQueryHandler,NewHandler
 from mod.lecture.noticehandler import LectureNoticeHandler
 from mod.user.handler import UserHandler
+from mod.user.new_handler import newUserHandler
 from mod.bedRoom.handler import RoomHandler
 from mod.exam.handler import ExamHandler
 from mod.yuyue.handler import YuyueHandler
@@ -67,6 +67,7 @@ class Application(tornado.web.Application):
             (r'/webserv2/phylab', PhylabHandler),
             (r'/webserv2/lecturenotice', LectureNoticeHandler),
             (r'/webserv2/user', UserHandler),
+            (r'/webserv2/newuser', newUserHandler),
             (r'/webserv2/query', NewHandler),
             (r'/webserv2/room',RoomHandler),
             (r'/webserv2/exam',ExamHandler),
