@@ -13,7 +13,7 @@ import tornado.gen
 import urllib
 import json, base64
 import re,sys,traceback
-
+import pdb
 
 class CurriculumHandler(tornado.web.RequestHandler):
 
@@ -39,8 +39,19 @@ class CurriculumHandler(tornado.web.RequestHandler):
 
                 try:
                     status = self.db.query(Curriculum_CookieCache).filter(Curriculum_CookieCache.cid ==  cardnum ).one()
-                    if status.date > int(time())- 3600 * 12 and status.cookie != '*':
-                        self.write(base64.b64decode(status.cookie))
+                    if status.date > int(time())- 3600 * 12 and status.cookie != '*' and status.time < 3 :
+			self.write(base64.b64decode(status.cookie))
+			if status.last > int(time())-3600:
+			    status.time += 1
+			else:
+			    status.last = int(time())
+			self.db.add(status)
+            		try:
+                	    self.db.commit()
+            		except:
+                	    self.db.rollback()
+            		finally:
+                	    self.db.remove()
                         self.db.close()
                         self.finish()
                         return
@@ -114,6 +125,8 @@ class CurriculumHandler(tornado.web.RequestHandler):
         if retjson['code'] == 200:
             status.date = int(time())
             status.cookie= base64.b64encode(ret)
+	    status.last = int(time())
+	    status.time = 0
             self.db.add(status)
             try:
                 self.db.commit()

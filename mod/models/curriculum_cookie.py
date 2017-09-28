@@ -13,6 +13,8 @@ class Curriculum_CookieCache(Base):
     cid = Column(Integer, primary_key=True)
     cookie = Column(String(10240), nullable=False)
     date = Column(Integer, nullable=False)
+    last = Column(Integer, nullable=False)
+    time = Column(Integer, nullable=False)
 
 
 if __name__ == '__main__':
