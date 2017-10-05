@@ -1,97 +1,125 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Date    : 2014-11-05 19:19:09
-# @Author  : yml_bright@163.com
+# modified from old renewhandler.py 
+# by yml_bright@163.com
 
 from config import *
-from tornado.httpclient import HTTPRequest, AsyncHTTPClient
-from bs4 import BeautifulSoup
-import tornado.web
-import tornado.gen
+import re
+import json
 import urllib
-import json, re
+import base64
+from tornado.httpclient import HTTPClient
+from tornado.httpclient import HTTPRequest, AsyncHTTPClient
+import tornado.web, tornado.gen
+from bs4 import BeautifulSoup
+from ..models.library_auth_cache import LibraryAuthCache
+from sqlalchemy.orm.exc import NoResultFound
+from time import time
 
 class LibRenewHandler(tornado.web.RequestHandler):
 
+    @property
+    def db(self):
+        return self.application.db
+
+    def on_finish(self):
+        self.db.close()
+
     def get(self):
-        self.write('Herald Web Service')
+        cardnum = self.get_argument('cardnum')
+        try:
+            status = self.db.query(LibraryAuthCache).filter(cardnum == cardnum).one()
+            cookie = status.cookie
+        except Exception as e:
+            self.write('error')
+        try:
+            client = HTTPClient()
+            request = HTTPRequest(
+                GET_CAPTCHA,
+                method='GET',
+                headers={'Cookie': cookie},
+                request_timeout=TIME_OUT
+                )
+            response = client.fetch(request)
+            self.set_header('Content-Type', 'image/png')
+            self.write(response.body)
+        except Exception as e:
+            self.write('error')
 
     @tornado.web.asynchronous
     @tornado.gen.engine
     def post(self):
+        cardnum = self.get_argument('cardnum')
+        captcha = self.get_argument('captcha')
         barcode = self.get_argument('barcode')
-        data = {
-            'number': self.get_argument('cardnum'),
-            'passwd': self.get_argument('password'),
-            'select': 'bar_no'
-        }
-        retjson = {'code':200, 'content':''}
-
-        try:
-            client = AsyncHTTPClient()
-            request = HTTPRequest(
-                LOGIN_URL,
-                method='GET',
-                request_timeout=TIME_OUT)
-            response = yield tornado.gen.Task(client.fetch, request)
-            cookie = response.headers['Set-Cookie'].split(';')[0]
-            request = HTTPRequest(
-                LOGIN_URL,
-                method='POST',
-                headers={'Cookie':cookie},
-                body=urllib.urlencode(data),
-                request_timeout=TIME_OUT)
-            response = yield tornado.gen.Task(client.fetch, request)
-
-            if len(response.body) < 10000:
-                data['select'] = 'cert_no'
+        retjson = {'code': 200, 'content': u''}
+        if (not cardnum or not barcode):
+            retjson['code'] = 400
+            retjson['content'] = u'parameter lack'
+        else:
+            try:
+                status = self.db.query(LibraryAuthCache).filter(LibraryAuthCache.cardnum == cardnum).one()
+                if (status.cookie != '*'):
+                    cookie = status.cookie
+                else:
+                    retjson['code'] = 401
+                    retjson['content'] = u'auth error'
+            except Exception as e:
+                retjson['code'] = 500
+                retjson['content'] = u'error'
+            
+            try:
+                client = AsyncHTTPClient()
                 request = HTTPRequest(
                     LOGIN_URL,
-                    method='POST',
-                    headers={'Cookie':cookie},
-                    body=urllib.urlencode(data),
-                    request_timeout=TIME_OUT)
-                response = yield tornado.gen.Task(client.fetch, request)
-
-            if len(response.body) > 10000:
-                flag = False
-                request = HTTPRequest(
-                    LIST_URL,
                     method='GET',
-                    headers={'Cookie':cookie},
-                    request_timeout=TIME_OUT)
+                    headers={'Cookie': cookie},
+                    request_timeout=TIME_OUT
+                    )
                 response = yield tornado.gen.Task(client.fetch, request)
-                soup = BeautifulSoup(response.body)
-                td = soup.findAll('td', {'class': 'whitetext'})
-                for i in range(0, len(td), 8):
-                    if barcode == td[i].text:
-                        checkcode = td[i+7].input['onclick'].split('\'')[3]
-                        request = HTTPRequest(
-                            RENEW_URL%(barcode, checkcode),
-                            method='GET',
-                            headers={'Cookie':cookie},
-                            request_timeout=TIME_OUT)
-                        response = yield tornado.gen.Task(client.fetch, request)
-                        if response.body == 'invalid call':
-                            flag = False
+                soup = BeautifulSoup(response.body, 'html.parser')
+                name = soup.findAll('font')[0].text
+                if name:
+                    flag = False
+                    request = HTTPRequest(
+                        LIST_URL,
+                        method = 'GET',
+                        headers={'Cookie': cookie},
+                        request_timeout = TIME_OUT
+                        )
+                    response = yield tornado.gen.Task(client.fetch, request)
+                    soup = BeautifulSoup(response.body, 'html.parser')
+                    td = soup.findAll('td', {'class': 'whitetext'})
+                    for i in range(0, len(td), 8):
+                        if (barcode == td[i].text):
+                            checkcode = td[i+7].input['onclick'].split('\'')[3]
+                            request = HTTPRequest(
+                                RENEW_URL%(barcode, checkcode, captcha, int(time()*1000)),
+                                method='GET',
+                                headers={'Cookie': cookie},
+                                request_timeout=TIME_OUT
+                                )
+                            response = yield tornado.gen.Task(client.fetch, request)
+                            if (response.body == 'invalid call'):
+                                flag = False
+                            else:
+                                flag = True
+                    if flag:
+                        if u'wrong' in response.body:
+                            retjson['code'] = 200
+                            retjson['content'] = u'wrong captcha'
                         else:
-                            flag = True
-			    retjson['content'] = response.body
-                if flag:
-		    if u'续借成功' in retjson['content']:
-                        retjson['content'] = 'success'
-		    else:
-                        temp = retjson['content']
-                        temp = re.search('>.*<',temp,re.I).group()
-                        retjson['content'] = temp[1:len(temp)-1]
+                            soup = BeautifulSoup(response.body, 'html.parser')
+                            retjson['code'] = 200
+                            retjson['content'] = soup.findAll('font')[0].text
+                    else:
+                        retjson['code'] = 400
+                        retjson['content'] = u'fail'
                 else:
-                    retjson['content'] = 'fail'
-            else:
-                retjson['code'] = 401
-                retjson['content'] = 'wrong card number or password'
-        except:
-            retjson['code'] = 500
-            retjson['content'] = 'error'
+                    retjson['code'] = 401
+                    retjson['content'] = u'auth error'
+            except Exception as e:
+                print e
+                retjson['code'] = 500
+                retjson['content'] = u'error'
         self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
-
