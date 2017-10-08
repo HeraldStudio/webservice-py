@@ -32,7 +32,7 @@ class LibListHandler(tornado.web.RequestHandler):
     def post(self):
 
         cardnum = self.get_argument('cardnum')
-        retjson = {}
+        retjson = {'code': 200, 'content': ''}
         if not cardnum:
             retjson['code'] = 400
             retjson['content'] = u'parameters lack'
