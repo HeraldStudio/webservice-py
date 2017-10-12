@@ -56,7 +56,7 @@ class CurriculumHandler(tornado.web.RequestHandler):
                         self.finish()
                         return
                 except NoResultFound:
-                    status = Curriculum_CookieCache(cid =cardnum, cookie='*', date=int(time()))
+                    status = Curriculum_CookieCache(cid =cardnum, cookie='*', date=int(time()),last=int(time()),time=0)
                     self.db.add(status)
                     try:
                         self.db.commit()
