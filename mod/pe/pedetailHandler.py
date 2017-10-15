@@ -75,7 +75,7 @@ class pedetailHandler(tornado.web.RequestHandler):
 			# read from cache
 			try:
 				status = self.db.query(PeDetailCache).filter(PeDetailCache.cardnum == cardnum).one()
-				if int(strftime('%H', localtime(time())))<8 or (status.date > int(time())-10000 and status.text != '*'):
+				if int(strftime('%H', localtime(time())))<8 or (status.date > int(time())-10800 and status.text != '*'):
 					if status.text == '*':
 						retjson['content'] = []
 						self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
@@ -169,4 +169,3 @@ class pedetailHandler(tornado.web.RequestHandler):
 				self.db.rollback()
 			finally:
 				self.db.remove()
-

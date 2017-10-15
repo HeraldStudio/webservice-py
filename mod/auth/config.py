@@ -4,7 +4,5 @@
 
 
 CHECK_URL = "https://mobile4.seu.edu.cn/_ids_mobile/login18_9"
-
-TIME_OUT = 8
 COOKIE_TIMEOUT = 8000
 TIME_OUT = 4

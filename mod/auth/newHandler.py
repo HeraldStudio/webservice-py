@@ -5,7 +5,7 @@ from PIL import Image
 import io
 import urllib,json
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient,HTTPClient,HTTPError
-
+import traceback
 
 divideInfo = {
 	'w': {'all': [51, 52, 53, 54], 'select': 51} ,
@@ -118,9 +118,7 @@ def newAuthApi(username,password):
 		)
 		response = client.fetch(request)
 		result['content'] = response.headers['Set-Cookie']
-	except HTTPError as e:
-		result['code'] = 400
-	except Exception,e:
+	except Exception as e:
 		result['code'] = 500
 	return result
 

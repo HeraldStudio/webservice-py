@@ -7,12 +7,12 @@
 # main.py 
 #######################
 # 学期信息
-course_term = '16-17-2'
-course_term_id = '16-17-2'
-exam_term = '16-17-2'
-start_year = 2016
-start_month = 9
-start_day = 1
+course_term = '16-17-3'
+course_term_id = '16-17-3'
+exam_term = '16-17-3'
+start_year = 2017
+start_month = 2
+start_day = 21
 
 #######################
 # handler.py 

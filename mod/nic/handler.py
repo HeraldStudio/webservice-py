@@ -5,7 +5,7 @@
 
 from config import *
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient, HTTPClient
-from bs4 import BeautifulSoup
+from BeautifulSoup import BeautifulSoup
 from ..models.nic_cache import NicCache
 from sqlalchemy.orm.exc import NoResultFound
 from time import time

@@ -5,7 +5,7 @@
 
 from config import *
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient,HTTPClient
-from bs4 import BeautifulSoup
+from BeautifulSoup import BeautifulSoup
 from ..models.phylab_cache import PhylabCache
 from sqlalchemy.orm.exc import NoResultFound
 import tornado.web

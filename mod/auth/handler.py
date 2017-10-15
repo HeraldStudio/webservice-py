@@ -21,9 +21,36 @@ class AuthHandler(tornado.web.RequestHandler):
         if(result['code']==200):
             self.write(result['content'])
             self.finish()
-        raise tornado.web.HTTPError(401)
+        else:
+            raise tornado.web.HTTPError(401)
+
+def authApiTemp(username, password):
+    data = {
+        'user':username,
+         'password':password
+    }
+    result = {'code':200,'content':''}
+
+    try:
+        client = HTTPClient()
+        request = HTTPRequest(
+        "http://192.168.56.1/auth",
+        method='POST',
+        body=urllib.urlencode(data),
+        validate_cert=False,
+        request_timeout=TIME_OUT)
+        response = client.fetch(request)
+        print response.body
+        j = json.loads(response.body)
+        result['code'] = j['code']
+    except HTTPError:
+        result['code'] = 400
+    except Exception,e:
+        result['code'] = 500
+    return result
 
 '''
+
 def authApi(username,password):
     return newAuthApi(username,password)
 
@@ -56,3 +83,6 @@ def authApi(username,password):
     except Exception,e:
         result['code'] = 500
     return result
+
+if __name__ == '__main__':
+    print(authApi('213151933', 'vme2744394782'))

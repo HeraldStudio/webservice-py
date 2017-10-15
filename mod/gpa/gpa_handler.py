@@ -21,10 +21,9 @@ from time import time,localtime, strftime
 class GPAHandler(tornado.web.RequestHandler):
     @property
     def db(self):
-        return self.application.db
+	return self.application.db
     def on_finish(self):
-        self.db.close()
-    
+	self.db.close()
     def get(self):
         self.write('Herald Web Service')
 
@@ -33,7 +32,6 @@ class GPAHandler(tornado.web.RequestHandler):
     def post(self):
         username = self.get_argument('username', default=None)
         pwd = self.get_argument('password', default=None)
-        status = None
 
         retjson = {'code':200, 'content':''}
         if not (username or pwd):
@@ -43,7 +41,8 @@ class GPAHandler(tornado.web.RequestHandler):
             # read from cache
             try:
                 status = self.db.query(GpaCache).filter(GpaCache.cardnum == username).one()
-                if status.date > int(time())-129600 and status.text != '*':
+                #if status.text != '*':
+                if status.date > int(time())-1800 and status.text != '*':
                     self.write(base64.b64decode(status.text))
                     self.finish()
                     return

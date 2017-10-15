@@ -5,7 +5,7 @@
 
 from config import *
 from tornado.httpclient import HTTPRequest, HTTPClient,HTTPError
-from bs4 import BeautifulSoup
+from BeautifulSoup import BeautifulSoup
 import tornado.web
 import tornado.gen
 from ..models.pc_cache import PCCache

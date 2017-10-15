@@ -12,7 +12,7 @@ from time import time
 import tornado.web
 import tornado.gen
 import json, base64
-from bs4 import BeautifulSoup
+from BeautifulSoup import BeautifulSoup
 import urllib
 from time import time, localtime, strftime
 import datetime

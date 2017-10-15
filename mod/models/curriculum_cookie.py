@@ -11,10 +11,8 @@ Base = declarative_base()
 class Curriculum_CookieCache(Base):
     __tablename__ = 'curriculum_cookie'
     cid = Column(Integer, primary_key=True)
-    cookie = Column(String(10240), nullable=False)
+    cookie = Column(String(100), nullable=False)
     date = Column(Integer, nullable=False)
-    last = Column(Integer, nullable=False)
-    time = Column(Integer, nullable=False)
 
 
 if __name__ == '__main__':
