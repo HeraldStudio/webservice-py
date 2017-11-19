@@ -49,7 +49,7 @@ class LibRenewHandler(tornado.web.RequestHandler):
     @tornado.gen.engine
     def post(self):
         cardnum = self.get_argument('cardnum')
-        captcha = self.get_argument('captcha')
+        # captcha = self.get_argument('captcha')
         barcode = self.get_argument('barcode')
         retjson = {'code': 200, 'content': u''}
         if (not cardnum or not barcode):
@@ -60,6 +60,9 @@ class LibRenewHandler(tornado.web.RequestHandler):
                 status = self.db.query(LibraryAuthCache).filter(LibraryAuthCache.cardnum == cardnum).one()
                 if (status.cookie != '*'):
                     cookie = status.cookie
+                    # 根据实验图书馆每次的验证码和登录验证码一致，
+                    # 这里采用登录验证码，如发生变动，请自行修改
+                    captcha = status.captcha
                 else:
                     retjson['code'] = 401
                     retjson['content'] = u'auth error'
@@ -118,7 +121,6 @@ class LibRenewHandler(tornado.web.RequestHandler):
                     retjson['code'] = 401
                     retjson['content'] = u'auth error'
             except Exception as e:
-                print e
                 retjson['code'] = 500
                 retjson['content'] = u'error'
         self.write(json.dumps(retjson, ensure_ascii=False, indent=2))

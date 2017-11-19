@@ -6,4 +6,5 @@ class LibraryAuthCache(Base):
     __tablename__ = 'library_auth'
     cardnum = Column(Integer, primary_key=True)
     cookie = Column(String(4096))
+    captcha = Column(String(4096))
     date = Column(Integer, nullable=False)
