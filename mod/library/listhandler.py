@@ -69,6 +69,7 @@ class LibListHandler(tornado.web.RequestHandler):
                     soup = BeautifulSoup(response.body, 'html.parser')
                     td = soup.findAll('td', {'class': 'whitetext'})
                     ret = []
+                    
                     for i in range(0, len(td), 8):
                         info = td[i+1].text.split('/')
                         book = {

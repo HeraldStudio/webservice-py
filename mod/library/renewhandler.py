@@ -25,25 +25,7 @@ class LibRenewHandler(tornado.web.RequestHandler):
         self.db.close()
 
     def get(self):
-        cardnum = self.get_argument('cardnum')
-        try:
-            status = self.db.query(LibraryAuthCache).filter(cardnum == cardnum).one()
-            cookie = status.cookie
-        except Exception as e:
-            self.write('error')
-        try:
-            client = HTTPClient()
-            request = HTTPRequest(
-                GET_CAPTCHA,
-                method='GET',
-                headers={'Cookie': cookie},
-                request_timeout=TIME_OUT
-                )
-            response = client.fetch(request)
-            self.set_header('Content-Type', 'image/png')
-            self.write(response.body)
-        except Exception as e:
-            self.write('error')
+        self.write("herald webservice")
 
     @tornado.web.asynchronous
     @tornado.gen.engine
