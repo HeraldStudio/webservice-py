@@ -51,7 +51,7 @@ class LibAuthHandler(tornado.web.RequestHandler):
             try:
                 status = self.db.query(LibraryAuthCache).filter(LibraryAuthCache.cardnum == cardnum).one()
             except NoResultFound:
-                status = LibraryAuthCache(cardnum = cardnum, cookie = '*', date = int(time()))
+                status = LibraryAuthCache(cardnum = cardnum, cookie = '*', captcha = '*', date = int(time()))
                 self.db.add(status)
                 try:
                     self.db.commit()
@@ -86,13 +86,13 @@ class LibAuthHandler(tornado.web.RequestHandler):
                 retjson['content'] = 'error'
         ret = json.dumps(retjson, ensure_ascii=False, indent=2)
         self.write(ret)
-        print status.cardnum
         self.finish()
 
         # refresh cache
         if (retjson['code'] == 200):
             status.date = int(time())
             status.cookie = cookie
+            status.captcha = captcha
             self.db.add(status)
             try:
                 self.db.commit()
