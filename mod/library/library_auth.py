@@ -23,11 +23,26 @@ class LibAuthHandler(tornado.web.RequestHandler):
         self.db.close()
 
     def get(self):
+
+        cardnum = self.get_argument('cardnum', default=None)
+        if not cardnum:
+            # 因为需要返回图片，所以一卡通为空不做提示
+            raise Exception
         try:
             client = HTTPClient()
             response = client.fetch(GET_CAPTCHA)
             cookie = response.headers['Set-Cookie'].split(';')[0]
-            self.set_header('Set-Cookie', cookie)   # return PHPSESSID to client
+            try:
+                status = self.db.query(LibraryAuthCache).filter(LibraryAuthCache.cardnum == cardnum).one()
+                status.cookie = cookie
+                print status.cookie
+            except NoResultFound:
+                status = LibraryAuthCache(cardnum=cardnum, cookie=cookie, captcha='*', date=int(time()))
+            self.db.add(status)
+            try:
+                self.db.commit()
+            except Exception:
+                self.db.rollback()
             self.set_header('Content-type', 'image/png')
             self.write(response.body)   # return captcha to client
         except Exception as e:
@@ -36,27 +51,18 @@ class LibAuthHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     @tornado.gen.engine
     def post(self):
-
         cardnum = self.get_argument('cardnum', default=None)
         password = self.get_argument('password', default=None)
         captcha = self.get_argument('captcha', default=None)
-        cookie = self.get_argument('cookie', default=None)
         retjson = {'code': 200, 'content': ''}
         status = None
-        if not (cardnum and password and \
-            captcha and cookie):
+        if not (cardnum and password and captcha):
             retjson['code'] = 400
             retjson['content'] = 'parameters lack'
         else:
-            try:
-                status = self.db.query(LibraryAuthCache).filter(LibraryAuthCache.cardnum == cardnum).one()
-            except NoResultFound:
-                status = LibraryAuthCache(cardnum = cardnum, cookie = '*', captcha = '*', date = int(time()))
-                self.db.add(status)
-                try:
-                    self.db.commit()
-                except Exception as e:
-                    self.db.rollback()
+            # 直接从数据库读取cookie，不做try的尝试
+            status = self.db.query(LibraryAuthCache).filter(LibraryAuthCache.cardnum == cardnum).one()
+            cookie = status.cookie
             try:
                 form_data = {
                     'number': cardnum,
@@ -90,9 +96,9 @@ class LibAuthHandler(tornado.web.RequestHandler):
 
         # refresh cache
         if (retjson['code'] == 200):
-            status.date = int(time())
-            status.cookie = cookie
+            status.password = password
             status.captcha = captcha
+            status.date = int(time())
             self.db.add(status)
             try:
                 self.db.commit()
