@@ -30,6 +30,7 @@ from mod.user.handler import UserHandler
 from mod.bedRoom.handler import RoomHandler
 from mod.exam.handler import ExamHandler
 from mod.yuyue.handler import YuyueHandler
+from mod.log.handler import LogHandler
 import tornado.web
 import tornado.ioloop
 import tornado.options
@@ -67,10 +68,11 @@ class Application(tornado.web.Application):
             (r'/webserv2/lecturenotice', LectureNoticeHandler),
             (r'/webserv2/user', UserHandler),
             (r'/webserv2/query', NewHandler),
-            (r'/webserv2/room',RoomHandler),
-            (r'/webserv2/exam',ExamHandler),
-            (r'/webserv2/tice',ticeInfoHandler),
-            (r'/webserv2/yuyue',YuyueHandler)
+            (r'/webserv2/room', RoomHandler),
+            (r'/webserv2/exam', ExamHandler),
+            (r'/webserv2/tice', ticeInfoHandler),
+            (r'/webserv2/yuyue', YuyueHandler),
+            (r'/webserv2/logstat', LogHandler),
         ]
         settings = dict(
             cookie_secret="7CA71A57B571B5AEAC5E64C6042415DE",
