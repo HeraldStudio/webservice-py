@@ -16,6 +16,7 @@ from mod.nic.handler import NICHandler
 from mod.auth.handler import AuthHandler
 from mod.lecture.handler import LectureHandler
 from mod.library.library_auth import LibAuthHandler
+from mod.library.library_auth_check import LibAuthCheckHandler
 from mod.library.listhandler import LibListHandler
 from mod.library.renewhandler import LibRenewHandler
 # from mod.library.searchhandler import LibSearchHandler
@@ -56,6 +57,7 @@ class Application(tornado.web.Application):
             (r'/webserv2/card', CARDHandler),
             (r'/webserv2/lecture', LectureHandler),
             (r'/webserv2/library_auth', LibAuthHandler),
+            (r'/webserv2/library_auth_check', LibAuthCheckHandler),
             (r'/webserv2/library', LibListHandler),
             (r'/webserv2/library_hot',HotHandler),
             (r'/webserv2/renew', LibRenewHandler),
