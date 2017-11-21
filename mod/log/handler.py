@@ -10,14 +10,16 @@ vim: set ts=4 sw=4 tw=99 et:
 
 
 import json
-from mod.Basehandler import BaseHandler
+import tornado.web
 from mod.models.log import DayLogAnalyze
 
-class LogHandler(BaseHandler):
+class LogHandler(tornado.web.RequestHandler):
     """
         本模块为日志分析后端模块, 预先分析好的日志先存储于数据库中,
         使用时读取数据库中的json信息, 做简单处理后返回
     """
+    def get(self):
+        self.write('herald webservice')
 
     def post(self):
         retjson = {'code': '200', 'content': 'None'}
