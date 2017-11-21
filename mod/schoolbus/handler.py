@@ -25,8 +25,10 @@ class SchoolBusHandler(tornado.web.RequestHandler):
             self.db.close()
             self.finish()
         except:
-            retjson = {'code':500, 'content':'error'}
-            self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
+            self.init_db()
+            data = self.db.query(DataCache).filter( DataCache.key == 10001 ).one()
+            self.write(base64.b64decode(data.data))
+            self.db.close()
             self.finish()
 
     def init_db(self):

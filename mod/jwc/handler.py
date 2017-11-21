@@ -3,7 +3,7 @@
 # @Date    : 2014-12-12 18:17:20
 # @Author  : yml_bright@163.com
 
-from bs4 import BeautifulSoup
+from BeautifulSoup import BeautifulSoup
 from config import JWC_URL, TIME_OUT
 from tornado.httpclient import HTTPRequest, HTTPClient
 import tornado.web
@@ -56,8 +56,12 @@ class JWCHandler(tornado.web.RequestHandler):
 
 
     def refresh_status(self):
-        lock = self.db.query(JWCCache).filter(
-                    JWCCache.date == 0).one()
+        try:
+            lock = self.db.query(JWCCache).filter(
+                        JWCCache.date == 0).one()
+        except NoResultFound:
+            lock = JWCCache(date=0, text='0')
+            self.db.add(lock)
         if lock.text == '1':
             return {'code':201}
         else:
@@ -67,7 +71,6 @@ class JWCHandler(tornado.web.RequestHandler):
         lock.text == '0'
         self.db.commit()
         return ret
-
 
     def today(self):
         return int(strftime('%Y%m%d', localtime(time())))
@@ -122,5 +125,4 @@ class JWCHandler(tornado.web.RequestHandler):
             #except:
             #    pass
         return abst
-
 

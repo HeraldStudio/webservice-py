@@ -4,9 +4,7 @@
 # @Author  : jerry.liangj@qq.com
 from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-from db import engine
-
-Base = declarative_base()
+from db import engine, Base
 
 class Curriculum_CookieCache(Base):
     __tablename__ = 'curriculum_cookie'

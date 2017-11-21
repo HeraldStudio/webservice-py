@@ -3,7 +3,9 @@
 # @Author  : yml_bright@163.com
 from config import *
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
-from bs4 import BeautifulSoup
+from tornado.tcpclient import TCPClient
+from tornado.ioloop import IOLoop
+from BeautifulSoup import BeautifulSoup
 from ..models.pe_models import PEUser
 from ..models.tice_cache import TiceCache
 from sqlalchemy.orm.exc import NoResultFound
@@ -11,15 +13,20 @@ import tornado.web
 import tornado.gen
 import urllib
 import random
-import json,socket,base64
+import json,socket,base64,traceback
 from sqlalchemy.orm.exc import NoResultFound
 from time import time, localtime, strftime,mktime,strptime
 import datetime
+import functools
+from concurrent.futures import ThreadPoolExecutor
+from tornado.concurrent import run_on_executor
 last_refresh = 0
 all_count = {}
 all_sum = 0
 
 class PEHandler(tornado.web.RequestHandler):
+    # 为查跑操的 TCP Client 建立线程池
+    executor = ThreadPoolExecutor(10)
 
     @property
     def db(self):
@@ -45,7 +52,8 @@ class PEHandler(tornado.web.RequestHandler):
             retjson['code'] = 400
             retjson['content'] = 'params lack'
         else:
-            result = self.get_pe_count(cardnum)
+            result = yield self.get_pe_count(cardnum)
+
             if result == -1:
                 state = 'time_out'
                 try:
@@ -97,6 +105,9 @@ class PEHandler(tornado.web.RequestHandler):
             return '%.2f' % ((float(all_sum)-temp_sum)/all_sum*100)
         except Exception,e:
             return '0'
+
+    # 把查跑操的 TCP 连接放在线程池中运行
+    @run_on_executor
     def get_pe_count(self,cardnum):
         s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         s.settimeout(3)
@@ -107,8 +118,9 @@ class PEHandler(tornado.web.RequestHandler):
             return int(recv[0])+int(recv[1])
         except socket.timeout:
             return -1
-	except:
-	    return -1
+        except:
+            return -1
+
     def get_remain_day(self):
         finay_day_strp = strptime(finay_day,"%Y-%m-%d")
         final = datetime.datetime(finay_day_strp[0],finay_day_strp[1],finay_day_strp[2])
@@ -147,7 +159,7 @@ class ticeInfoHandler(tornado.web.RequestHandler):
             #read from cache
             try:
                 status = self.db.query(TiceCache).filter(TiceCache.cardnum == cardnum).one()
-                if status.date > int(time()-100000) and status.text != '*':
+                if status.date > int(time()-1000000) and status.text != '*':
                     self.write(base64.b64decode(status.text))
                     self.finish()
                     return
@@ -229,5 +241,4 @@ class ticeInfoHandler(tornado.web.RequestHandler):
             return ret
         except:
             return -1
-
 
