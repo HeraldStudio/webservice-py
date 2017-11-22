@@ -218,11 +218,13 @@ class CARDHandler(tornado.web.RequestHandler):
         # refresh cache
         if retjson['code'] == 200:
             status.date = int(time())
-            status.text = base64.b64encode(ret)
+            status.text = base64.b64encode(str(ret))
             self.db.add(status)
             try:
                 self.db.commit()
+            
             except:
                 self.db.rollback()
             finally:
                 self.db.remove()
+            
