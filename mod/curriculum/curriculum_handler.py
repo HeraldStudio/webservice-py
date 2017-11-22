@@ -11,9 +11,9 @@ from time import time
 import tornado.web
 import tornado.gen
 import urllib
-import json, base64
+import json
 import re,sys,traceback
-import pdb
+
 
 class CurriculumHandler(tornado.web.RequestHandler):
 
@@ -29,40 +29,12 @@ class CurriculumHandler(tornado.web.RequestHandler):
     def post(self):
         cardnum = self.get_argument('cardnum', default=None)
         term = self.get_argument('term', default=None)
-        date = self.get_argument('date',default="-1")
         retjson = {'code':200, 'content':'','week':'','term':term}
         if not (cardnum and term):
             retjson['code'] = 400
             retjson['content'] = 'params lack'
         else:
             try:
-
-                try:
-                    status = self.db.query(Curriculum_CookieCache).filter(Curriculum_CookieCache.cid ==  cardnum ).one()
-                    if status.date > int(time())- 3600 * 12 and status.cookie != '*' and status.time < 3 :
-			self.write(base64.b64decode(status.cookie))
-			if status.last > int(time())-3600:
-			    status.time += 1
-			else:
-			    status.last = int(time())
-			self.db.add(status)
-            		try:
-                	    self.db.commit()
-            		except:
-                	    self.db.rollback()
-            		finally:
-                	    self.db.remove()
-                        self.db.close()
-                        self.finish()
-                        return
-                except NoResultFound:
-                    status = Curriculum_CookieCache(cid =cardnum, cookie='*', date=int(time()),last=int(time()),time=0)
-                    self.db.add(status)
-                    try:
-                        self.db.commit()
-                    except:
-                        self.db.rollback()
-
                 params = urllib.urlencode(
                     {'queryStudentId': cardnum,
                      'queryAcademicYear': term}
@@ -87,56 +59,31 @@ class CurriculumHandler(tornado.web.RequestHandler):
                     else:
                         retjson['content'] = self.parser(body)
                         retjson['sidebar'] = self.sidebarparser(body)
-                if date != "-1":
-                    url = "http://58.192.114.179/classroom/common/getdateofweek?date="+date
-                    client = AsyncHTTPClient()
-                    request = HTTPRequest(
-                        url = url, 
-                        method = "GET",
-                        request_timeout=TIME_OUT
-                    )
-                    response = yield tornado.gen.Task(client.fetch, request)
-                    retjson['week'] = json.loads(response.body)
-                url = "http://58.192.114.179/classroom/common/gettermlistex"
-                client = AsyncHTTPClient()
-                request = HTTPRequest(
-                    url = url, 
-                    method = "GET",
-                    request_timeout=TIME_OUT
-                )
-                response = yield tornado.gen.Task(client.fetch, request)
-                content = json.loads(response.body)
-                termTemp = term.split('-')
-                term = "20"+termTemp[0]+"-"+"20"+termTemp[1]+"-"+termTemp[2]
-		retjson['content']['startdate']={}
-                for i in content:
-                    if i['code'] == term:
-                        retjson['content']['startdate']['month'] = i['startDate']['month']
-                        retjson['content']['startdate']['day'] = i['startDate']['date']       
+                        
+                        url = "http://58.192.114.179/classroom/common/gettermlistex"
+                        client = AsyncHTTPClient()
+                        request = HTTPRequest(
+                            url = url, 
+                            method = "GET",
+                            request_timeout=3
+                        )
+                        response = yield tornado.gen.Task(client.fetch, request)
+                        content = json.loads(response.body)
+                        termTemp = term.split('-')
+                        term = "20"+termTemp[0]+"-"+"20"+termTemp[1]+"-"+termTemp[2]
+                        retjson['content']['startdate']={}
+                        for i in content:
+                            if i['code'] == term:
+                                retjson['content']['startdate']['month'] = i['startDate']['month']
+                                retjson['content']['startdate']['day'] = i['startDate']['date']
+                                break
+
             except Exception,e:
                 retjson['code'] = 500
                 retjson['content'] = str(e)
-
-        ret = json.dumps(retjson, ensure_ascii=False, indent=2)
-        self.write(ret)
+                #traceback.print_exc()
+        self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
-
-        # refresh cache
-        if retjson['code'] == 200:
-            status.date = int(time())
-            status.cookie= base64.b64encode(ret)
-	    status.last = int(time())
-	    status.time = 0
-            self.db.add(status)
-            try:
-                self.db.commit()
-            except:
-                self.db.rollback()
-            finally:
-                self.db.remove()
-        self.db.close()
-
-
 
     def parser(self, html):
         soup = BeautifulSoup(html)
@@ -179,7 +126,7 @@ class CurriculumHandler(tornado.web.RequestHandler):
         curriculum = []
         for i in xrange(0, len(course), 3):
             curriculum.append(
-                [course[i], course[i + 1], course[i + 2]]
+                [course[i].strip(), course[i + 1], course[i + 2]]
             )
         return curriculum
 
@@ -190,7 +137,7 @@ class CurriculumHandler(tornado.web.RequestHandler):
         sidebar = []
         for item in items:
             sidebar.append(
-                {'course': item.text,
+                {'course': item.text.strip(),
                  'lecturer': self.next_n_sibling(item, 2).text[6:],
                  'credit': self.next_n_sibling(item, 4).text[6:],
                  'week': self.next_n_sibling(item, 6).text[6:]
@@ -201,3 +148,4 @@ class CurriculumHandler(tornado.web.RequestHandler):
         for i in xrange(n):
             item = item.nextSibling
         return item
+

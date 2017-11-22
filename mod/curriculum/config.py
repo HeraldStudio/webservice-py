@@ -4,6 +4,9 @@
 
 TERM_URL = 'http://xk.urp.seu.edu.cn/jw_service/service/lookCurriculum.action'
 
+#TERM_URL = 'http://223.3.88.120:7005/jw_service/service/lookCurriculum.action'
+#CURR_URL = 'http://223.3.88.120:7005/jw_service/service/stuCurriculum.action'
+
 CURR_URL = 'http://xk.urp.seu.edu.cn/jw_service/service/stuCurriculum.action'
 JWC_URL = 'http://jwc.seu.edu.cn'
-TIME_OUT = 8
+TIME_OUT = 7
