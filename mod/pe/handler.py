@@ -64,6 +64,7 @@ class PEHandler(tornado.web.RequestHandler):
 		    retjson['rank'] = self.get_rank(user.count)
                     retjson['remain'] = self.get_remain_day()
                 except NoResultFound:
+                    retjson['remain'] = self.get_remain_day()
                     retjson['code'] = 408
                     retjson['content'] = 'time out'
             else:
