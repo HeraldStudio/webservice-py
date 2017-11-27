@@ -5,7 +5,7 @@
 
 from config import *
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient,HTTPClient
-from bs4 import BeautifulSoup
+from BeautifulSoup import BeautifulSoup
 from ..models.phylab_cache import PhylabCache
 from sqlalchemy.orm.exc import NoResultFound
 import tornado.web
@@ -40,7 +40,7 @@ class PhylabHandler(tornado.web.RequestHandler):
             # read from cache
             try:
                 status = self.db.query(PhylabCache).filter( PhylabCache.cardnum ==  number ).one()
-                if status.date > int(time())-40000 and status.text != '*':
+                if status.date > int(time())-24000 and status.text != '*':
                     self.write(base64.b64decode(status.text))
                     self.db.close()
                     self.finish()

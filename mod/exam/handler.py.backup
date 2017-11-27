@@ -128,7 +128,7 @@ class ExamHandler(tornado.web.RequestHandler):
 				retjson['code'] = 408
 				retjson['content'] = 'time out'
 			else:
-				cookie = response.headers['Set-Cookie'].split(';')[0]#+";"+response.headers['Set-Cookie'].split(';')[1].split(',')[1]
+				cookie = response.headers['Set-Cookie'].split(';')[0]+";"+response.headers['Set-Cookie'].split(';')[1].split(',')[1]
 				img = Image.open(io.BytesIO(response.body))
 				vercode = self.recognize(img)
 				params = urllib.urlencode({
@@ -210,3 +210,4 @@ class ExamHandler(tornado.web.RequestHandler):
 
 			result = result + str(max_match)
 		return result
+
