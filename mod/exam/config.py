@@ -7,7 +7,7 @@ CHECK_URL = "http://my.seu.edu.cn/userPasswordValidate.portal"
 INDEX_URL = "http://mynew.seu.edu.cn/index.portal"
 FIRST_URL = "http://my.seu.edu.cn/index.portal?.pn=p691_p1184"
 DETAIL_URL = "http://my.seu.edu.cn/index.portal?.p=Znxjb20ud2lzY29tLnBvcnRhbC5zaXRlLnYyLmltcGwuRnJhZ21lbnRXaW5kb3d8ZjE0MjJ8dmlld3xub3JtYWx8YWN0aW9uPXF1ZXJ5RXhhbVBsYW5CeVN0dQ__&xnxqSelect=15-16-2"
-TIME_OUT = 600
+TIME_OUT = 1000
 VERCODE_URL = "http://xk.urp.seu.edu.cn/studentService/getCheckCode"
 LOGIN_URL = "http://xk.urp.seu.edu.cn/studentService/system/login.action"
 INFO_URL = "http://xk.urp.seu.edu.cn/studentService/cs/stuServe/runQueryExamPlanAction.action"
