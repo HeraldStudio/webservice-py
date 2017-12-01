@@ -3,12 +3,12 @@
 ## @Author  : yml_bright@163.com
 
 
-PE_LOGIN_URL = "http://223.3.65.228/student/studentFrame.jsp"
-PE_PC_URL = "http://223.3.65.228/student/queryCheckInfo.jsp"
+PE_LOGIN_URL = "http://121.248.63.146/student/studentFrame.jsp"
+PE_PC_URL = "http://121.248.63.146/student/queryCheckInfo.jsp"
 
 CONNECT_TIME_OUT = 3
 
-API_SERVER_HOST = '223.3.65.228'
+API_SERVER_HOST = '121.248.63.146'
 API_SERVER_PORT = 10086
 API_SERVER_KEY = '1d10fbf11874589e0'
 
