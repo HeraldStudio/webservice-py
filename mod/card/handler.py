@@ -117,7 +117,7 @@ class CARDHandler(tornado.web.RequestHandler):
                         request_timeout=TIME_OUT
                     )
                     response = yield tornado.gen.Task(client.fetch, request)
-                    soup = BeautifulSoup(response.body)
+                    soup = BeautifulSoup(response.body.decode('gb2312','ignore'))
                     tr = soup.findAll('tr',{"class": re.compile("listbg")})
                     detail=[]
                     for td in tr:
@@ -158,7 +158,7 @@ class CARDHandler(tornado.web.RequestHandler):
                         body=urllib.urlencode(data),
                         request_timeout=TIME_OUT)
                     response = yield tornado.gen.Task(client.fetch, request)
-                    soup = BeautifulSoup(response.body)
+                    soup = BeautifulSoup(response.body.decode('gb2312','ignore'))
                     __continue = soup.findAll('form',{'id':'accounthisTrjn2'})[0]['action']
                     request = HTTPRequest(
                         INDEX_URL+__continue,
@@ -167,7 +167,7 @@ class CARDHandler(tornado.web.RequestHandler):
                         body=urllib.urlencode(data),
                         request_timeout=TIME_OUT)
                     response = yield tornado.gen.Task(client.fetch, request)
-                    soup = BeautifulSoup(response.body)
+                    soup = BeautifulSoup(response.body.decode('gb2312','ignore'))
                     __continue = 'accounthisTrjn3.action'
                     request = HTTPRequest(
                         INDEX_URL+__continue,
@@ -176,7 +176,7 @@ class CARDHandler(tornado.web.RequestHandler):
                         body=urllib.urlencode(data),
                         request_timeout=TIME_OUT)
                     response = yield tornado.gen.Task(client.fetch, request)
-                    soup = BeautifulSoup(response.body)
+                    soup = BeautifulSoup(response.body.decode('gb2312','ignore'))
                     detial = []
                     count = 0
                     while 1:
@@ -203,7 +203,7 @@ class CARDHandler(tornado.web.RequestHandler):
                             body=urllib.urlencode(data),
                             request_timeout=TIME_OUT)
                         response = yield tornado.gen.Task(client.fetch, request)
-                        soup = BeautifulSoup(response.body)
+                        soup = BeautifulSoup(response.body.decode('gb2312','ignore'))
                     retjson['content'] = {'state':cardState, 'left': cardLetf, 'cardLeft':cardLetf, 'detail':detial, 'detial': detial}
             else:
                 retjson['code'] = 401
