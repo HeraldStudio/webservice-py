@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# File              : handler.py
+# Author            : higuoxing <higuoxing@outlook.com>
+# Date              : 27.12.2017
+# Last Modified Date: 27.12.2017
+# Last Modified By  : higuoxing <higuoxing@outlook.com>
 # -*- coding: utf-8 -*-
 # @Date    : 2015-03-19 16 16:34:57
 # @Author  : yml_bright@163.com
@@ -10,6 +17,7 @@ from sqlalchemy.orm.exc import NoResultFound
 import tornado.web
 import tornado.gen
 import urllib, json
+import time
 from ..auth.handler import authApi
 from sqlalchemy import func, or_, not_
 
@@ -32,14 +40,31 @@ class UserHandler(tornado.web.RequestHandler):
         retjson = {'code':500, 'content':''}
 
         try:
+            now = int(time.time())
             user = self.db.query(UserDetail).filter(_number == UserDetail.cardnum).one()
-            retjson['code'] = 200
-            retjson['content'] = {
-                'cardnum': user.cardnum,
-                'schoolnum': user.schoolnum,
-                'name': user.name,
-                'sex': user.sex,
-            }
+            if ((user.last_update != None) and (now - user.last_update) < 60*60*2):
+                # 存在缓存且缓存日期很新
+                retjson['code'] = 200
+                retjson['content'] = {
+                        'cardnum': user.cardnum,
+                        'schoolnum': user.schoolnum,
+                        'name': user.name,
+                        'sex': user.sex,
+                        }
+            else:
+                # 兼容老版本不存在last_update字段
+                # 更新缓存
+                user.name, user.schoolnum, user.cardnum = self.get_schoolnum_name(_number)
+                user.last_update = int(time.time())
+                retjson['code'] = 200
+                retjson['content'] = {
+                        'cardnum': user.cardnum,
+                        'schoolnum': user.schoolnum,
+                        'name': user.name,
+                        'sex': user.sex,
+                        }
+                self.db.add(user)
+                self.db.commit()
             self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
             self.finish()
             return
@@ -47,17 +72,20 @@ class UserHandler(tornado.web.RequestHandler):
             pass
 
 
-        _name, _schoolnum, _cardnum = self.get_schoolnum_name(_number)
-        retjson['content']= {
-            'schoolnum': _schoolnum,
-            'cardnum': _cardnum,
-            'name': _name
-        }
-
-        user_detail = UserDetail(schoolnum = _schoolnum,  cardnum= _cardnum, name = _name)
-        self.db.add(user_detail)
-        self.db.commit();
-
+        _user = self.get_schoolnum_name(_number)
+        if (_user != "-1"):
+            _name, _schoolnum, _cardnum = _user
+            retjson['content']= {
+                    'schoolnum': _schoolnum,
+                    'cardnum': _cardnum,
+                    'name': _name
+                    }
+            retjson['code'] =200
+            user_detail = UserDetail(schoolnum = _schoolnum,  cardnum= _cardnum, name = _name, last_update = int(time.time()))
+            self.db.add(user_detail)
+            self.db.commit();
+        else:
+            pass
         self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
         return
@@ -71,10 +99,10 @@ class UserHandler(tornado.web.RequestHandler):
                 'queryAcademicYear': term})
             client = HTTPClient()
             request = HTTPRequest(
-                CURR_URL,
-                method='POST',
-                body=params,
-                request_timeout=TIME_OUT)
+                    CURR_URL,
+                    method='POST',
+                    body=params,
+                    request_timeout=TIME_OUT)
             response = client.fetch(request)
             body = response.body
             if not body:
