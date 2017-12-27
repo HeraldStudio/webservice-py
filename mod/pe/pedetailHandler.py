@@ -114,7 +114,9 @@ class pedetailHandler(tornado.web.RequestHandler):
                     loginurl1,
                     method='POST',
                     body = urllib.urlencode(data1),
-                    follow_redirects=False
+                    follow_redirects=False,
+                    connect_timeout=2,
+                    request_timeout=3
                 )
                 initcookie = ''
                 try:
@@ -135,7 +137,9 @@ class pedetailHandler(tornado.web.RequestHandler):
                 request = HTTPRequest(
                     runurl,
                     method='GET',
-                    headers = header
+                    headers = header,
+                    connect_timeout=2,
+                    request_timeout=3
                 )
                 
                 response = yield client.fetch(request)
@@ -145,6 +149,7 @@ class pedetailHandler(tornado.web.RequestHandler):
                 request = HTTPRequest(
                     getpeurl,
                     headers = header,
+                    connect_timeout=2,
                     request_timeout=8
                     )
                 response = yield client.fetch(request)

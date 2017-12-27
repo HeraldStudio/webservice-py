@@ -181,3 +181,6 @@ local.properties
 
 # Code Recommenders
 .recommenders/
+
+# 体育系配置
+mod/pe/config.py

@@ -8,6 +8,7 @@ import tornado.web
 import tornado.gen
 import json
 
+cached_term = None
 
 class TermHandler(tornado.web.RequestHandler):
 
@@ -17,6 +18,13 @@ class TermHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     @tornado.gen.engine
     def post(self):
+        global cached_term
+        if cached_term is not None:
+            retjson = {'code':200, 'content':cached_term}
+            self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
+            self.finish()
+            return
+
         client = AsyncHTTPClient()
         request = HTTPRequest(TERM_URL, request_timeout=TIME_OUT)
         response = yield tornado.gen.Task(client.fetch, request)
@@ -29,5 +37,6 @@ class TermHandler(tornado.web.RequestHandler):
             soup = BeautifulSoup(body)
             option = soup.findAll('option')
             retjson['content'] = [term.text for term in option]
+            cached_term = retjson['content']
             self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
