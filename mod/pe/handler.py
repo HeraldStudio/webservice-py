@@ -16,7 +16,7 @@ import random
 import json,socket,base64,traceback
 from sqlalchemy.orm.exc import NoResultFound
 from time import time, localtime, strftime,mktime,strptime
-import datetime
+from datetime import datetime, timedelta, date
 import functools
 from concurrent.futures import ThreadPoolExecutor
 from tornado.concurrent import run_on_executor
@@ -123,6 +123,24 @@ class PEHandler(tornado.web.RequestHandler):
             return -1
 
     def get_remain_day(self):
+        def weekends_between(start, end):
+            days_between = (end - start).days
+            weekends, leftover = divmod(days_between, 7)
+            if leftover:
+                start_day = (end-timedelta(leftover)).isoweekday()
+                end_day = start_day + leftover
+                if start_day <= 6 and end_day > 6:
+                    weekends += .5
+                if start_day <= 7 and end_day > 7:
+                    weekends += .5
+            return weekends
+        
+        now = datetime.now()
+        current_day = date(now.year, now.month, now.day)
+        final = final_day + timedelta(days=1)
+        return (final - current_day).days - weekends_between(current_day, final)*2
+        
+        """
         finay_day_strp = strptime(finay_day,"%Y-%m-%d")
         final = datetime.datetime(finay_day_strp[0],finay_day_strp[1],finay_day_strp[2])
         current_day_strp = strptime(strftime('%Y-%m-%d', localtime(time())),"%Y-%m-%d")
@@ -138,6 +156,7 @@ class PEHandler(tornado.web.RequestHandler):
         if current_date<=6:
             workday_count = workday_count-1
         return workday_count if workday_count > 0  else 0
+        """
 #体测信息
 class ticeInfoHandler(tornado.web.RequestHandler):
     @property
@@ -160,7 +179,7 @@ class ticeInfoHandler(tornado.web.RequestHandler):
             #read from cache
             try:
                 status = self.db.query(TiceCache).filter(TiceCache.cardnum == cardnum).one()
-                if status.date > int(time()-1000000) and status.text != '*':
+                if status.date > int(time()-30000) and status.text != '*':
                     self.write(base64.b64decode(status.text))
                     self.finish()
                     return
