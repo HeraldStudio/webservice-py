@@ -135,9 +135,19 @@ class PEHandler(tornado.web.RequestHandler):
                     weekends += .5
             return weekends
         
+        final = final_day + timedelta(days=1)
         now = datetime.now()
         current_day = date(now.year, now.month, now.day)
-        final = final_day + timedelta(days=1)
+        """
+        如果超过八点，按后天计算
+        """
+        if now.hour > 8:
+            current_day = current_day + timedelta(days=1)
+        else:
+            pass
+        """
+        跑操最后一次操的那天-今天-所有之间的双休日
+        """
         return (final - current_day).days - weekends_between(current_day, final)*2
         
         """
