@@ -149,6 +149,8 @@ class PEHandler(tornado.web.RequestHandler):
         跑操最后一次操的那天-今天-所有之间的双休日
         """
         remain_days = int((final - current_day).days - weekends_between(current_day, final)*2)
+        if (remain_days <= 0):
+            remain_days = 0
         return remain_days
         
         """
