@@ -55,6 +55,7 @@ emptyroom configs
 """
 lecture configs
 """
+lectureCacheTime = 3 * 24 * 60 * 60
 
 """
 models configs

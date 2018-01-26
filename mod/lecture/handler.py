@@ -3,6 +3,7 @@
 # @Date    : 2014-10-26 12:46:36
 # @Author  : yml_bright@163.com
 
+from .._config import lectureCacheTime
 from config import *
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
 from BeautifulSoup import BeautifulSoup
@@ -37,7 +38,7 @@ class LectureHandler(tornado.web.RequestHandler):
         # read from cache
         try:
             status = self.db.query(LectureCache).filter( LectureCache.cardnum ==  cardnum ).one()
-            if status.date > int(time()) - 3600 * 24 * 3 and status.text != '*':
+            if status.date > int(time()) - lectureCacheTime and status.text != '*':
                 self.write(base64.b64decode(status.text))
                 self.db.close()
                 self.finish()
@@ -110,8 +111,8 @@ class LectureHandler(tornado.web.RequestHandler):
             else:
                 retjson['code'] = 401
                 retjson['content'] = 'wrong card number or password'
-        except Exception,e:
-            # print str(e)
+        except Exception as e:
+            print e
             retjson['code'] = 500
             retjson['content'] = 'error'
             if status.text!='*':
