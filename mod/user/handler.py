@@ -1,14 +1,8 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# File              : handler.py
-# Author            : higuoxing <higuoxing@outlook.com>
-# Date              : 27.12.2017
-# Last Modified Date: 27.12.2017
-# Last Modified By  : higuoxing <higuoxing@outlook.com>
 # -*- coding: utf-8 -*-
 # @Date    : 2015-03-19 16 16:34:57
 # @Author  : yml_bright@163.com
 
+from .._config import userCacheTime
 from config import *
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient,HTTPClient
 from ..models.user_detail import UserDetail
@@ -42,7 +36,7 @@ class UserHandler(tornado.web.RequestHandler):
         try:
             now = int(time.time())
             user = self.db.query(UserDetail).filter(_number == UserDetail.cardnum).one()
-            if ((user.last_update != None) and (now - user.last_update) < 60*60*2):
+            if ((user.last_update != None) and (now - user.last_update) < userCacheTime):
                 # 存在缓存且缓存日期很新
                 retjson['code'] = 200
                 retjson['content'] = {

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # @Date    : 2014-06-27 14:36:45
 # @Author  : xindervella@gamil.com yml_bright@163.com
+
+from .._config import srtpCacheTime
 import base64
 from sqlalchemy.orm.exc import NoResultFound
 from config import SRTP_URL, TIME_OUT
@@ -40,7 +42,7 @@ class SRTPHandler(tornado.web.RequestHandler):
             #read from cache
             try:
                 status = self.db.query(SRTPCache).filter(SRTPCache.cardnum == number).one()
-                if status.date > int(time())-129600 and status.text != '*':
+                if status.date > int(time())-srtpCacheTime and status.text != '*':
                         self.write(base64.b64decode(status.text))
                         self.finish()
                         return

@@ -3,6 +3,7 @@
 # @Date    : 2014-10-26 12:46:36
 # @Author  : yml_bright@163.com
 
+from .._config import phylabCacheTime
 from config import *
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient,HTTPClient
 from BeautifulSoup import BeautifulSoup
@@ -40,7 +41,7 @@ class PhylabHandler(tornado.web.RequestHandler):
             # read from cache
             try:
                 status = self.db.query(PhylabCache).filter( PhylabCache.cardnum ==  number ).one()
-                if status.date > int(time())-24000 and status.text != '*':
+                if status.date > int(time())-phylabCacheTime and status.text != '*':
                     self.write(base64.b64decode(status.text))
                     self.db.close()
                     self.finish()

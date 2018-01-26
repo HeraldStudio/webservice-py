@@ -3,6 +3,7 @@
 # @Date    : 2014-12-12 18:17:20
 # @Author  : yml_bright@163.com
 
+from .._config import jwcCacheTime
 from BeautifulSoup import BeautifulSoup
 from config import JWC_URL, TIME_OUT
 from tornado.httpclient import HTTPRequest, HTTPClient
@@ -28,7 +29,7 @@ class JWCHandler(tornado.web.RequestHandler):
     def post(self):
         retjson = {'code':200, 'content':''}
         try:
-            status = self.db.query(JWCCache).filter( JWCCache.date > int(time())-14000).order_by(JWCCache.date.desc()).all()
+            status = self.db.query(JWCCache).filter( JWCCache.date > int(time())-jwcCacheTime).order_by(JWCCache.date.desc()).all()
 	    if len(status) == 0:
 		raise NoResultFound
 	    status = status[0]

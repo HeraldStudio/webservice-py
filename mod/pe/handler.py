@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # @Date    : 2014-06-25 15:43:36
 # @Author  : yml_bright@163.com
+
+from .._config import *
 from config import *
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
 from tornado.tcpclient import TCPClient
@@ -135,7 +137,7 @@ class PEHandler(tornado.web.RequestHandler):
                     weekends += .5
             return weekends
         
-        final = final_day + timedelta(days=1)
+        final = end_date + timedelta(days=1)
         now = datetime.now()
         current_day = date(now.year, now.month, now.day)
         """

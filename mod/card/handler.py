@@ -3,6 +3,7 @@
 # @Date    : 2014-10-26 12:46:36
 # @Author  : yml_bright@163.com
 
+from .._config import cardCacheTime
 from config import *
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
 from BeautifulSoup import BeautifulSoup
@@ -46,7 +47,7 @@ class CARDHandler(tornado.web.RequestHandler):
         # read from cache
         try:
             status = self.db.query(CardCache).filter( CardCache.cardnum ==  cardnum_with_delta ).one()
-            if status.date > int(time())-60 and status.text != '*':
+            if status.date > int(time())-cardCacheTime and status.text != '*':
                 self.write(base64.b64decode(status.text))
                 self.db.close()
                 self.finish()

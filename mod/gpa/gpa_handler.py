@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # @Date    : 2014-06-26 17:00:02
 # @Author  : xindervella@gamil.com yml_bright@163.com
+
+from .._config import gpaCacheTime
 from config import VERCODE_URL, LOGIN_URL, INFO_URL
 from config import STANDARD, TIME_OUT
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
@@ -43,7 +45,7 @@ class GPAHandler(tornado.web.RequestHandler):
             # read from cache
             try:
                 status = self.db.query(GpaCache).filter(GpaCache.cardnum == username).one()
-                if status.date > int(time())-3600 and status.text != '*':
+                if status.date > int(time())-gpaCacheTime and status.text != '*':
                     self.write(base64.b64decode(status.text))
                     self.finish()
                     return
