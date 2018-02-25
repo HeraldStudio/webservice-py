@@ -9,8 +9,9 @@
 
 from datetime import date
 
-start_date = date(2017, 8, 22)
-end_date = date(2018, 1, 12)
+start_date = date(2018, 2, 26)
+end_date   = date(2018, 6, 15)
+term       = '17-18-3'
 
 """
 auth configs

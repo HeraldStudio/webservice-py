@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 # @Date    : 2014-06-26 13:57:44
-# @Author  : xindervella@gamil.com yml_bright@163.com
+#Author  : xindervella@gamil.com yml_bright@163.com
+
+from .._config import start_date
+from .._config import term as default_term
 from BeautifulSoup import BeautifulSoup
 from config import CURR_URL, TIME_OUT,TERM_URL,JWC_URL
 from tornado.httpclient import HTTPRequest, AsyncHTTPClient
@@ -14,7 +17,6 @@ import urllib
 import json
 import re,sys,traceback
 
-
 class CurriculumHandler(tornado.web.RequestHandler):
 
     def get(self):
@@ -24,11 +26,12 @@ class CurriculumHandler(tornado.web.RequestHandler):
         return self.application.db
     def on_finish(self):
         self.db.close()
+
     @tornado.web.asynchronous
     @tornado.gen.engine
     def post(self):
         cardnum = self.get_argument('cardnum', default=None)
-        term = self.get_argument('term', default=None)
+        term = self.get_argument('term', default=default_term)
         retjson = {'code':200, 'content':'','week':'','term':term}
         if not (cardnum and term):
             retjson['code'] = 400
@@ -52,6 +55,7 @@ class CurriculumHandler(tornado.web.RequestHandler):
                     retjson['content'] = 'time out'
                 else:
                     pat = re.compile(ur'没有找到该学生信息', re.U)
+
                     match = pat.search(body)
                     if match:
                         retjson['code'] = 401
@@ -60,28 +64,32 @@ class CurriculumHandler(tornado.web.RequestHandler):
                         retjson['content'] = self.parser(body)
                         retjson['sidebar'] = self.sidebarparser(body)
                         
-                        url = "http://58.192.114.179/classroom/common/gettermlistex"
-                        client = AsyncHTTPClient()
-                        request = HTTPRequest(
-                            url = url, 
-                            method = "GET",
-                            request_timeout=3
-                        )
-                        response = yield tornado.gen.Task(client.fetch, request)
-                        content = json.loads(response.body)
-                        termTemp = term.split('-')
-                        term = "20"+termTemp[0]+"-"+"20"+termTemp[1]+"-"+termTemp[2]
-                        retjson['content']['startdate']={}
-                        for i in content:
-                            if i['code'] == term:
-                                retjson['content']['startdate']['month'] = i['startDate']['month']
-                                retjson['content']['startdate']['day'] = i['startDate']['date']
-                                break
+                        #url = "http://58.192.114.179/classroom/common/gettermlistex"
+                        #client = AsyncHTTPClient()
+                        #request = HTTPRequest(
+                        #    url = url, 
+                        #    method = "GET",
+                        #    request_timeout=3
+                        #)
+                        #response = yield tornado.gen.Task(client.fetch, request)
+                        #content = json.loads(response.body)
+                        #termTemp = term.split('-')
+                        #term = "20"+termTemp[0]+"-"+"20"+termTemp[1]+"-"+termTemp[2]
+                        term = "2017-2018-3"
+                        retjson['content']['startdate']={
+                            'month': start_date.month - 1,
+                            'day'  : start_date.day
+                        }
+                        # for i in content:
+                        #     if i['code'] == term:
+                        #         retjson['content']['startdate']['month'] = i['startDate']['month']
+                        #         retjson['content']['startdate']['day'] = i['startDate']['date']
+                        #         break
 
             except Exception,e:
                 retjson['code'] = 500
+                print traceback.print_exc()
                 retjson['content'] = str(e)
-                #traceback.print_exc()
         self.write(json.dumps(retjson, ensure_ascii=False, indent=2))
         self.finish()
 
