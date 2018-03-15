@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-# modified from old listhandler.py 
-# by yml_bright@163.com
 
 from config import *
 import re
@@ -25,70 +23,71 @@ class LibListHandler(tornado.web.RequestHandler):
         self.db.close()
 
     def get(self):
-        self.write('herald web service')
+        self.write('herald webservice')
 
     @tornado.web.asynchronous
     @tornado.gen.engine
     def post(self):
-
-        cardnum = self.get_argument('cardnum')
+        cardnum = self.get_argument('cardnum', default=None)
+        password = self.get_argument('password', default=None)
         retjson = {'code': 200, 'content': ''}
-        if not cardnum:
+        status = None
+        if not (cardnum and password):
             retjson['code'] = 400
-            retjson['content'] = u'parameters lack'
+            retjson['content'] = 'parameters lack'
         else:
-            try:
-                status = self.db.query(LibraryAuthCache).filter(LibraryAuthCache.cardnum == cardnum).one()
-                if (status.cookie != '*'):
-                    cookie = status.cookie
-                else:
-                    retjson['code'] = 401
-                    retjson['content'] = u'auth error'
-            except Exception as e:
-                retjson['code'] = 500
-                retjson['content'] = u'error'
+            # 直接从数据库读取cookie，不做try的尝试
+            status = self.db.query(LibraryAuthCache).filter(LibraryAuthCache.cardnum == cardnum).one()
+            cookie = status.cookie
             try:
                 client = AsyncHTTPClient()
+                request = HTTPRequest (
+                    CAPTCHA_CRACK_URL,
+                    method='GET',
+                    request_timeout=TIME_OUT
+                )
+                response = yield tornado.gen.Task(client.fetch, request)
+                crack = json.loads(response.body)
+                captcha = crack['captcha']
+                cookies = crack['cookies']
+                form_data = {
+                    'number': cardnum,
+                    'passwd': password,
+                    'captcha': captcha,
+                    'select': 'cert_no'
+                }
                 request = HTTPRequest(
                     LOGIN_URL,
-                    method='GET',
-                    headers={'Cookie': cookie},
+                    method='POST',
+                    headers={'Cookie': cookies},
+                    body=urllib.urlencode(form_data),
                     request_timeout=TIME_OUT
                     )
                 response = yield tornado.gen.Task(client.fetch, request)
                 soup = BeautifulSoup(response.body, 'html.parser')
                 name = soup.findAll('font')[0].text
                 if name:
-                    request = HTTPRequest(
-                        LIST_URL,
-                        method='GET',
-                        headers={'Cookie': cookie},
-                        request_timeout=TIME_OUT
-                        )
-                    response = yield tornado.gen.Task(client.fetch, request)
-                    soup = BeautifulSoup(response.body, 'html.parser')
-                    td = soup.findAll('td', {'class': 'whitetext'})
-                    ret = []
-                    
-                    for i in range(0, len(td), 8):
-                        info = td[i+1].text.split('/')
-                        book = {
-                            'barcode': td[i].text,
-                            'title': info[0],
-                            'author': info[1],
-                            'render_date': td[i+2].text,
-                            'due_date': td[i+3].text,
-                            'renew_time': td[i+4].text,
-                            'place': td[i+5].text
-                        }
-                        ret.append(book)
-                    retjson['content'] = ret
+                    retjson['code'] = 200
+                    retjson['content'] = 'auth success'
                 else:
                     retjson['code'] = 401
-                    retjson['content'] = u'auth error'
+                    retjson['content'] = 'auth error'
             except Exception as e:
                 retjson['code'] = 500
-                retjson['content'] = u'error'
+                retjson['content'] = 'error'
         ret = json.dumps(retjson, ensure_ascii=False, indent=2)
         self.write(ret)
         self.finish()
+
+        # refresh cache
+        if (retjson['code'] == 200):
+            status.password = password
+            status.captcha = captcha
+            status.date = int(time())
+            self.db.add(status)
+            try:
+                self.db.commit()
+            except Exception as e:
+                self.db.rollback()
+            finally:
+                self.db.remove()

@@ -21,7 +21,9 @@ class AuthHandler(tornado.web.RequestHandler):
         if(result['code']==200):
             self.write(result['content'])
             self.finish()
-        raise tornado.web.HTTPError(401)
+        elif (result['code']==401):
+            raise tornado.web.HTTPError(401)
+        raise tornado.web.HTTPError(500)
 
 '''
 def authApi(username,password):
@@ -51,8 +53,11 @@ def authApi(username,password):
             result['content'] = cookie
         else:
             result['code'] = 400
-    except HTTPError:
-        result['code'] = 400
+    except HTTPError as e:
+        if e.code == 401:
+          result['code'] = 401
+        else:
+          result['code'] = 500
     except Exception,e:
         result['code'] = 500
     return result

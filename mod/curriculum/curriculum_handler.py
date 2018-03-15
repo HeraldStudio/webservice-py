@@ -75,7 +75,6 @@ class CurriculumHandler(tornado.web.RequestHandler):
                         #content = json.loads(response.body)
                         #termTemp = term.split('-')
                         #term = "20"+termTemp[0]+"-"+"20"+termTemp[1]+"-"+termTemp[2]
-                        term = "2017-2018-3"
                         retjson['content']['startdate']={
                             'month': start_date.month - 1,
                             'day'  : start_date.day
